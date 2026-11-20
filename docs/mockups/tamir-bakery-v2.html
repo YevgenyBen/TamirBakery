@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>מאפיית תמיר · תצוגה מקדימה v2</title>
+<!-- Mockup v2, built from docs/DESIGN.md. Single file: open in a browser. Placeholder photos, sample prices and orders. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Heebo:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<style>
+/* ===== Tokens (docs/DESIGN.md §10) ===== */
+:root{
+  --bg:#FBF6EE; --surface:#FFFFFF; --sunk:#F3EADC;
+  --fg:#2E1F16; --muted:#6B5646; --line:#E3D3BE; --field:#9A8470;
+  --primary:#92400E; --on-primary:#FFFFFF; --primary-soft:#F8E6D2;
+  --berry:#A3264F; --berry-soft:#F9E3EA;
+  --leaf:#476328; --leaf-soft:#E6EED8;
+  --warn:#855400; --warn-soft:#FBEFD3;
+  --bad:#A12A1C; --bad-soft:#FBE3DE;
+  --ph-s:52%; --ph-l1:85%; --ph-l2:75%; --ph-ink:rgb(46 31 22/.18);
+  --f-display:"Frank Ruhl Libre",Georgia,serif;
+  --f-body:"Heebo","Assistant","Segoe UI",Arial,sans-serif;
+  --t-xs:.875rem; --t-sm:.9375rem; --t-base:1rem; --t-lg:1.125rem; --t-h3:1.25rem;
+  --t-h2:clamp(1.5rem,1.2rem + 1.2vw,1.875rem);
+  --t-h1:clamp(1.875rem,1.4rem + 2vw,2.5rem);
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:24px; --s-6:32px; --s-7:48px; --s-8:64px;
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-pill:999px;
+  --shadow-1:0 1px 2px rgb(46 31 22/.06),0 4px 14px rgb(46 31 22/.06);
+  --shadow-2:0 2px 4px rgb(46 31 22/.08),0 12px 32px rgb(46 31 22/.10);
+  --dur-fast:150ms; --dur-base:200ms; --dur-slow:250ms;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1A1310; --surface:#241B16; --sunk:#2E241D;
+  --fg:#F6ECE1; --muted:#CDB9A6; --line:#46382D; --field:#8C7765;
+  --primary:#F2A65E; --on-primary:#2A1406; --primary-soft:#45291A;
+  --berry:#F08DAD; --berry-soft:#4A2230;
+  --leaf:#AFCF8A; --leaf-soft:#2C3A20;
+  --warn:#F0C46A; --warn-soft:#3D2F12;
+  --bad:#F59C8E; --bad-soft:#47201A;
+  --ph-s:30%; --ph-l1:27%; --ph-l2:20%; --ph-ink:rgb(255 255 255/.14);
+  --shadow-1:none; --shadow-2:0 2px 8px rgb(0 0 0/.4);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#1A1310; --surface:#241B16; --sunk:#2E241D;
+  --fg:#F6ECE1; --muted:#CDB9A6; --line:#46382D; --field:#8C7765;
+  --primary:#F2A65E; --on-primary:#2A1406; --primary-soft:#45291A;
+  --berry:#F08DAD; --berry-soft:#4A2230;
+  --leaf:#AFCF8A; --leaf-soft:#2C3A20;
+  --warn:#F0C46A; --warn-soft:#3D2F12;
+  --bad:#F59C8E; --bad-soft:#47201A;
+  --ph-s:30%; --ph-l1:27%; --ph-l2:20%; --ph-ink:rgb(255 255 255/.14);
+  --shadow-1:none; --shadow-2:0 2px 8px rgb(0 0 0/.4);
+  color-scheme:dark;
+}
+
+/* ===== Base ===== */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 var(--t-base)/1.6 var(--f-body)}
+[hidden]{display:none!important}
+h1,h2,h3,h4{font-family:var(--f-display);font-weight:700;line-height:1.2;text-wrap:balance;margin:0}
+h1{font-size:var(--t-h1);line-height:1.15} h2{font-size:var(--t-h2);line-height:1.25} h3{font-size:var(--t-h3);font-weight:500;line-height:1.3}
+p{margin:0}
+small{font-size:var(--t-xs)}
+a{color:var(--primary);text-underline-offset:3px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px;border-radius:6px}
+.i{font-size:1.25em;line-height:1;flex:none;vertical-align:-.2em}
+[dir="rtl"] .flip{transform:scaleX(-1)}
+.ltr{direction:ltr;unicode-bidi:isolate}
+.tn{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.xs{font-size:var(--t-xs)} .sm{font-size:var(--t-sm)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:44rem;margin-inline:auto;padding-inline:max(16px,env(safe-area-inset-left,0px))}
+@media (min-width:760px){.wrap{padding-inline:24px}}
+@media (min-width:900px){.wrap{max-width:64rem}}
+@media (prefers-reduced-motion:no-preference){
+  a,button,.card,.card .photo,.tile,.opt,.field input,.field select,.field textarea{transition:background-color var(--dur-fast) ease-out,color var(--dur-fast) ease-out,border-color var(--dur-fast) ease-out,box-shadow var(--dur-fast) ease-out,transform var(--dur-slow) ease-out}
+}
+
+/* ===== Preview bar (mockup only) ===== */
+.pv{background:var(--sunk);border-bottom:1px solid var(--line);font-size:var(--t-xs);color:var(--muted)}
+.pv .wrap{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;justify-content:space-between;padding-block:6px}
+.pv nav{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}
+.pv a,.pv button{color:var(--fg);background:none;border:0;padding:6px 2px;min-height:32px;font-size:var(--t-xs);display:inline-flex;gap:4px;align-items:center;text-decoration:underline}
+.skip{position:absolute;inset-inline-start:8px;top:-80px;z-index:60;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:var(--r-sm)}
+.skip:focus{top:8px}
+
+/* ===== Header ===== */
+header.site{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);box-shadow:var(--shadow-1)}
+.hrow{display:flex;align-items:center;gap:12px;padding-block:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--fg);margin-inline-end:auto;min-height:44px}
+.mark{width:40px;height:40px;border-radius:50%;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;font:700 1.35rem/1 var(--f-display);flex:none}
+.brand b{font:700 1.3rem/1.1 var(--f-display)}
+.brand small{display:block;color:var(--muted);font-weight:400}
+.hact{display:flex;gap:8px;align-items:center}
+.pill-btn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:8px 14px;border-radius:var(--r-pill);border:1px solid var(--field);background:var(--surface);color:var(--fg);font-size:var(--t-sm);font-weight:500;text-decoration:none}
+.pill-btn:hover{background:var(--sunk)}
+.pill-btn.cart{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.pill-btn.cart:hover{background:color-mix(in srgb,var(--primary) 90%,#000)}
+.count{background:var(--on-primary);color:var(--primary);border-radius:var(--r-pill);min-width:22px;height:22px;display:inline-grid;place-items:center;font-size:var(--t-xs);font-weight:700;padding-inline:6px}
+nav.main{order:3;display:flex;gap:4px;align-items:center;overflow-x:auto;width:100%;padding-bottom:2px;scrollbar-width:none}
+nav.main a{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:8px 14px;border-radius:var(--r-pill);text-decoration:none;color:var(--muted);font-weight:500;white-space:nowrap}
+nav.main a:hover{color:var(--fg);background:var(--sunk)}
+nav.main a[aria-current="page"]{background:var(--primary-soft);color:var(--fg)}
+nav.main a[aria-current="page"] .i{color:var(--primary)}
+nav.main .a11y{margin-inline-start:auto;font-weight:400;font-size:var(--t-xs);text-decoration:underline;padding-inline:8px}
+@media (min-width:900px){
+  .hrow{flex-wrap:nowrap}
+  nav.main{order:0;width:auto;flex:1;justify-content:center}
+  .brand{margin-inline-end:0}
+}
+@media (max-width:479px){.brand b{font-size:1.15rem}.brand small{display:none}.mark{width:36px;height:36px}.hide-n{display:none}.pill-btn{padding-inline:12px}.hrow{gap:8px}}
+.banner{background:var(--warn-soft);color:var(--warn);font-size:var(--t-sm);font-weight:500}
+.banner .wrap{display:flex;gap:8px;align-items:center;padding-block:10px}
+
+/* ===== Layout ===== */
+main{padding-block:24px 56px;display:grid;gap:40px}
+@media (min-width:760px){main{gap:56px;padding-block:32px 72px}}
+main:focus{outline:none}
+section{display:grid;gap:16px;min-width:0}
+.sec-head{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap}
+.lede{color:var(--muted);font-size:var(--t-lg);max-width:62ch}
+.eyebrow{color:var(--primary);font-weight:500;font-size:var(--t-sm);display:inline-flex;gap:6px;align-items:center}
+.crumbs{font-size:var(--t-xs);color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.crumbs a{color:var(--muted)}
+.two{display:grid;gap:24px}
+@media (min-width:760px){.two{grid-template-columns:1fr 1fr;align-items:start;gap:32px}}
+
+/* ===== Photo placeholder ===== */
+.photo{position:relative;overflow:hidden;border-radius:var(--r-lg);aspect-ratio:4/3;display:grid;place-items:center;color:var(--ph-ink);
+  background:linear-gradient(135deg,hsl(var(--h,32) var(--ph-s) var(--ph-l1)),hsl(calc(var(--h,32) + 14) var(--ph-s) var(--ph-l2)))}
+.photo>.i{font-size:clamp(2.5rem,12vw,4.5rem)}
+.photo .cap{position:absolute;inset-inline-start:10px;bottom:10px;max-width:calc(100% - 20px);font-size:var(--t-xs);background:var(--surface);color:var(--muted);border-radius:var(--r-pill);padding:2px 10px}
+.photo.hero{aspect-ratio:5/4}
+.photo.sq{aspect-ratio:1}
+
+/* ===== Buttons ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 20px;border-radius:var(--r-pill);border:1px solid transparent;font-weight:500;text-decoration:none;background:none;color:var(--fg);line-height:1.2;text-align:center}
+.btn.pri{background:var(--primary);color:var(--on-primary)}
+.btn.pri:hover{background:color-mix(in srgb,var(--primary) 90%,#000)}
+.btn.sec{background:var(--surface);border-color:var(--field)}
+.btn.sec:hover{background:var(--sunk)}
+.btn.danger{background:var(--surface);border-color:var(--bad);color:var(--bad)}
+.btn.danger:hover{background:var(--bad-soft)}
+.btn.sm{padding:8px 16px;font-size:var(--t-sm)}
+.btn.block{width:100%}
+.btn:active{transform:translateY(1px)}
+.btn[disabled],.btn[aria-disabled="true"]{opacity:.5;cursor:not-allowed;transform:none}
+.link{background:none;border:0;padding:0;color:var(--primary);text-decoration:underline;text-underline-offset:3px;font-weight:500;display:inline-flex;gap:6px;align-items:center;min-height:24px}
+.ctas{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+/* ===== Chips & pills ===== */
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:var(--r-pill);padding:2px 10px;font-size:var(--t-xs);font-weight:500;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.chip .i{font-size:1.1em}
+.chip.ok{background:var(--leaf-soft);color:var(--leaf)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.new{background:var(--berry-soft);color:var(--berry)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.filters{display:flex;gap:8px;overflow-x:auto;padding:2px;margin:-2px;scrollbar-width:none}
+.filters button{flex:none;min-height:44px;padding:8px 16px;border-radius:var(--r-pill);border:1px solid var(--field);background:var(--surface);font-weight:500;white-space:nowrap}
+.filters button:hover{background:var(--sunk)}
+.filters button[aria-pressed="true"]{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+
+/* ===== Hero ===== */
+.hero{display:grid;gap:24px}
+.hero .copy{display:grid;gap:16px;align-content:center}
+@media (min-width:760px){.hero{grid-template-columns:1.05fr 1fr;align-items:center;gap:40px}}
+.facts{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:var(--t-sm);color:var(--muted)}
+.facts span{display:inline-flex;gap:6px;align-items:center}
+.facts .i{color:var(--primary)}
+
+/* ===== Steps ===== */
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))}
+.steps li{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-1);padding:16px;display:grid;gap:8px;align-content:start}
+.steps .n{width:32px;height:32px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center;font-weight:700}
+.steps b{font-weight:500}
+.steps p{color:var(--muted);font-size:var(--t-sm)}
+
+/* ===== Product cards ===== */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(15rem,1fr))}
+.card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-1);overflow:hidden;display:flex;flex-direction:column}
+.card .photo{border-radius:0}
+.card .body{padding:14px 16px 6px;display:grid;gap:8px;flex:1;align-content:start}
+.card h3{font-size:var(--t-lg)}
+.card h3 a{color:inherit;text-decoration:none}
+.card h3 a::after{content:"";position:absolute;inset:0;z-index:1}
+.card:hover h3{color:var(--primary)}
+@media (prefers-reduced-motion:no-preference){.card:hover .photo{transform:scale(1.03)}}
+.card .desc{color:var(--muted);font-size:var(--t-sm)}
+.card .foot{padding:8px 16px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.card .foot .btn,.card .foot .link{position:relative;z-index:2}
+.card .badge{position:absolute;top:10px;inset-inline-start:10px;z-index:2}
+.card.out .photo{filter:saturate(.6)}
+.price{font-weight:700;font-variant-numeric:tabular-nums}
+.price small{font-weight:400;color:var(--muted)}
+
+/* ===== Gallery, about, reviews ===== */
+.gallery{display:grid;gap:8px;grid-template-columns:repeat(3,1fr)}
+.gallery .photo{border-radius:var(--r-md)}
+.gallery .photo:first-child{grid-column:span 2;grid-row:span 2}
+@media (min-width:760px){.gallery{grid-template-columns:repeat(4,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-1);padding:20px;display:grid;gap:12px}
+.panel.soft{background:var(--sunk);box-shadow:none;border-color:transparent}
+.note{border:1.5px dashed var(--field);border-radius:var(--r-lg);padding:14px 16px;color:var(--muted);font-size:var(--t-sm);display:flex;gap:10px;align-items:flex-start}
+.note .i{color:var(--primary);margin-top:2px}
+.faqs{display:grid;gap:8px}
+details{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md)}
+summary{cursor:pointer;padding:12px 16px;font-weight:500;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary .i{color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){summary .i{transition:transform var(--dur-base) ease-out}}
+details[open] summary .i{transform:rotate(180deg)}
+details p{padding:0 16px 14px;color:var(--muted)}
+.list-icons{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.list-icons li{display:flex;gap:10px;align-items:flex-start}
+.list-icons .i{color:var(--primary);margin-top:3px}
+
+/* ===== Product page ===== */
+.pgal{display:grid;gap:8px;grid-template-columns:1fr 1fr}
+.pgal .photo:first-child{grid-column:span 2}
+.pinfo{display:grid;gap:20px}
+.bigprice{font:700 1.75rem/1.1 var(--f-display);font-variant-numeric:tabular-nums}
+.tiles{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(8.5rem,1fr))}
+.tile{border:1px solid var(--field);background:var(--surface);border-radius:var(--r-md);padding:10px 12px;min-height:44px;text-align:start;display:grid;gap:2px}
+.tile:hover{background:var(--sunk)}
+.tile small{color:var(--muted)}
+.tile[aria-pressed="true"]{border-color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary);background:var(--primary-soft)}
+.tile b{font-weight:500}
+
+/* ===== Forms ===== */
+.form{display:grid;gap:20px}
+fieldset{border:0;margin:0;padding:0;display:grid;gap:8px;min-width:0}
+legend{font-weight:700;padding:0;margin-bottom:8px}
+.field{display:grid;gap:6px;min-width:0}
+.field label,.lbl{font-weight:500;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.req{font-size:var(--t-xs);color:var(--muted);font-weight:400}
+.help{font-size:var(--t-sm);color:var(--muted)}
+.field input,.field select,.field textarea{width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--field);border-radius:var(--r-md);background:var(--surface);font-size:1rem}
+.field textarea{min-height:88px;resize:vertical}
+.field input:hover,.field textarea:hover,.field select:hover{border-color:var(--fg)}
+.field [aria-invalid="true"]{border-color:var(--bad);box-shadow:inset 0 0 0 1px var(--bad)}
+.err{color:var(--bad);font-size:var(--t-sm);font-weight:500;display:flex;gap:6px;align-items:center}
+.opts{display:grid;gap:8px}
+@media (min-width:520px){.opts.cols{grid-template-columns:1fr 1fr}}
+.opt{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--field);border-radius:var(--r-md);padding:12px 14px;cursor:pointer;min-height:44px}
+.opt:hover{background:var(--sunk)}
+.opt:has(input:checked){border-color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary);background:var(--primary-soft)}
+.opt input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--primary);flex:none}
+.opt span{display:grid;gap:2px}
+.opt small{color:var(--muted)}
+.check{display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+.check input{width:22px;height:22px;margin:1px 0 0;accent-color:var(--primary);flex:none}
+.privacy{font-size:var(--t-sm);color:var(--muted);background:var(--sunk);border-radius:var(--r-md);padding:12px 14px}
+.errsum{border:2px solid var(--bad);background:var(--bad-soft);color:var(--bad);border-radius:var(--r-md);padding:12px 14px;display:grid;gap:6px}
+.errsum b{display:flex;gap:6px;align-items:center}
+.errsum ul{margin:0;padding-inline-start:20px}
+.errsum a{color:var(--bad)}
+
+/* ===== Cart ===== */
+.lines{display:grid}
+.line{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;padding-block:14px;border-bottom:1px solid var(--line)}
+.line .photo{border-radius:var(--r-md);aspect-ratio:1}
+.line .photo>.i{font-size:1.6rem}
+.line .what{min-width:0;display:grid;gap:4px}
+.qty{display:flex;align-items:center;gap:4px}
+.qty button{width:44px;height:44px;border-radius:50%;border:1px solid var(--field);background:var(--surface);display:grid;place-items:center}
+.qty button:hover{background:var(--sunk)}
+.qty output{min-width:2ch;text-align:center;font-weight:700}
+.sum{display:grid;gap:8px}
+.sum div{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums}
+.sum .total{font-weight:700;font-size:var(--t-lg);border-top:1px solid var(--line);padding-top:10px}
+@media (min-width:900px){.checkout{grid-template-columns:1.3fr 1fr}.checkout aside{position:sticky;top:120px}}
+
+/* ===== Confirmation ===== */
+.refbox{display:grid;gap:14px}
+.ref{font:700 1.9rem/1 var(--f-body);letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.copyrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;background:var(--sunk);border-radius:var(--r-md);flex-wrap:wrap}
+.timeline{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.timeline li{display:grid;grid-template-columns:32px 1fr;gap:12px;padding-bottom:16px;position:relative}
+.timeline li::before{content:"";position:absolute;inset-inline-start:15px;top:32px;bottom:0;width:2px;background:var(--line)}
+.timeline li:last-child::before{display:none}
+.timeline .dot{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--sunk);color:var(--muted)}
+.timeline .done .dot{background:var(--leaf-soft);color:var(--leaf)}
+.timeline .now .dot{background:var(--primary);color:var(--on-primary)}
+
+/* ===== Footer ===== */
+footer.site{background:var(--surface);border-top:1px solid var(--line);color:var(--muted);font-size:var(--t-sm)}
+footer .wrap{padding-block:32px;display:grid;gap:24px}
+@media (min-width:760px){footer .wrap{grid-template-columns:1.4fr 1fr 1fr}}
+footer h2{font-size:var(--t-lg);color:var(--fg);margin-bottom:8px}
+footer ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+footer a{color:var(--fg);display:inline-flex;gap:6px;align-items:center;min-height:32px}
+footer .legal{grid-column:1/-1;border-top:1px solid var(--line);padding-top:16px;font-size:var(--t-xs)}
+
+/* ===== Toast ===== */
+.toast{position:fixed;inset-inline:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;z-index:50;pointer-events:none;padding-inline:16px}
+.toast div{background:var(--fg);color:var(--bg);border-radius:var(--r-pill);padding:10px 18px;font-size:var(--t-sm);box-shadow:var(--shadow-2);display:flex;gap:8px;align-items:center}
+@media (prefers-reduced-motion:no-preference){.toast div{animation:up var(--dur-base) ease-out}@keyframes up{from{transform:translateY(12px);opacity:0}}}
+
+/* ===== Admin ===== */
+.achrome{background:var(--fg);color:var(--bg)}
+.achrome .brand{color:var(--bg)}
+.achrome .mark{background:var(--bg);color:var(--fg)}
+.achrome .pill-btn{background:transparent;color:var(--bg);border-color:color-mix(in srgb,var(--bg) 45%,transparent)}
+.achrome .pill-btn:hover{background:color-mix(in srgb,var(--bg) 12%,transparent)}
+.anav{display:flex;gap:4px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none}
+.anav a{display:inline-flex;gap:6px;align-items:center;min-height:40px;padding:8px 14px;border-radius:var(--r-pill);color:color-mix(in srgb,var(--bg) 78%,transparent);text-decoration:none;font-weight:500;white-space:nowrap}
+.anav a[aria-current="page"]{background:var(--bg);color:var(--fg)}
+.stats{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr))}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;display:grid;gap:2px}
+.stat b{font:700 1.5rem/1.1 var(--f-body);font-variant-numeric:tabular-nums}
+.rows{display:grid;gap:10px}
+.row{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;display:grid;gap:10px;min-width:0}
+.row .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.row .who{display:grid;gap:2px;min-width:0}
+.row .meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:var(--t-sm);color:var(--muted)}
+.row .meta span{display:inline-flex;gap:4px;align-items:center}
+.row .detail{border-top:1px dashed var(--line);padding-top:12px;display:grid;gap:12px}
+.row .acts{display:flex;flex-wrap:wrap;gap:8px}
+.row .acts .btn{min-height:36px;padding:6px 14px;font-size:var(--t-sm)}
+.prow{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center}
+.prow .photo{border-radius:var(--r-sm);aspect-ratio:1}
+.prow .photo>.i{font-size:1.4rem}
+.switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:var(--t-sm);min-height:36px}
+.switch input{appearance:none;width:44px;height:26px;border-radius:var(--r-pill);background:var(--field);position:relative;margin:0;flex:none;cursor:pointer}
+.switch input::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:20px;height:20px;border-radius:50%;background:var(--surface)}
+.switch input:checked{background:var(--leaf)}
+.switch input:checked::after{inset-inline-start:21px}
+@media (prefers-reduced-motion:no-preference){.switch input::after{transition:inset-inline-start var(--dur-fast) ease-out}}
+.datechips{display:flex;flex-wrap:wrap;gap:6px}
+.datechips span{display:inline-flex;align-items:center;gap:4px;background:var(--sunk);border-radius:var(--r-pill);padding-block:2px;padding-inline:12px 4px;font-size:var(--t-sm)}
+.datechips button{width:32px;height:32px;border:0;border-radius:50%;background:var(--surface);display:grid;place-items:center}
+
+/* ===== Style guide ===== */
+.swatches{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(10rem,1fr))}
+.sw{border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:var(--surface);font-size:var(--t-xs)}
+.sw i{display:block;height:56px;font-style:normal}
+.sw div{padding:8px 10px;display:grid}
+.sw code{font-size:var(--t-xs)}
+.typescale{display:grid;gap:10px}
+.typescale div{display:flex;gap:16px;align-items:baseline;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px}
+.typescale code{color:var(--muted);font-size:var(--t-xs);min-width:7rem}
+.demo{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+</style>
+</head>
+<body>
+<a class="skip" href="#" id="skip" data-skip></a>
+<div class="pv" id="pv"></div>
+<div id="chrome"></div>
+<main class="wrap" id="view" tabindex="-1"></main>
+<footer class="site" id="footer"></footer>
+<div class="toast" role="status" aria-live="polite"><div id="toast" hidden></div></div>
+
+<script>
+/* ---------- state ---------- */
+const S={lang:"he",cart:{cookies:2,rugelach:1},filter:"all",size:{},form:{fulfil:"pickup",pay:"bit"},errs:{},ofilter:"all",open:"TB-1042",
+  orders:[
+    {ref:"TB-1042",name:"מיכל ל.",en:"Michal L.",item:{he:"עוגת יום הולדת מעוצבת · 22 ס״מ",en:"Custom birthday cake · 22 cm"},date:"2026-11-27",f:"pickup",total:340,st:"new",paid:false},
+    {ref:"TB-1041",name:"יוסי כ.",en:"Yossi K.",item:{he:"עוגיות חמאה ×2, רוגלך ×1",en:"Butter cookies ×2, rugelach ×1"},date:"2026-11-21",f:"delivery",total:210,st:"conf",paid:false},
+    {ref:"TB-1040",name:"נועה ש.",en:"Noa S.",item:{he:"עוגת שוקולד · 18 ס״מ",en:"Chocolate cake · 18 cm"},date:"2026-11-21",f:"pickup",total:160,st:"ready",paid:true},
+    {ref:"TB-1038",name:"דנה מ.",en:"Dana M.",item:{he:"חלה מתוקה ×3",en:"Sweet challah ×3"},date:"2026-11-20",f:"pickup",total:90,st:"cancelled",paid:false}],
+  closed:["2026-12-14","2026-12-15"],storeOpen:true};
+const P=[
+ {id:"choc",cat:"cakes",icon:"cake",h:24,mode:"cart",lead:3,on:true,price:160,sizes:[[18,"8–10",160],[22,"12–15",210],[26,"18–22",260]],
+  name:{he:"עוגת שוקולד עשירה",en:"Rich chocolate cake"},desc:{he:"שוקולד מריר, גנאש חלק וקצת מלח ים.",en:"Dark chocolate, smooth ganache and a pinch of sea salt."},al:{he:"גלוטן, ביצים, חלב",en:"Gluten, eggs, milk"}},
+ {id:"bday",cat:"cakes",icon:"cake",h:345,mode:"request",lead:5,on:true,price:280,sizes:[[18,"8–10",280],[22,"12–15",340],[26,"18–22",420]],
+  name:{he:"עוגת יום הולדת מעוצבת",en:"Custom birthday cake"},desc:{he:"עיצוב וכיתוב לבחירתכם. מאשרים איתכם בוואטסאפ.",en:"Your design and message. We confirm with you on WhatsApp."},al:{he:"גלוטן, ביצים, חלב",en:"Gluten, eggs, milk"}},
+ {id:"cookies",cat:"cookies",icon:"cookie",h:38,mode:"cart",lead:2,on:true,price:65,
+  name:{he:"עוגיות חמאה · קופסה של 20",en:"Butter cookies · box of 20"},desc:{he:"פריכות, עם וניל אמיתי.",en:"Crisp, with real vanilla."},al:{he:"גלוטן, ביצים, חלב",en:"Gluten, eggs, milk"}},
+ {id:"rugelach",cat:"cookies",icon:"cookie",h:18,mode:"cart",lead:2,on:true,price:55,
+  name:{he:"רוגלך שוקולד · תריסר",en:"Chocolate rugelach · dozen"},desc:{he:"בצק שמרים רך ומילוי שוקולד.",en:"Soft yeast dough with chocolate filling."},al:{he:"גלוטן, ביצים, חלב",en:"Gluten, eggs, milk"}},
+ {id:"cheese",cat:"cakes",icon:"cake",h:44,mode:"cart",lead:3,on:false,price:180,
+  name:{he:"עוגת גבינה אפויה",en:"Baked cheesecake"},desc:{he:"גבינה 5%, בסיס פירורים חמאתי.",en:"5% cheese on a buttery crumb base."},al:{he:"גלוטן, ביצים, חלב",en:"Gluten, eggs, milk"}},
+ {id:"challah",cat:"bread",icon:"bread",h:30,mode:"cart",lead:1,on:true,isNew:true,price:30,
+  name:{he:"חלה מתוקה לשבת",en:"Sweet Shabbat challah"},desc:{he:"קלועה ביד, עם שומשום או בלי.",en:"Hand-braided, with or without sesame."},al:{he:"גלוטן, ביצים, שומשום",en:"Gluten, eggs, sesame"}}];
+const byId=id=>P.find(p=>p.id===id);
+
+/* ---------- helpers ---------- */
+const L=(he,en)=>S.lang==="he"?he:en;
+const T=o=>o[S.lang];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const money=n=>new Intl.NumberFormat(S.lang==="he"?"he-IL":"en-IL",{style:"currency",currency:"ILS",maximumFractionDigits:0}).format(n);
+const day=s=>new Intl.DateTimeFormat(S.lang==="he"?"he-IL":"en-IL",{weekday:"short",day:"numeric",month:"numeric"}).format(new Date(s+"T12:00"));
+const I=(n,cls="")=>`<i class="ph ph-${n} i ${cls}" aria-hidden="true"></i>`;
+const ph=(h,icon,label,cls="")=>`<div class="photo ${cls}" style="--h:${h}" role="img" aria-label="${esc(label)}">${I(icon)}<span class="cap" aria-hidden="true">${esc(label)}</span></div>`;
+const arrowNext=()=>I("arrow-right","flip");
+let toastT;function toast(msg,icon="check-circle"){const t=document.getElementById("toast");t.innerHTML=I(icon)+esc(msg);t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,4000)}
+const cartCount=()=>Object.values(S.cart).reduce((a,b)=>a+b,0);
+const cartLines=()=>Object.entries(S.cart).filter(([,q])=>q>0).map(([id,q])=>({p:byId(id),q}));
+const subtotal=()=>cartLines().reduce((a,{p,q})=>a+p.price*q,0);
+const FEE=25;
+
+/* ---------- chrome ---------- */
+function route(){const h=decodeURIComponent(location.hash.slice(1))||"home";if(h.startsWith("p-"))return{r:"product",id:h.slice(2)};return{r:h}}
+function pv(){
+  const th=document.documentElement.dataset.theme||"auto";
+  return `<div class="wrap"><span>${L("תצוגה מקדימה v2 · לפי DESIGN.md · תמונות, מחירים והזמנות לדוגמה","Preview v2 · from DESIGN.md · sample photos, prices and orders")}</span>
+  <nav aria-label="${L("כלי תצוגה","Preview tools")}"><a href="#style">${I("palette")}${L("מדריך עיצוב","Style guide")}</a><a href="#admin">${I("lock-key")}${L("ניהול","Admin")}</a>
+  <button type="button" id="themeBtn">${I(th==="dark"?"moon":th==="light"?"sun":"circle-half")}${L("ערכת צבע: ","Theme: ")}${{auto:L("אוטומטי","auto"),light:L("בהירה","light"),dark:L("כהה","dark")}[th]}</button></nav></div>`}
+function header(r){
+  const nav=[["home",L("בית","Home"),"house"],["store",L("חנות","Shop"),"storefront"],["about",L("אודות","About"),"hand-heart"]];
+  const cur=r==="product"?"store":r;
+  return `<header class="site"><div class="wrap"><div class="hrow">
+   <a class="brand" href="#home"><span class="mark" aria-hidden="true">ת</span><span><b>${L("מאפיית תמיר","Tamir Bakery")}</b><small class="xs">${L("מאפייה ביתית","Home bakery")}</small></span></a>
+   <nav class="main" aria-label="${L("ראשי","Main")}">${nav.map(([k,t,i])=>`<a href="#${k}" ${cur===k?'aria-current="page"':""}><span class="hide-n">${I(i)}</span>${t}</a>`).join("")}<a class="a11y" href="#accessibility" ${cur==="accessibility"?'aria-current="page"':""}>${L("נגישות","Accessibility")}</a></nav>
+   <div class="hact"><button class="pill-btn" type="button" id="langBtn" lang="${S.lang==="he"?"en":"he"}"><span class="hide-n">${I("translate")}</span>${S.lang==="he"?"English":"עברית"}</button>
+   <a class="pill-btn cart" href="#cart" aria-label="${L("סל קניות, ","Cart, ")}${cartCount()} ${L("פריטים","items")}">${I("shopping-bag")}<span aria-hidden="true" class="hide-n">${L("סל","Cart")}</span><span class="count" aria-hidden="true">${cartCount()}</span></a></div>
+  </div></div></header>
+  <div class="banner" role="note"><div class="wrap">${I("clock")}${L("הזמנות לשישי נסגרות ביום חמישי ב־12:00. סגור בשבת ובחגים.","Friday orders close Thursday at 12:00. Closed on Shabbat and holidays.")}</div></div>`}
+function footer(){
+  return `<div class="wrap">
+  <div><h2>${L("מאפיית תמיר","Tamir Bakery")}</h2><p>${L("מאפייה ביתית. איסוף מהבית או משלוח באזור. סגור בשבת ובחגים.","A home bakery. Pickup from home or local delivery. Closed on Shabbat and holidays.")}</p>
+   <p class="xs" style="margin-top:8px">${L("עוסק פטור מס׳ 000000000 · אזור איסוף: יעודכן","Exempt dealer no. 000000000 · Pickup area: to be added")}</p></div>
+  <div><h2>${L("מידע","Information")}</h2><ul><li><a href="#policies">${L("תקנון ומדיניות","Terms and policies")}</a></li><li><a href="#policies">${L("ביטול עסקה","Cancelling an order")}</a></li><li><a href="#policies">${L("פרטיות","Privacy")}</a></li><li><a href="#accessibility">${I("wheelchair")}${L("הצהרת נגישות","Accessibility statement")}</a></li></ul></div>
+  <div><h2>${L("דברו איתנו","Talk to us")}</h2><ul><li><a href="#" data-wa>${I("whatsapp-logo")}${L("וואטסאפ","WhatsApp")}</a></li><li><a href="#" data-soon>${I("instagram-logo")}Instagram</a></li><li><a href="#" data-soon>${I("envelope-simple")}${L("אימייל","Email")}</a></li></ul></div>
+  <p class="legal">© 2026 ${L("מאפיית תמיר","Tamir Bakery")}</p></div>`}
+function adminChrome(r){
+  const tabs=[["admin",L("הזמנות","Orders"),"receipt"],["admin-products",L("מוצרים","Products"),"cake"],["admin-settings",L("הגדרות","Settings"),"gear-six"]];
+  return `<header class="achrome"><div class="wrap"><div class="hrow">
+   <a class="brand" href="#admin"><span class="mark" aria-hidden="true">ת</span><span><b>${L("ניהול","Admin")}</b><small class="xs" style="color:inherit;opacity:.85">${L("מאפיית תמיר","Tamir Bakery")}</small></span></a>
+   <div class="hact"><button class="pill-btn" type="button" id="langBtn" lang="${S.lang==="he"?"en":"he"}">${S.lang==="he"?"English":"עברית"}</button><a class="pill-btn" href="#home">${I("sign-out","flip")}${L("יציאה","Sign out")}</a></div></div>
+   <nav class="anav" aria-label="${L("ניהול","Admin")}">${tabs.map(([k,t,i])=>`<a href="#${k}" ${r===k?'aria-current="page"':""}>${I(i)}${t}</a>`).join("")}</nav></div></header>`}
+
+/* ---------- pages ---------- */
+function card(p){
+  const out=!p.on;
+  const act=out?`<a class="link" href="#" data-wa>${I("whatsapp-logo")}${L("שאלו בוואטסאפ","Ask on WhatsApp")}</a>`
+    :p.mode==="request"?`<a class="link" href="#p-${p.id}">${L("להזמנה אישית","Customise")}${arrowNext()}</a>`
+    :`<button class="btn sec sm" type="button" data-add="${p.id}">${I("plus")}${L("הוספה לסל","Add to cart")}</button>`;
+  return `<article class="card ${out?"out":""}">
+   ${p.isNew?`<span class="chip new badge">${I("sparkle")}${L("חדש","New")}</span>`:""}
+   ${ph(p.h,p.icon,T(p.name))}
+   <div class="body"><h3><a href="#p-${p.id}">${esc(T(p.name))}</a></h3><p class="desc">${esc(T(p.desc))}</p>
+    <div class="chips">${out?`<span class="chip bad">${I("x-circle")}${L("אזל כרגע","Sold out for now")}</span>`:`<span class="chip">${I("clock")}${L(`${p.lead} ימים מראש`,`${p.lead} days ahead`)}</span>`}
+    ${p.mode==="request"?`<span class="chip warn">${I("chat-circle-text")}${L("בהזמנה אישית","Made to order")}</span>`:""}</div></div>
+   <div class="foot"><span class="price">${p.sizes?`<small>${L("החל מ־","from ")}</small>`:""}${money(p.price)}</span>${act}</div></article>`}
+
+function home(){
+  const top=["choc","bday","cookies"].map(byId);
+  return `
+  <section class="hero" aria-labelledby="h1">
+   <div class="copy"><span class="eyebrow">${I("hand-heart")}${L("נאפה בבית, באהבה ובסבלנות","Baked at home, slowly and with care")}</span>
+    <h1 id="h1">${L("עוגות ומאפים ביתיים, נאפים לפי הזמנה","Home-baked cakes and pastries, made to order")}</h1>
+    <p class="lede">${L("מזמינים 2 ימים מראש או יותר. אוספים מהבית או מקבלים משלוח באזור. משלמים במזומן או בביט.","Order 2 days ahead or more. Pick up from home or get local delivery. Pay in cash or with Bit.")}</p>
+    <div class="ctas"><a class="btn pri" href="#store">${I("storefront")}${L("לחנות","Browse the shop")}</a><a class="btn sec" href="#" data-wa>${I("whatsapp-logo")}${L("שאלה? כתבו לנו","Questions? Message us")}</a></div>
+    <div class="facts"><span>${I("calendar-blank")}${L("הזמנה עד יומיים מראש","Order 2+ days ahead")}</span><span>${I("truck")}${L("משלוח באזור ₪25","Local delivery ₪25")}</span><span>${I("wallet")}${L("מזומן או Bit","Cash or Bit")}</span></div></div>
+   ${ph(24,"cake",L("תמונה: עוגה אמיתית מהמטבח, באור יום","Photo: a real cake from the kitchen, daylight"),"hero")}
+  </section>
+
+  <section aria-labelledby="how"><h2 id="how">${L("איך מזמינים","How ordering works")}</h2>
+   <ol class="steps">${[[L("בוחרים","Choose"),L("מהחנות, או עוגה בעיצוב אישי.","From the shop, or a custom cake.")],[L("קובעים תאריך","Pick a date"),L("איסוף או משלוח, לפחות יומיים מראש.","Pickup or delivery, 2+ days ahead.")],[L("אנחנו מאשרים","We confirm"),L("בוואטסאפ, עם המחיר הסופי.","On WhatsApp, with the final price.")],[L("משלמים ואוספים","Pay and collect"),L("במזומן או בביט, באיסוף או לפני.","Cash or Bit, at pickup or before.")]].map((s,i)=>`<li><span class="n">${i+1}</span><b>${s[0]}</b><p>${s[1]}</p></li>`).join("")}</ol>
+  </section>
+
+  <section aria-labelledby="top"><div class="sec-head"><h2 id="top">${L("הכי מבוקשים","Most loved")}</h2><a class="link" href="#store">${L("לכל המוצרים","See everything")}${arrowNext()}</a></div>
+   <div class="grid">${top.map(card).join("")}</div></section>
+
+  <section class="two" aria-labelledby="baker">
+   ${ph(18,"user",L("תמונה: האופה במטבח","Photo: the baker in the kitchen"))}
+   <div class="panel soft"><span class="eyebrow">${I("hand-heart")}${L("מי אופה","Who bakes")}</span><h2 id="baker">${L("נעים מאוד, תמיר","Hi, I'm Tamir")}</h2>
+    <p>${L("אני אופה בבית כבר שנים, ועכשיו גם בשבילכם. חמאה אמיתית, שוקולד טוב, ובלי קיצורי דרך.","I've baked at home for years, and now I bake for you too. Real butter, good chocolate, no shortcuts.")}</p>
+    <a class="link" href="#about">${L("עוד עליי ועל המטבח","More about me and the kitchen")}${arrowNext()}</a></div>
+  </section>
+
+  <section aria-labelledby="gal"><h2 id="gal">${L("מהמטבח","From the kitchen")}</h2>
+   <div class="gallery">${[[24,"cake",L("עוגת שכבות","Layer cake")],[38,"cookie",L("עוגיות על מגש","Cookies on a tray")],[30,"bread",L("חלות קלועות","Braided challahs")],[345,"cake",L("עוגת יום הולדת","Birthday cake")],[18,"cookie",L("רוגלך","Rugelach")],[44,"cake",L("עוגת גבינה","Cheesecake")],[28,"hand-heart",L("ידיים בבצק","Hands in dough")]].map(g=>ph(g[0],g[1],g[2],"sq")).join("")}</div></section>
+
+  <section aria-labelledby="rev"><h2 id="rev">${L("מה אומרים עלינו","What people say")}</h2>
+   <p class="note">${I("star")}<span>${L("כאן יופיעו ביקורות אמיתיות מגוגל, עם שם ובאישור הלקוחות, כשיהיו מספיק. עד אז: ","Real Google reviews, with names and permission, go here once there are enough. Until then: ")}<a href="#" data-soon>${L("לביקורות בגוגל","see Google reviews")}</a></span></p></section>
+
+  <section aria-labelledby="faq"><h2 id="faq">${L("שאלות נפוצות","Questions")}</h2><div class="faqs">
+   ${[[L("כמה זמן מראש צריך להזמין?","How far ahead should I order?"),L("לרוב יומיים. עוגות מעוצבות 5 ימים. הזמנות לשישי נסגרות בחמישי ב־12:00.","Usually 2 days. Custom cakes 5 days. Friday orders close Thursday at 12:00.")],
+      [L("איך משלמים?","How do I pay?"),L("במזומן באיסוף, או בביט אחרי שאישרנו את ההזמנה. נשלח לכם קבלה.","Cash at pickup, or Bit once we confirm your order. We send you a receipt.")],
+      [L("יש משלוחים?","Do you deliver?"),L("כן, באזור הקרוב, ₪25. מחוץ לאזור אפשר לתאם בוואטסאפ.","Yes, nearby, for ₪25. Further away, ask us on WhatsApp.")],
+      [L("האם המאפים כשרים?","Are the bakes kosher?"),L("אין לנו תעודת כשרות. בעמוד אודות כתוב בדיוק מה משתמשים בו במטבח.","We don't have a kashrut certificate. The About page lists exactly what we use in the kitchen.")]]
+     .map(q=>`<details><summary>${q[0]}${I("caret-down")}</summary><p>${q[1]}</p></details>`).join("")}</div></section>`}
+
+function store(){
+  const cats=[["all",L("הכל","All")],["cakes",L("עוגות","Cakes")],["cookies",L("עוגיות ומאפים","Cookies & pastries")],["bread",L("חלות ולחמים","Challah & bread")]];
+  const list=P.filter(p=>S.filter==="all"||p.cat===S.filter);
+  return `<section aria-labelledby="h1"><h1 id="h1">${L("החנות","The shop")}</h1>
+   <p class="lede">${L("מחירים לדוגמה. במוצרים עם כמה גדלים מוצג המחיר ההתחלתי.","Sample prices. Items with several sizes show the starting price.")}</p>
+   <div class="chips"><span class="chip">${I("storefront")}${L("איסוף חינם","Free pickup")}</span><span class="chip">${I("truck")}${L("משלוח ₪25","Delivery ₪25")}</span><span class="chip">${I("wallet")}${L("מזומן · Bit","Cash · Bit")}</span></div></section>
+  <section aria-label="${L("מוצרים","Products")}"><div class="filters" role="group" aria-label="${L("סינון לפי קטגוריה","Filter by category")}">${cats.map(([k,t])=>`<button type="button" data-filter="${k}" aria-pressed="${S.filter===k}">${t}</button>`).join("")}</div>
+   <p class="sr" aria-live="polite">${list.length} ${L("מוצרים","products")}</p>
+   <div class="grid">${list.map(card).join("")}</div></section>`}
+
+function product(id){
+  const p=byId(id);if(!p)return notFound();
+  const si=S.size[id]??1, sz=p.sizes?p.sizes[Math.min(si,p.sizes.length-1)]:null, price=sz?sz[2]:p.price;
+  const req=p.mode==="request";
+  return `<nav class="crumbs" aria-label="${L("פירורי לחם","Breadcrumb")}"><a href="#store">${L("החנות","Shop")}</a>${I("caret-right","flip")}<span aria-current="page">${esc(T(p.name))}</span></nav>
+  <div class="two">
+   <div class="pgal">${ph(p.h,p.icon,T(p.name))}${ph(p.h+10,"hand-pointing",L("עם סכין לקנה מידה","With a knife for scale"))}${ph(p.h-8,p.icon,L("פרוסה","A slice"))}</div>
+   <div class="pinfo">
+    <div style="display:grid;gap:10px"><h1 id="h1">${esc(T(p.name))}</h1><p class="lede">${esc(T(p.desc))}</p>
+     <div class="chips"><span class="chip">${I("clock")}${L(`להזמין ${p.lead} ימים מראש`,`Order ${p.lead} days ahead`)}</span>${p.on?`<span class="chip ok">${I("check-circle")}${L("זמין","Available")}</span>`:`<span class="chip bad">${I("x-circle")}${L("אזל כרגע","Sold out for now")}</span>`}</div>
+     <p class="bigprice" aria-live="polite">${req?`<small class="sm muted" style="font-family:var(--f-body);font-weight:400">${L("החל מ־","from ")}</small>`:""}${money(price)}</p></div>
+    <form class="form" id="pform" novalidate>
+     ${p.sizes?`<fieldset><legend>${L("גודל","Size")}</legend><div class="tiles">${p.sizes.map((s,i)=>`<button type="button" class="tile" data-size="${i}" aria-pressed="${i===si}"><b>${L(`${s[0]} ס״מ`,`${s[0]} cm`)}</b><small>${L(`<bdi class="ltr">${s[1]}</bdi> מנות`,`${s[1]} servings`)}</small><small class="tn">${money(s[2])}</small></button>`).join("")}</div></fieldset>`:""}
+     ${req?`<fieldset><legend>${L("טעם","Flavour")}</legend><div class="opts cols">${[[L("שוקולד","Chocolate"),L("עם גנאש","With ganache")],[L("וניל ופירות יער","Vanilla & berries"),L("קרם וניל","Vanilla cream")],[L("לוטוס","Lotus"),L("+₪20","+₪20")],[L("לא בטוחים?","Not sure?"),L("נמליץ בוואטסאפ","We'll suggest on WhatsApp")]].map((o,i)=>`<label class="opt"><input type="radio" name="flav" ${i===0?"checked":""}><span><b>${o[0]}</b><small>${o[1]}</small></span></label>`).join("")}</div></fieldset>
+     <div class="field"><label for="ins">${L("כיתוב על העוגה","Message on the cake")} <span class="req">${L("לא חובה","optional")}</span></label><input id="ins" maxlength="30" aria-describedby="insh"><small class="help" id="insh">${L("עד 30 תווים.","Up to 30 characters.")}</small></div>
+     <div class="field"><label for="ref">${L("תמונת השראה","Inspiration photo")} <span class="req">${L("לא חובה","optional")}</span></label><input id="ref" type="file" accept="image/*"></div>`:""}
+     <div class="field"><label for="pdate">${L("מתי?","When?")} <span class="req">${L("חובה","required")}</span></label><input id="pdate" type="date" min="2026-11-${20+p.lead}" aria-describedby="pdh"><small class="help" id="pdh">${L(`הכי מוקדם: עוד ${p.lead} ימים. סגור בשבת ובחגים.`,`Earliest: in ${p.lead} days. Closed on Shabbat and holidays.`)}</small></div>
+     <div class="ctas">${p.on?(req?`<button class="btn pri" type="submit">${I("paper-plane-tilt","flip")}${L("שליחת בקשת הזמנה","Send order request")}</button>`:`<button class="btn pri" type="button" data-add="${p.id}">${I("shopping-bag")}${L("הוספה לסל","Add to cart")}</button>`)
+       :`<button class="btn pri" type="button" disabled>${L("הוספה לסל","Add to cart")}</button><span class="xs muted">${L("אזל מהמלאי השבוע","Sold out this week")}</span>`}
+      <a class="btn sec" href="#" data-wa>${I("whatsapp-logo")}${L("שאלה בוואטסאפ","Ask on WhatsApp")}</a></div>
+    </form>
+    <div class="faqs">
+     <details open><summary>${L("רכיבים ואלרגנים","Ingredients and allergens")}${I("caret-down")}</summary><p>${L("מכיל: ","Contains: ")}${esc(T(p.al))}. ${L("נאפה במטבח שבו יש גם אגוזים ושומשום.","Baked in a kitchen that also handles nuts and sesame.")}</p></details>
+     <details><summary>${L("כשרות","Kashrut")}${I("caret-down")}</summary><p>${L("אין לנו תעודת כשרות. אנחנו משתמשים רק בחומרי גלם עם הכשר, ולא מערבבים בשר במטבח.","We don't have a kashrut certificate. We use only ingredients with a hechsher, and no meat is used in the kitchen.")}</p></details>
+     <details><summary>${L("איסוף, משלוח וביטול","Pickup, delivery and cancelling")}${I("caret-down")}</summary><p>${L("איסוף חינם מהבית או משלוח באזור ב־₪25. ביטול עד 48 שעות לפני המועד. ","Free pickup from home or local delivery for ₪25. Cancel up to 48 hours before. ")}<a href="#policies">${L("מדיניות ביטול","Cancellation policy")}</a></p></details>
+    </div>
+   </div></div>`}
+
+function cart(){
+  const lines=cartLines(), e=S.errs, f=S.form, sub=subtotal(), fee=f.fulfil==="delivery"?FEE:0;
+  if(!lines.length)return `<section style="text-align:center;justify-items:center" class="panel"><span style="font-size:3rem;color:var(--muted)">${I("shopping-bag")}</span><h1 id="h1">${L("הסל ריק","Your cart is empty")}</h1><p class="muted">${L("שווה להציץ בחנות.","Have a look in the shop.")}</p><a class="btn pri" href="#store">${L("לחנות","Browse the shop")}</a></section>`;
+  const errMsg=k=>e[k]?`<p class="err" id="${k}-err">${I("warning-circle")}${e[k]}</p>`:"";
+  const inv=k=>e[k]?`aria-invalid="true" aria-describedby="${k}-err"`:"";
+  const keys=Object.keys(e);
+  return `<h1 id="h1">${L("סל והזמנה","Cart and checkout")}</h1>
+  <div class="two checkout">
+   <form class="form" id="cform" novalidate>
+    ${keys.length?`<div class="errsum" role="alert" tabindex="-1" id="errsum"><b>${I("warning-circle")}${L(`יש לתקן ${keys.length} שדות:`,`Please fix ${keys.length} fields:`)}</b><ul>${keys.map(k=>`<li><a href="#" data-focus="${k}">${e[k]}</a></li>`).join("")}</ul></div>`:""}
+    <fieldset><legend>${L("פרטים","Your details")}</legend>
+     <div class="field"><label for="name">${L("שם מלא","Full name")} <span class="req">${L("חובה","required")}</span></label><input id="name" autocomplete="name" value="${esc(f.name||"")}" ${inv("name")}>${errMsg("name")}</div>
+     <div class="field"><label for="phone">${L("טלפון נייד","Mobile phone")} <span class="req">${L("חובה","required")}</span></label><input id="phone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" placeholder="050-0000000" value="${esc(f.phone||"")}" ${inv("phone")}>${errMsg("phone")}<small class="help">${L("לאישור ההזמנה בוואטסאפ.","We confirm your order on WhatsApp.")}</small></div>
+    </fieldset>
+    <fieldset><legend>${L("איסוף או משלוח","Pickup or delivery")}</legend><div class="opts cols">
+     <label class="opt"><input type="radio" name="fulfil" value="pickup" ${f.fulfil==="pickup"?"checked":""}><span><b>${I("storefront")} ${L("איסוף מהבית","Pickup")}</b><small>${L("חינם · הכתובת נשלחת אחרי האישור","Free · address sent after we confirm")}</small></span></label>
+     <label class="opt"><input type="radio" name="fulfil" value="delivery" ${f.fulfil==="delivery"?"checked":""}><span><b>${I("truck")} ${L("משלוח באזור","Local delivery")}</b><small>${money(FEE)}</small></span></label></div>
+     ${f.fulfil==="delivery"?`<div class="field"><label for="addr">${L("כתובת למשלוח","Delivery address")} <span class="req">${L("חובה","required")}</span></label><input id="addr" autocomplete="street-address" value="${esc(f.addr||"")}" ${inv("addr")}>${errMsg("addr")}</div>`:""}
+     <div class="field"><label for="date">${L("תאריך","Date")} <span class="req">${L("חובה","required")}</span></label><input id="date" type="date" min="2026-11-22" value="${esc(f.date||"")}" ${inv("date")}>${errMsg("date")}<small class="help">${L("לפחות יומיים מראש. סגור ב־<bdi class=\"ltr\">14–15.12</bdi>.","At least 2 days ahead. Closed 14–15 Dec.")}</small></div>
+    </fieldset>
+    <fieldset><legend>${L("תשלום","Payment")}</legend><div class="opts cols">
+     <label class="opt"><input type="radio" name="pay" value="bit" ${f.pay==="bit"?"checked":""}><span><b>${I("device-mobile")} Bit</b><small>${L("אחרי שנאשר את ההזמנה","After we confirm the order")}</small></span></label>
+     <label class="opt"><input type="radio" name="pay" value="cash" ${f.pay==="cash"?"checked":""}><span><b>${I("money")} ${L("מזומן","Cash")}</b><small>${L("באיסוף או במשלוח","At pickup or delivery")}</small></span></label></div></fieldset>
+    <div class="field"><label for="notes">${L("הערות","Notes")} <span class="req">${L("לא חובה","optional")}</span></label><textarea id="notes">${esc(f.notes||"")}</textarea></div>
+    <label class="check"><input type="checkbox" id="mkt" ${f.mkt?"checked":""}><span>${L("אשמח לקבל הודעות על מבצעים ועוגות חג (פרסומת). אפשר להסיר בכל רגע.","Send me news about holiday cakes and offers (advertising). Unsubscribe any time.")}</span></label>
+    <p class="privacy">${I("shield-check")} ${L("אנחנו שומרים את השם, הטלפון והכתובת רק כדי לטפל בהזמנה. אינכם חייבים למסור אותם, אבל בלעדיהם לא נוכל להשלים את ההזמנה. ","We keep your name, phone and address only to handle the order. You don't have to give them, but without them we can't complete it. ")}<a href="#policies">${L("מדיניות הפרטיות","Privacy policy")}</a></p>
+    <button class="btn pri block" type="submit">${I("paper-plane-tilt","flip")}${L("שליחת ההזמנה","Send order")}</button>
+   </form>
+   <aside class="panel" aria-labelledby="sumh"><h2 id="sumh" style="font-size:var(--t-h3)">${L("ההזמנה שלכם","Your order")}</h2>
+    <div class="lines">${lines.map(({p,q})=>`<div class="line">${ph(p.h,p.icon,T(p.name))}<div class="what"><b>${esc(T(p.name))}</b><span class="sm muted tn">${money(p.price)} ${L("ליחידה","each")}</span></div>
+     <div class="qty"><button type="button" data-q="${p.id}" data-d="-1" aria-label="${L("הפחתה","Decrease")} ${esc(T(p.name))}">${I(q===1?"trash":"minus")}</button><output aria-live="polite" aria-label="${L("כמות","Quantity")}">${q}</output><button type="button" data-q="${p.id}" data-d="1" aria-label="${L("הוספה","Increase")} ${esc(T(p.name))}">${I("plus")}</button></div></div>`).join("")}</div>
+    <div class="sum"><div><span>${L("ביניים","Subtotal")}</span><span>${money(sub)}</span></div><div><span>${L("משלוח","Delivery")}</span><span>${fee?money(fee):L("חינם","Free")}</span></div><div class="total"><span>${L("סה״כ","Total")}</span><span>${money(sub+fee)}</span></div></div>
+    <p class="xs muted">${L("מחירים כוללים הכל. אין חיוב עד שנאשר.","Prices include everything. Nothing is charged until we confirm.")}</p></aside>
+  </div>`}
+
+function order(){
+  return `<section class="panel refbox" aria-labelledby="h1" style="max-width:40rem">
+   <span class="chip warn" style="justify-self:start">${I("hourglass-medium")}${L("ממתינה לאישור","Waiting for confirmation")}</span>
+   <h1 id="h1">${L("תודה! קיבלנו את ההזמנה","Thanks! We've got your order")}</h1>
+   <div><p class="sm muted">${L("מספר הזמנה","Order number")}</p><p class="ref"><bdi>TB-1043</bdi></p></div>
+   <ol class="timeline">
+    <li class="done"><span class="dot">${I("check")}</span><span><b>${L("ההזמנה התקבלה","Order received")}</b><br><span class="sm muted">${L("היום, 15:02","Today, 15:02")}</span></span></li>
+    <li class="now"><span class="dot">${I("chat-circle-text")}</span><span><b>${L("נאשר בוואטסאפ","We confirm on WhatsApp")}</b><br><span class="sm muted">${L("בדרך כלל תוך כמה שעות","Usually within a few hours")}</span></span></li>
+    <li><span class="dot">${I("device-mobile")}</span><span><b>${L("תשלום בביט","Pay with Bit")}</b><br><span class="sm muted">${L("אחרי האישור, לפי הפרטים למטה","After we confirm, using the details below")}</span></span></li>
+    <li><span class="dot">${I("storefront")}</span><span><b>${L("איסוף","Pickup")}</b><br><span class="sm muted">${day("2026-11-27")}</span></span></li></ol>
+   <div class="copyrow"><span>${L("ביט למספר","Bit to")} <b class="ltr tn">050-000-0000</b></span><button class="btn sec sm" type="button" data-copy>${I("copy")}${L("העתקה","Copy")}</button></div>
+   <p class="sm muted">${L("בהערה בביט כתבו את מספר ההזמנה. נשלח קבלה אחרי התשלום.","Put the order number in the Bit note. We'll send a receipt after payment.")}</p>
+   <div class="ctas"><a class="btn pri" href="#" data-wa>${I("whatsapp-logo")}${L("פתיחת וואטסאפ","Open WhatsApp")}</a><a class="btn sec" href="#store">${L("חזרה לחנות","Back to the shop")}</a></div></section>`}
+
+function about(){
+  return `<section class="two" aria-labelledby="h1">${ph(18,"user",L("תמונה: תמיר במטבח","Photo: Tamir in the kitchen"),"hero")}
+   <div style="display:grid;gap:14px;align-content:center"><span class="eyebrow">${I("hand-heart")}${L("אודות","About")}</span><h1 id="h1">${L("מאפייה קטנה, בבית","A small bakery, at home")}</h1>
+    <p class="lede">${L("התחלתי לאפות לחברים ולמשפחה, והעוגות התחילו לעבור מיד ליד. היום אני אופה בכמויות קטנות, לפי הזמנה, כדי שכל עוגה תצא טרייה.","I started baking for friends and family, and the cakes got passed around. Now I bake in small batches, to order, so every cake is fresh.")}</p></div></section>
+  <section aria-labelledby="k"><h2 id="k">${L("המטבח והרכיבים","The kitchen and ingredients")}</h2>
+   <ul class="list-icons">${[["drop",L("חמאה אמיתית, בלי מרגרינה","Real butter, no margarine")],["egg",L("ביצים טריות מהמשק","Fresh farm eggs")],["leaf",L("בלי צבעי מאכל מלאכותיים, חוץ מבעיצוב לפי בקשה","No artificial colouring, except custom decorations on request")],["certificate",L("אין תעודת כשרות. רק חומרי גלם עם הכשר, ובלי בשר במטבח.","No kashrut certificate. Only ingredients with a hechsher, and no meat in the kitchen.")]].map(([i,t])=>`<li>${I(i)}<span>${t}</span></li>`).join("")}</ul></section>
+  <section class="two" aria-labelledby="c">
+   <div class="panel"><h2 id="c" style="font-size:var(--t-h3)">${L("איפה ומתי","Where and when")}</h2>
+    <ul class="list-icons"><li>${I("map-pin")}<span>${L("איסוף מהבית. הכתובת המדויקת נשלחת עם אישור ההזמנה.","Pickup from home. The exact address comes with your confirmation.")}</span></li><li>${I("clock")}<span>${L("א׳–ה׳ 9:00–19:00 · ו׳ 8:00–13:00 · סגור בשבת ובחגים","Sun–Thu 9:00–19:00 · Fri 8:00–13:00 · Closed Shabbat and holidays")}</span></li><li>${I("truck")}<span>${L("משלוח באזור, ₪25","Local delivery, ₪25")}</span></li></ul></div>
+   <div class="panel"><h2 style="font-size:var(--t-h3)">${L("דברו איתנו","Talk to us")}</h2><p class="muted">${L("הכי מהר בוואטסאפ.","WhatsApp is fastest.")}</p>
+    <div class="ctas"><a class="btn pri" href="#" data-wa>${I("whatsapp-logo")}${L("וואטסאפ","WhatsApp")}</a><a class="btn sec" href="#" data-soon>${I("instagram-logo")}Instagram</a></div></div></section>`}
+
+function textPage(kind){
+  const a=kind==="accessibility";
+  return `<section style="max-width:44rem" aria-labelledby="h1"><h1 id="h1">${a?L("הצהרת נגישות","Accessibility statement"):L("תקנון ומדיניות","Terms and policies")}</h1>
+   <p class="lede">${a?L("האתר נבנה לפי תקן ישראלי 5568 ברמה AA. אם משהו לא עובד לכם, ספרו לנו ונתקן.","This site is built to Israeli Standard 5568 level AA. If something doesn't work for you, tell us and we'll fix it."):L("הטקסט המלא ייכתב בהמשך, לפי תבניות המחקר.","The full text will be written later, from the research templates.")}</p>
+   <p class="note">${I("info")}<span>${L("עמוד לדוגמה בתצוגה המקדימה.","Placeholder page in this preview.")}</span></p></section>`}
+
+function notFound(){return `<section class="panel" style="text-align:center;justify-items:center"><span style="font-size:3rem;color:var(--muted)">${I("magnifying-glass")}</span><h1 id="h1">${L("העמוד לא נמצא","Page not found")}</h1><a class="btn pri" href="#home">${L("לדף הבית","Go home")}</a></section>`}
+
+/* ---------- admin ---------- */
+const ST={new:["new","sparkle",L("חדשה","New")],conf:["warn","hourglass-medium",L("ממתינה לתשלום","Awaiting payment")],ready:["ok","check-circle",L("שולם · מוכנה","Paid · ready")],cancelled:["bad","x-circle",L("בוטלה","Cancelled")]};
+function admin(){
+  const fl=[["all",L("הכל","All")],["new",L("חדשות","New")],["conf",L("ממתינות לתשלום","Awaiting payment")],["ready",L("מוכנות","Ready")]];
+  const list=S.orders.filter(o=>S.ofilter==="all"||o.st===S.ofilter);
+  const n=k=>S.orders.filter(o=>o.st===k).length;
+  return `<h1 id="h1">${L("הזמנות","Orders")}</h1>
+  <div class="stats"><div class="stat"><span class="sm muted">${L("חדשות","New")}</span><b>${n("new")}</b></div><div class="stat"><span class="sm muted">${L("ממתינות לתשלום","Awaiting payment")}</span><b>${n("conf")}</b></div><div class="stat"><span class="sm muted">${L("לאיסוף השבוע","Due this week")}</span><b>3</b></div></div>
+  <div class="filters" role="group" aria-label="${L("סינון","Filter")}">${fl.map(([k,t])=>`<button type="button" data-ofilter="${k}" aria-pressed="${S.ofilter===k}">${t}</button>`).join("")}</div>
+  <div class="rows">${list.map(o=>{const s=ST[o.st],open=S.open===o.ref;return `<article class="row" aria-labelledby="o-${o.ref}">
+   <div class="top"><div class="who"><b id="o-${o.ref}"><bdi>${o.ref}</bdi> · ${L(o.name,o.en)}</b><span class="sm">${esc(T(o.item))}</span></div>
+    <div class="chips"><span class="chip ${s[0]}">${I(s[1])}${s[2]}</span></div></div>
+   <div class="meta"><span>${I("calendar-blank")}${day(o.date)}</span><span>${I(o.f==="pickup"?"storefront":"truck")}${o.f==="pickup"?L("איסוף","Pickup"):L("משלוח","Delivery")}</span><span class="tn">${I("wallet")}${money(o.total)}</span></div>
+   <button class="link" type="button" data-open="${o.ref}" aria-expanded="${open}">${open?L("הסתרת פרטים","Hide details"):L("פרטים ופעולות","Details and actions")}${I(open?"caret-up":"caret-down")}</button>
+   ${open?`<div class="detail"><p class="sm muted">${L("טלפון: ","Phone: ")}<bdi class="tn">050-000-0000</bdi> · ${L("כיתוב: \"מזל טוב נועה\"","Message: \"Happy birthday Noa\"")}</p>
+    <div class="acts">${o.st==="new"?`<button class="btn pri" type="button" data-st="${o.ref}" data-to="conf">${I("check")}${L("אישור הזמנה","Confirm order")}</button>`:""}
+     ${o.st==="conf"?`<button class="btn pri" type="button" data-st="${o.ref}" data-to="ready">${I("currency-circle-dollar")}${L("סימון כשולם","Mark as paid")}</button>`:""}
+     <a class="btn sec" href="#" data-wa>${I("whatsapp-logo")}${L("וואטסאפ ללקוח","WhatsApp customer")}</a>
+     ${o.st!=="cancelled"?`<button class="btn danger" type="button" data-st="${o.ref}" data-to="cancelled">${I("x")}${L("ביטול","Cancel")}</button>`:""}</div></div>`:""}
+  </article>`}).join("")||`<p class="note">${I("info")}<span>${L("אין הזמנות בסינון הזה.","No orders in this filter.")}</span></p>`}</div>`}
+function adminProducts(){
+  return `<div class="sec-head"><h1 id="h1">${L("מוצרים","Products")}</h1><button class="btn pri sm" type="button" data-soon>${I("plus")}${L("מוצר חדש","New product")}</button></div>
+  <div class="rows">${P.map(p=>`<div class="row prow">${ph(p.h,p.icon,T(p.name))}<div class="who" style="display:grid;gap:2px;min-width:0"><b>${esc(T(p.name))}</b><span class="sm muted tn">${p.sizes?L("החל מ־","from "):""}${money(p.price)} · ${p.mode==="request"?L("בקשה","Request"):L("סל","Cart")}</span></div>
+   <label class="switch"><input type="checkbox" role="switch" data-avail="${p.id}" ${p.on?"checked":""}><span>${p.on?L("זמין","On sale"):L("אזל","Sold out")}</span></label></div>`).join("")}</div>`}
+function adminSettings(){
+  return `<h1 id="h1">${L("הגדרות","Settings")}</h1>
+  <div class="two"><div class="panel form">
+   <label class="switch"><input type="checkbox" role="switch" data-open-store ${S.storeOpen?"checked":""}><span><b>${S.storeOpen?L("החנות פתוחה להזמנות","Shop is taking orders"):L("החנות סגורה להזמנות","Shop is closed to orders")}</b></span></label>
+   <div class="field"><label for="cut">${L("שעת סגירה להזמנות לשישי","Friday order cutoff")}</label><input id="cut" type="time" value="12:00"></div>
+   <div class="field"><label for="fee">${L("דמי משלוח (₪)","Delivery fee (₪)")}</label><input id="fee" type="number" inputmode="numeric" value="25"></div>
+   <div class="field"><label for="ban">${L("טקסט ההודעה בראש האתר","Banner text")}</label><textarea id="ban">${L("הזמנות לשישי נסגרות ביום חמישי ב־12:00.","Friday orders close Thursday at 12:00.")}</textarea></div></div>
+   <div class="panel"><h2 style="font-size:var(--t-h3)">${L("ימים סגורים","Closed dates")}</h2>
+    <div class="datechips">${S.closed.map(d=>`<span>${day(d)}<button type="button" data-rmdate="${d}" aria-label="${L("הסרת","Remove")} ${day(d)}">${I("x")}</button></span>`).join("")||`<span class="muted">${L("אין","None")}</span>`}</div>
+    <div class="field"><label for="nd">${L("הוספת יום סגור","Add a closed date")}</label><input id="nd" type="date"></div><button class="btn sec sm" type="button" data-adddate style="justify-self:start">${I("plus")}${L("הוספה","Add")}</button></div></div>
+  <div class="ctas"><button class="btn pri" type="button" data-saved>${I("floppy-disk")}${L("שמירה","Save")}</button></div>`}
+
+/* ---------- style guide ---------- */
+function style(){
+  const tok=["bg","surface","sunk","fg","muted","line","field","primary","on-primary","primary-soft","berry","berry-soft","leaf","leaf-soft","warn","warn-soft","bad","bad-soft"];
+  const cs=getComputedStyle(document.documentElement);
+  return `<section aria-labelledby="h1"><h1 id="h1">${L("מדריך עיצוב","Style guide")}</h1><p class="lede">${L("כל מה שבעמוד הזה מגיע מ־DESIGN.md. החליפו ערכת צבע בסרגל העליון כדי לראות את הגרסה הכהה.","Everything here comes from DESIGN.md. Switch the theme in the top bar to see dark mode.")}</p></section>
+  <section aria-labelledby="c"><h2 id="c">${L("צבעים","Colour")}</h2><div class="swatches">${tok.map(t=>`<div class="sw"><i style="background:var(--${t})"></i><div><code>--${t}</code><span class="muted ltr">${cs.getPropertyValue("--"+t).trim()}</span></div></div>`).join("")}</div></section>
+  <section aria-labelledby="t"><h2 id="t">${L("טיפוגרפיה","Type")}</h2><div class="typescale">
+   ${[["h1","--t-h1",`<h1 style="font-size:var(--t-h1)">${L("עוגות ומאפים ביתיים","Home-baked cakes")}</h1>`],["h2","--t-h2",`<h2>${L("הכי מבוקשים","Most loved")}</h2>`],["h3","--t-h3",`<h3>${L("עוגת שוקולד עשירה","Rich chocolate cake")}</h3>`],["lg","--t-lg",`<p style="font-size:var(--t-lg)">${L("מזמינים יומיים מראש","Order two days ahead")}</p>`],["base","1rem",`<p>${L("טקסט רץ ב־Heebo, 16 פיקסלים","Body text in Heebo, 16px")}</p>`],["xs","--t-xs",`<p class="xs">${L("הכי קטן שמותר: 14 פיקסלים","Smallest allowed: 14px")}</p>`]].map(r=>`<div><code>${r[1]}</code>${r[2]}</div>`).join("")}</div></section>
+  <section aria-labelledby="b"><h2 id="b">${L("כפתורים","Buttons")}</h2><div class="demo"><button class="btn pri" type="button">${L("ראשי","Primary")}</button><button class="btn sec" type="button">${I("whatsapp-logo")}${L("משני","Secondary")}</button><button class="btn danger" type="button">${L("מחיקה","Delete")}</button><button class="btn pri" type="button" disabled>${L("לא זמין","Disabled")}</button><button class="link" type="button">${L("קישור","Link")}${arrowNext()}</button></div></section>
+  <section aria-labelledby="ch"><h2 id="ch">${L("תגיות סטטוס","Status chips")}</h2><div class="chips"><span class="chip">${I("clock")}${L("3 ימים מראש","3 days ahead")}</span><span class="chip ok">${I("check-circle")}${L("שולם","Paid")}</span><span class="chip warn">${I("hourglass-medium")}${L("ממתינה","Waiting")}</span><span class="chip new">${I("sparkle")}${L("חדש","New")}</span><span class="chip bad">${I("x-circle")}${L("אזל","Sold out")}</span></div></section>
+  <section aria-labelledby="f"><h2 id="f">${L("שדות","Fields")}</h2><div class="two">
+   <div class="field"><label for="d1">${L("שם מלא","Full name")} <span class="req">${L("חובה","required")}</span></label><input id="d1" value="${L("נועה","Noa")}"><small class="help">${L("טקסט עזרה מתחת לשדה","Helper text under the field")}</small></div>
+   <div class="field"><label for="d2">${L("טלפון נייד","Mobile phone")} <span class="req">${L("חובה","required")}</span></label><input id="d2" aria-invalid="true" aria-describedby="d2e" dir="ltr" value="050"><p class="err" id="d2e">${I("warning-circle")}${L("נא לכתוב מספר נייד מלא","Please enter a full mobile number")}</p></div></div></section>
+  <section aria-labelledby="cd"><h2 id="cd">${L("כרטיס מוצר","Product card")}</h2><div class="grid">${["challah","cheese"].map(id=>card(byId(id))).join("")}</div></section>`}
+
+/* ---------- render ---------- */
+function render(focus){
+  const rt=route(), isAdmin=rt.r.startsWith("admin");
+  document.documentElement.lang=S.lang;document.documentElement.dir=S.lang==="he"?"rtl":"ltr";
+  document.getElementById("skip").textContent=L("דילוג לתוכן","Skip to content");
+  document.getElementById("pv").innerHTML=pv();
+  document.getElementById("chrome").innerHTML=isAdmin?adminChrome(rt.r):header(rt.r);
+  const v=document.getElementById("view");
+  v.innerHTML={home,store,cart,order,about,style,admin,"admin-products":adminProducts,"admin-settings":adminSettings,accessibility:()=>textPage("accessibility"),policies:()=>textPage("policies"),product:()=>product(rt.id)}[rt.r]?.()??notFound();
+  document.getElementById("footer").hidden=isAdmin;
+  if(!isAdmin)document.getElementById("footer").innerHTML=footer();
+  const h=v.querySelector("h1");document.title=(h&&rt.r!=="home"?h.textContent+" · ":"")+L("מאפיית תמיר","Tamir Bakery");
+  if(focus)v.focus({preventScroll:true});
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click",ev=>{
+  const b=ev.target.closest("button,a");if(!b)return;const d=b.dataset;
+  if(b.id==="langBtn"){S.lang=S.lang==="he"?"en":"he";render();document.getElementById("langBtn").focus();return}
+  if(b.id==="themeBtn"){const r=document.documentElement,c=r.dataset.theme||"auto",n={auto:"light",light:"dark",dark:"auto"}[c];if(n==="auto")delete r.dataset.theme;else r.dataset.theme=n;render();document.getElementById("themeBtn").focus();return}
+  if("skip" in d){ev.preventDefault();document.getElementById("view").focus();return}
+  if("wa" in d){ev.preventDefault();toast(L("באתר עצמו ייפתח וואטסאפ עם הודעה מוכנה","On the live site this opens WhatsApp with a ready message"),"whatsapp-logo");return}
+  if("soon" in d){ev.preventDefault();toast(L("לא פעיל בתצוגה המקדימה","Not active in this preview"),"info");return}
+  if(d.add){S.cart[d.add]=(S.cart[d.add]||0)+1;render();toast(L("נוסף לסל","Added to cart"));return}
+  if(d.filter){S.filter=d.filter;render();document.querySelector(`[data-filter="${d.filter}"]`).focus();return}
+  if(d.size!==undefined){S.size[route().id]=+d.size;render();document.querySelector(`[data-size="${d.size}"]`).focus();return}
+  if(d.q){S.cart[d.q]=Math.max(0,(S.cart[d.q]||0)+ +d.d);render();const nb=document.querySelector(`[data-q="${d.q}"][data-d="${d.d}"]`);(nb||document.getElementById("view")).focus();return}
+  if(d.focus){ev.preventDefault();document.getElementById(d.focus)?.focus();return}
+  if("copy" in d){navigator.clipboard?.writeText("0500000000").catch(()=>{});toast(L("המספר הועתק","Number copied"),"copy");return}
+  if(d.ofilter){S.ofilter=d.ofilter;render();document.querySelector(`[data-ofilter="${d.ofilter}"]`).focus();return}
+  if(d.open){S.open=S.open===d.open?null:d.open;render();document.querySelector(`[data-open="${d.open}"]`).focus();return}
+  if(d.st){const o=S.orders.find(x=>x.ref===d.st);if(d.to==="cancelled"&&!confirm(L(`לבטל את הזמנה ${o.ref}?`,`Cancel order ${o.ref}?`)))return;o.st=d.to;render();toast(L("הסטטוס עודכן","Status updated"));document.querySelector(`[data-open="${o.ref}"]`)?.focus();return}
+  if(d.rmdate){S.closed=S.closed.filter(x=>x!==d.rmdate);render();toast(L("היום הוסר","Date removed"));return}
+  if("adddate" in d){const v=document.getElementById("nd").value;if(v&&!S.closed.includes(v)){S.closed.push(v);S.closed.sort();render();toast(L("היום נוסף","Date added"))}return}
+  if("saved" in d){toast(L("נשמר","Saved"));return}
+});
+document.addEventListener("change",ev=>{
+  const t=ev.target;
+  if(t.name==="fulfil"||t.name==="pay"){S.form[t.name]=t.value;if(t.name==="fulfil"){render();document.querySelector(`input[name=fulfil][value=${t.value}]`).focus()}}
+  if(t.dataset.avail){byId(t.dataset.avail).on=t.checked;render();document.querySelector(`[data-avail="${t.dataset.avail}"]`).focus();toast(t.checked?L("המוצר זמין","Item on sale"):L("סומן כאזל","Marked sold out"))}
+  if("openStore" in t.dataset){S.storeOpen=t.checked;render();document.querySelector("[data-open-store]").focus()}
+  if(t.id==="mkt")S.form.mkt=t.checked;
+});
+document.addEventListener("input",ev=>{const t=ev.target;if(["name","phone","addr","date","notes"].includes(t.id))S.form[t.id]=t.value});
+document.addEventListener("submit",ev=>{
+  ev.preventDefault();
+  if(ev.target.id==="pform"){location.hash="order";return}
+  const f=S.form,e={};
+  if(!f.name?.trim())e.name=L("נא לכתוב שם מלא","Please enter your full name");
+  if(!/^0?5\d[-\s]?\d{3}[-\s]?\d{4}$/.test((f.phone||"").trim()))e.phone=L("נא לכתוב מספר נייד מלא, למשל 050-1234567","Please enter a full mobile number, like 050-1234567");
+  if(f.fulfil==="delivery"&&!f.addr?.trim())e.addr=L("נא לכתוב כתובת למשלוח","Please enter a delivery address");
+  if(!f.date)e.date=L("נא לבחור תאריך","Please choose a date");
+  S.errs=e;
+  if(Object.keys(e).length){render();document.getElementById("errsum").focus();return}
+  location.hash="order";
+});
+window.addEventListener("hashchange",()=>{if(route().r!=="cart")S.errs={};render(true);window.scrollTo(0,0)});
+render();
+</script>
+</body>
+</html>

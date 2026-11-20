@@ -24,7 +24,7 @@ Anything else a basic store needs is covered in [basic-layout-gaps.md](research/
 
 A clickable client preview of these pages (Hebrew, phone and desktop, including `/admin`) is in [docs/mockups/tamir-bakery-preview.html](mockups/tamir-bakery-preview.html). Open it in a browser; it is a single self-contained file.
 
-The visual style (colours, Hebrew fonts, spacing, components and tone of voice) is defined in [DESIGN.md](DESIGN.md). The preview uses it.
+The visual style (colours, Hebrew fonts, spacing, components and tone of voice) is defined in [DESIGN.md](DESIGN.md). [tamir-bakery-v2.html](mockups/tamir-bakery-v2.html) is a newer preview built from it from scratch. It adds a cart with form validation, an order-confirmation timeline, a dark theme switch and a style-guide page.
 
 ### Tech stack and hosting
 

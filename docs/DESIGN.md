@@ -3,7 +3,7 @@
 The visual style for the site and `/admin`. Hebrew first (RTL), English second, phone first, accessible to SI 5568 level AA (WCAG 2.0 AA).
 
 - **Status:** draft for review, 2026-11-20
-- **Applies to:** the Next.js app and the [client preview mockup](mockups/tamir-bakery-preview.html), which already uses these tokens.
+- **Applies to:** the Next.js app and both preview mockups. [tamir-bakery-v2.html](mockups/tamir-bakery-v2.html) is built from this doc and includes a style-guide page (`#style`). The first [preview](mockups/tamir-bakery-preview.html) has been re-themed with the same tokens.
 - **Sources:** the `ui-ux-pro-max` skill database (product, color, style, typography, Google Fonts and UX rules; see [§11](#11-where-this-came-from)), plus our own research in [storefront-layouts.md](research/storefront-layouts.md) and [israeli-web-accessibility-law.md](research/israeli-web-accessibility-law.md).
 
 ---
@@ -112,6 +112,7 @@ The skill's only stock Hebrew pairing is Noto Sans Hebrew on its own. It is a sa
 - **Line length:** about 60–70 characters (`max-width: 62ch`) for body text.
 - **Numbers:** `font-variant-numeric: tabular-nums` for prices, totals, order refs and dates. Prices go through `Intl.NumberFormat('he-IL' | 'en-IL', {style:'currency', currency:'ILS'})`, never string concatenation.
 - **Mixed direction:** wrap phone numbers, order refs, emails and Latin brand names in `<bdi>` or `dir="ltr"` inside Hebrew text.
+- **Number ranges** ("12–15 מנות", "14–15.12") also need `<bdi dir="ltr">`, or the browser shows them reversed ("15–12") in Hebrew.
 - **English snippets inside a Hebrew page** get `lang="en"`.
 - Headings use `text-wrap: balance` to avoid a single orphan word.
 
