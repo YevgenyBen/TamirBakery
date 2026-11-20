@@ -76,9 +76,9 @@ Anything else a basic store needs is covered in [basic-layout-gaps.md](research/
 3. **Admin sign-in method:** Google sign-in only, or email/password too.
 4. **Is English a full mirror of the site or only key pages?** The storefront research assumes a full `/en/` mirror.
 5. **Where photos come from** (owner's own, a photographer, or both) and who uploads them.
-6. **Business status:** is the owner an עוסק פטור? This decides whether the accessibility rules legally apply (see [accessibility research](research/israeli-web-accessibility-law.md#4-exemptions-and-thresholds)), and what business details go in the footer.
+6. **Business status:** is the owner an עוסק פטור? This decides whether the accessibility rules legally apply (see [accessibility research](research/israeli-web-accessibility-law.md#4-exemptions-and-thresholds)), and what business details go in the footer. The [licensing research](research/home-bakery-licences-and-permits.md#4-tax-registration) recommends opening an עוסק פטור file online now (2026 ceiling NIS 122,833).
 7. **Card payments:** the storefront research says card should always be offered in Israel. Phase 1 deliberately skips it; revisit if customers ask.
-8. **Kashrut wording:** only say "כשר" with a Rabbinate certificate. Confirm whether the owner has one.
+8. **Kashrut wording:** only say "כשר" with a Rabbinate certificate. Confirm whether the owner has one. Without one, the site may only describe its standards truthfully next to an explicit "no kashrut certificate" line, and the Rabbinate refuses certificates to businesses in private homes in principle (see [licensing research](research/home-bakery-licences-and-permits.md#6-kashrut-claims)).
 9. **Who starts a Bit/PayBox payment:** the owner sends an in-app request, or the customer sends money with the order ref in the note. A private Bit account has no shareable link with a preset amount; "bit לעסקים" links need a payment company. See [layout gaps §2](research/basic-layout-gaps.md#2-order-and-payment-path-cash-and-bitpaybox-only).
 10. **Private Bit for business use:** Bit's terms ask users to declare business use and cap receipts (₪25k/year free, ₪100k/year max). PayBox for business needs dealer status (ties to question 6).
 11. **When payment is due:** before confirmation, after it, or at pickup; and whether custom cakes need a deposit.
@@ -88,6 +88,7 @@ Anything else a basic store needs is covered in [basic-layout-gaps.md](research/
 15. **Product pages:** separate `/store/[slug]` pages (shareable links), or cards that expand in place?
 16. **Firestore region:** it can't be changed after the database is created. The [privacy research](research/israeli-privacy-law.md#7-cross-border-transfer-and-firebase) suggests `me-west1` (Tel Aviv) or an EU region. Decide before creating the owner's project.
 17. **Who can see customer data:** keep it to the owner plus at most two others (the developer counts) so the lightest security level applies ([privacy research](research/israeli-privacy-law.md#1-tldr-what-this-bakery-store-must-do)).
+18. **Where will the baking happen?** The [licensing research](research/home-bakery-licences-and-permits.md#8-recommended-path-from-zero) found no legal route for selling food made in an ordinary family kitchen. Options: a licensed rented or shared kitchen, or a separate self-contained unit at home licensed under item 4.2ג. Until then, the site should launch as a portfolio with no ordering.
 
 ---
 
@@ -95,9 +96,7 @@ Anything else a basic store needs is covered in [basic-layout-gaps.md](research/
 
 Each item gets its own file in `docs/research/` and is linked back here.
 
-| Topic | Focus | Status |
-|---|---|---|
-| **Business licence and food permits** | What a home baker needs to sell food online in Israel (Ministry of Health, municipal business licence), and what we can claim on the site. The owner has no licence yet, so this is near-term. | To do, soon |
+No research is open right now. Add new topics here as a table (topic, focus, status) when they come up.
 
 ### Done
 
@@ -106,6 +105,7 @@ Each item gets its own file in `docs/research/` and is linked back here.
 - [Israeli web accessibility law](research/israeli-web-accessibility-law.md): who must comply (SI 5568-1 level AA, based on WCAG 2.0), the עוסק פטור / NIS 100k exemption, accessibility statement template. Recommendation: build to AA and publish a statement even if exempt.
 - [Local SEO and marketing](research/local-seo-and-marketing.md): Google Business Profile as a service-area business (hide the home address), Next.js SEO setup for Hebrew + English (`SITE_URL` env var, noindex the temporary Firebase URL, hreflang, sitemap, Open Graph image, Product JSON-LD), free WhatsApp Business app and `wa.me` links instead of the paid API, free Israeli directories, review rules, and the anti-spam law ("פרסומת" + prior consent). Section 10 is a prioritised to-do list split into developer and owner tasks.
 - [Israeli privacy law](research/israeli-privacy-law.md): Amendment 13 (no database registration or DPO needed at this size), the section 11 collection notice on every form, light 2017 security duties if at most three people can access the data, opt-in and "פרסומת" rules for marketing (spam law), Firestore region choice, no analytics cookies in phase 1, and a Hebrew privacy-policy template.
+- [Home bakery licences and permits](research/home-bakery-licences-and-permits.md): municipal business licence (item 4.2ג, separate preparation area needed; no legal family-kitchen route found), Ministry of Health, *עוסק פטור* registration (2026 ceiling NIS 122,833), receipts for every Bit/cash payment, kashrut wording rules, seller details the site must show. Recommendation: register with the Tax Authority now, run the site with no ordering until the business licence is in hand.
 
 ---
 
