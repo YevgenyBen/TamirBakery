@@ -206,6 +206,7 @@ Buttons, not drop-downs (per the storefront research). Each tile shows servings 
 - Ratios: 4:3 for cards and product pages, 5:4 for the hero, 1:1 for the gallery grid. Always set `aspect-ratio` and `width`/`height` to reserve space (CLS < 0.1). Lazy-load everything below the fold, serve WebP or AVIF through `next/image`.
 - Every photo has Hebrew and English alt text written by the owner in `/admin` (SC 1.1.1). Decorative images get `alt=""`.
 - Placeholders while photos don't exist: a warm diagonal gradient in the cream–caramel range with a caption naming the photo needed (as in the mockup).
+- Mockup v2 uses free-licence Unsplash photos as stand-ins so the design can be judged with real food. They are for the preview only. Replace every one with the owner's own photos before launch.
 
 ### Steps ("how ordering works")
 

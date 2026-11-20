@@ -137,6 +137,7 @@ section{display:grid;gap:16px;min-width:0}
 .photo{position:relative;overflow:hidden;border-radius:var(--r-lg);aspect-ratio:4/3;display:grid;place-items:center;color:var(--ph-ink);
   background:linear-gradient(135deg,hsl(var(--h,32) var(--ph-s) var(--ph-l1)),hsl(calc(var(--h,32) + 14) var(--ph-s) var(--ph-l2)))}
 .photo>.i{font-size:clamp(2.5rem,12vw,4.5rem)}
+.photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .photo .cap{position:absolute;inset-inline-start:10px;bottom:10px;max-width:calc(100% - 20px);font-size:var(--t-xs);background:var(--surface);color:var(--muted);border-radius:var(--r-pill);padding:2px 10px}
 .photo.hero{aspect-ratio:5/4}
 .photo.sq{aspect-ratio:1}
@@ -369,17 +370,17 @@ const S={lang:"he",cart:{cookies:2,rugelach:1},filter:"all",size:{},form:{fulfil
     {ref:"TB-1038",name:"דנה מ.",en:"Dana M.",item:{he:"חלה מתוקה ×3",en:"Sweet challah ×3"},date:"2026-11-20",f:"pickup",total:90,st:"cancelled",paid:false}],
   closed:["2026-12-14","2026-12-15"],storeOpen:true};
 const P=[
- {id:"choc",cat:"cakes",icon:"cake",h:24,mode:"cart",lead:3,on:true,price:160,sizes:[[18,"8–10",160],[22,"12–15",210],[26,"18–22",260]],
+ {id:"choc",img:"1605807646983-377bc5a76493",img2:"1709195902163-7eee13e78970",scale:"1670843840225-2ffcaf483c01",cat:"cakes",icon:"cake",h:24,mode:"cart",lead:3,on:true,price:160,sizes:[[18,"8–10",160],[22,"12–15",210],[26,"18–22",260]],
   name:{he:"עוגת שוקולד עשירה",en:"Rich chocolate cake"},desc:{he:"שוקולד מריר, גנאש חלק וקצת מלח ים.",en:"Dark chocolate, smooth ganache and a pinch of sea salt."},al:{he:"גלוטן, ביצים, חלב",en:"Gluten, eggs, milk"}},
- {id:"bday",cat:"cakes",icon:"cake",h:345,mode:"request",lead:5,on:true,price:280,sizes:[[18,"8–10",280],[22,"12–15",340],[26,"18–22",420]],
+ {id:"bday",img:"1606983340126-99ab4feaa64a",img2:"1602630209855-dceac223adfe",scale:"1670843840225-2ffcaf483c01",cat:"cakes",icon:"cake",h:345,mode:"request",lead:5,on:true,price:280,sizes:[[18,"8–10",280],[22,"12–15",340],[26,"18–22",420]],
   name:{he:"עוגת יום הולדת מעוצבת",en:"Custom birthday cake"},desc:{he:"עיצוב וכיתוב לבחירתכם. מאשרים איתכם בוואטסאפ.",en:"Your design and message. We confirm with you on WhatsApp."},al:{he:"גלוטן, ביצים, חלב",en:"Gluten, eggs, milk"}},
- {id:"cookies",cat:"cookies",icon:"cookie",h:38,mode:"cart",lead:2,on:true,price:65,
+ {id:"cookies",img:"1630782622114-613e6e9c5dc6",img2:"1621353354739-1420ff28ead9",scale:"1607975218250-7faaf3e36bbf",cat:"cookies",icon:"cookie",h:38,mode:"cart",lead:2,on:true,price:65,
   name:{he:"עוגיות חמאה · קופסה של 20",en:"Butter cookies · box of 20"},desc:{he:"פריכות, עם וניל אמיתי.",en:"Crisp, with real vanilla."},al:{he:"גלוטן, ביצים, חלב",en:"Gluten, eggs, milk"}},
- {id:"rugelach",cat:"cookies",icon:"cookie",h:18,mode:"cart",lead:2,on:true,price:55,
+ {id:"rugelach",img:"1608582037152-adefa9decb70",img2:"1707531287910-5e6eeca840a7",scale:"1607975218250-7faaf3e36bbf",cat:"cookies",icon:"cookie",h:18,mode:"cart",lead:2,on:true,price:55,
   name:{he:"רוגלך שוקולד · תריסר",en:"Chocolate rugelach · dozen"},desc:{he:"בצק שמרים רך ומילוי שוקולד.",en:"Soft yeast dough with chocolate filling."},al:{he:"גלוטן, ביצים, חלב",en:"Gluten, eggs, milk"}},
- {id:"cheese",cat:"cakes",icon:"cake",h:44,mode:"cart",lead:3,on:false,price:180,
+ {id:"cheese",img:"1708175313856-8573b2bf8a3a",img2:"1779282833204-076de40e621f",scale:"1670843840225-2ffcaf483c01",cat:"cakes",icon:"cake",h:44,mode:"cart",lead:3,on:false,price:180,
   name:{he:"עוגת גבינה אפויה",en:"Baked cheesecake"},desc:{he:"גבינה 5%, בסיס פירורים חמאתי.",en:"5% cheese on a buttery crumb base."},al:{he:"גלוטן, ביצים, חלב",en:"Gluten, eggs, milk"}},
- {id:"challah",cat:"bread",icon:"bread",h:30,mode:"cart",lead:1,on:true,isNew:true,price:30,
+ {id:"challah",img:"1775172258063-8f20e384503c",img2:"1609970774353-3e2ee33d8cb3",scale:"1609970957077-6baa39b4a749",cat:"bread",icon:"bread",h:30,mode:"cart",lead:1,on:true,isNew:true,price:30,
   name:{he:"חלה מתוקה לשבת",en:"Sweet Shabbat challah"},desc:{he:"קלועה ביד, עם שומשום או בלי.",en:"Hand-braided, with or without sesame."},al:{he:"גלוטן, ביצים, שומשום",en:"Gluten, eggs, sesame"}}];
 const byId=id=>P.find(p=>p.id===id);
 
@@ -390,7 +391,10 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const money=n=>new Intl.NumberFormat(S.lang==="he"?"he-IL":"en-IL",{style:"currency",currency:"ILS",maximumFractionDigits:0}).format(n);
 const day=s=>new Intl.DateTimeFormat(S.lang==="he"?"he-IL":"en-IL",{weekday:"short",day:"numeric",month:"numeric"}).format(new Date(s+"T12:00"));
 const I=(n,cls="")=>`<i class="ph ph-${n} i ${cls}" aria-hidden="true"></i>`;
-const ph=(h,icon,label,cls="")=>`<div class="photo ${cls}" style="--h:${h}" role="img" aria-label="${esc(label)}">${I(icon)}<span class="cap" aria-hidden="true">${esc(label)}</span></div>`;
+const U=(id,w)=>`https://images.unsplash.com/photo-${id}?w=${w}&q=70&auto=format&fit=crop`;
+/* Placeholder photos: Unsplash (free licence), hotlinked. If one fails to load, the warm gradient and icon show instead. */
+const ph=(h,icon,label,cls="",img)=>img?`<div class="photo ${cls}" style="--h:${h}">${I(icon)}<img src="${U(img,800)}" srcset="${U(img,480)} 480w, ${U(img,960)} 960w, ${U(img,1400)} 1400w" sizes="(min-width:900px) 45vw, 100vw" alt="${esc(label)}" loading="lazy" decoding="async" onerror="this.remove()"></div>`
+  :`<div class="photo ${cls}" style="--h:${h}" role="img" aria-label="${esc(label)}">${I(icon)}<span class="cap" aria-hidden="true">${esc(label)}</span></div>`;
 const arrowNext=()=>I("arrow-right","flip");
 let toastT;function toast(msg,icon="check-circle"){const t=document.getElementById("toast");t.innerHTML=I(icon)+esc(msg);t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,4000)}
 const cartCount=()=>Object.values(S.cart).reduce((a,b)=>a+b,0);
@@ -402,7 +406,7 @@ const FEE=25;
 function route(){const h=decodeURIComponent(location.hash.slice(1))||"home";if(h.startsWith("p-"))return{r:"product",id:h.slice(2)};return{r:h}}
 function pv(){
   const th=document.documentElement.dataset.theme||"auto";
-  return `<div class="wrap"><span>${L("תצוגה מקדימה v2 · לפי DESIGN.md · תמונות, מחירים והזמנות לדוגמה","Preview v2 · from DESIGN.md · sample photos, prices and orders")}</span>
+  return `<div class="wrap"><span>${L("תצוגה מקדימה v2 · לפי DESIGN.md · תמונות להמחשה מ־Unsplash, מחירים והזמנות לדוגמה","Preview v2 · from DESIGN.md · stand-in photos from Unsplash, sample prices and orders")}</span>
   <nav aria-label="${L("כלי תצוגה","Preview tools")}"><a href="#style">${I("palette")}${L("מדריך עיצוב","Style guide")}</a><a href="#admin">${I("lock-key")}${L("ניהול","Admin")}</a>
   <button type="button" id="themeBtn">${I(th==="dark"?"moon":th==="light"?"sun":"circle-half")}${L("ערכת צבע: ","Theme: ")}${{auto:L("אוטומטי","auto"),light:L("בהירה","light"),dark:L("כהה","dark")}[th]}</button></nav></div>`}
 function header(r){
@@ -437,7 +441,7 @@ function card(p){
     :`<button class="btn sec sm" type="button" data-add="${p.id}">${I("plus")}${L("הוספה לסל","Add to cart")}</button>`;
   return `<article class="card ${out?"out":""}">
    ${p.isNew?`<span class="chip new badge">${I("sparkle")}${L("חדש","New")}</span>`:""}
-   ${ph(p.h,p.icon,T(p.name))}
+   ${ph(p.h,p.icon,T(p.name),"",p.img)}
    <div class="body"><h3><a href="#p-${p.id}">${esc(T(p.name))}</a></h3><p class="desc">${esc(T(p.desc))}</p>
     <div class="chips">${out?`<span class="chip bad">${I("x-circle")}${L("אזל כרגע","Sold out for now")}</span>`:`<span class="chip">${I("clock")}${L(`${p.lead} ימים מראש`,`${p.lead} days ahead`)}</span>`}
     ${p.mode==="request"?`<span class="chip warn">${I("chat-circle-text")}${L("בהזמנה אישית","Made to order")}</span>`:""}</div></div>
@@ -452,7 +456,7 @@ function home(){
     <p class="lede">${L("מזמינים 2 ימים מראש או יותר. אוספים מהבית או מקבלים משלוח באזור. משלמים במזומן או בביט.","Order 2 days ahead or more. Pick up from home or get local delivery. Pay in cash or with Bit.")}</p>
     <div class="ctas"><a class="btn pri" href="#store">${I("storefront")}${L("לחנות","Browse the shop")}</a><a class="btn sec" href="#" data-wa>${I("whatsapp-logo")}${L("שאלה? כתבו לנו","Questions? Message us")}</a></div>
     <div class="facts"><span>${I("calendar-blank")}${L("הזמנה עד יומיים מראש","Order 2+ days ahead")}</span><span>${I("truck")}${L("משלוח באזור ₪25","Local delivery ₪25")}</span><span>${I("wallet")}${L("מזומן או Bit","Cash or Bit")}</span></div></div>
-   ${ph(24,"cake",L("תמונה: עוגה אמיתית מהמטבח, באור יום","Photo: a real cake from the kitchen, daylight"),"hero")}
+   ${ph(24,"cake",L("עוגת שכבות עם קרם ופירות יער","Layer cake with cream and berries"),"hero","1615735486329-c61cd40bfcc6")}
   </section>
 
   <section aria-labelledby="how"><h2 id="how">${L("איך מזמינים","How ordering works")}</h2>
@@ -463,14 +467,14 @@ function home(){
    <div class="grid">${top.map(card).join("")}</div></section>
 
   <section class="two" aria-labelledby="baker">
-   ${ph(18,"user",L("תמונה: האופה במטבח","Photo: the baker in the kitchen"))}
+   ${ph(18,"user",L("ידיים לשות בצק על משטח עבודה","Hands kneading dough on a counter"),"","1765005249334-8194ce969b64")}
    <div class="panel soft"><span class="eyebrow">${I("hand-heart")}${L("מי אופה","Who bakes")}</span><h2 id="baker">${L("נעים מאוד, תמיר","Hi, I'm Tamir")}</h2>
     <p>${L("אני אופה בבית כבר שנים, ועכשיו גם בשבילכם. חמאה אמיתית, שוקולד טוב, ובלי קיצורי דרך.","I've baked at home for years, and now I bake for you too. Real butter, good chocolate, no shortcuts.")}</p>
     <a class="link" href="#about">${L("עוד עליי ועל המטבח","More about me and the kitchen")}${arrowNext()}</a></div>
   </section>
 
   <section aria-labelledby="gal"><h2 id="gal">${L("מהמטבח","From the kitchen")}</h2>
-   <div class="gallery">${[[24,"cake",L("עוגת שכבות","Layer cake")],[38,"cookie",L("עוגיות על מגש","Cookies on a tray")],[30,"bread",L("חלות קלועות","Braided challahs")],[345,"cake",L("עוגת יום הולדת","Birthday cake")],[18,"cookie",L("רוגלך","Rugelach")],[44,"cake",L("עוגת גבינה","Cheesecake")],[28,"hand-heart",L("ידיים בבצק","Hands in dough")]].map(g=>ph(g[0],g[1],g[2],"sq")).join("")}</div></section>
+   <div class="gallery">${[[24,"cake",L("פרוסות עוגת שכבות","Layer cake slices"),"1778447964490-8e52582f081c"],[38,"cookie",L("עוגיות על רשת צינון","Cookies on a cooling rack"),"1639694171537-250e3d924b6c"],[30,"bread",L("חלות קלועות","Braided challahs"),"1609970957077-6baa39b4a749"],[345,"cake",L("עוגת שוקולד עם זילוף","Chocolate drip cake"),"1588195538326-c5b1e9f80a1b"],[18,"cookie",L("מאפי שמרים מגולגלים","Rolled yeast pastries"),"1509365465985-25d11c17e812"],[44,"cake",L("עוגת גבינה עם פירות יער","Cheesecake with berries"),"1779282833204-076de40e621f"],[28,"hand-heart",L("ידיים בבצק","Hands in dough"),"1517686469429-8bdb88b9f907"]].map(g=>ph(g[0],g[1],g[2],"sq",g[3])).join("")}</div></section>
 
   <section aria-labelledby="rev"><h2 id="rev">${L("מה אומרים עלינו","What people say")}</h2>
    <p class="note">${I("star")}<span>${L("כאן יופיעו ביקורות אמיתיות מגוגל, עם שם ובאישור הלקוחות, כשיהיו מספיק. עד אז: ","Real Google reviews, with names and permission, go here once there are enough. Until then: ")}<a href="#" data-soon>${L("לביקורות בגוגל","see Google reviews")}</a></span></p></section>
@@ -498,7 +502,7 @@ function product(id){
   const req=p.mode==="request";
   return `<nav class="crumbs" aria-label="${L("פירורי לחם","Breadcrumb")}"><a href="#store">${L("החנות","Shop")}</a>${I("caret-right","flip")}<span aria-current="page">${esc(T(p.name))}</span></nav>
   <div class="two">
-   <div class="pgal">${ph(p.h,p.icon,T(p.name))}${ph(p.h+10,"hand-pointing",L("עם סכין לקנה מידה","With a knife for scale"))}${ph(p.h-8,p.icon,L("פרוסה","A slice"))}</div>
+   <div class="pgal">${ph(p.h,p.icon,T(p.name),"",p.img)}${ph(p.h+10,"hand-pointing",L("לקנה מידה","For scale"),"",p.scale)}${ph(p.h-8,p.icon,L("מקרוב","Close-up"),"",p.img2)}</div>
    <div class="pinfo">
     <div style="display:grid;gap:10px"><h1 id="h1">${esc(T(p.name))}</h1><p class="lede">${esc(T(p.desc))}</p>
      <div class="chips"><span class="chip">${I("clock")}${L(`להזמין ${p.lead} ימים מראש`,`Order ${p.lead} days ahead`)}</span>${p.on?`<span class="chip ok">${I("check-circle")}${L("זמין","Available")}</span>`:`<span class="chip bad">${I("x-circle")}${L("אזל כרגע","Sold out for now")}</span>`}</div>
@@ -549,7 +553,7 @@ function cart(){
     <button class="btn pri block" type="submit">${I("paper-plane-tilt","flip")}${L("שליחת ההזמנה","Send order")}</button>
    </form>
    <aside class="panel" aria-labelledby="sumh"><h2 id="sumh" style="font-size:var(--t-h3)">${L("ההזמנה שלכם","Your order")}</h2>
-    <div class="lines">${lines.map(({p,q})=>`<div class="line">${ph(p.h,p.icon,T(p.name))}<div class="what"><b>${esc(T(p.name))}</b><span class="sm muted tn">${money(p.price)} ${L("ליחידה","each")}</span></div>
+    <div class="lines">${lines.map(({p,q})=>`<div class="line">${ph(p.h,p.icon,T(p.name),"",p.img)}<div class="what"><b>${esc(T(p.name))}</b><span class="sm muted tn">${money(p.price)} ${L("ליחידה","each")}</span></div>
      <div class="qty"><button type="button" data-q="${p.id}" data-d="-1" aria-label="${L("הפחתה","Decrease")} ${esc(T(p.name))}">${I(q===1?"trash":"minus")}</button><output aria-live="polite" aria-label="${L("כמות","Quantity")}">${q}</output><button type="button" data-q="${p.id}" data-d="1" aria-label="${L("הוספה","Increase")} ${esc(T(p.name))}">${I("plus")}</button></div></div>`).join("")}</div>
     <div class="sum"><div><span>${L("ביניים","Subtotal")}</span><span>${money(sub)}</span></div><div><span>${L("משלוח","Delivery")}</span><span>${fee?money(fee):L("חינם","Free")}</span></div><div class="total"><span>${L("סה״כ","Total")}</span><span>${money(sub+fee)}</span></div></div>
     <p class="xs muted">${L("מחירים כוללים הכל. אין חיוב עד שנאשר.","Prices include everything. Nothing is charged until we confirm.")}</p></aside>
@@ -570,7 +574,7 @@ function order(){
    <div class="ctas"><a class="btn pri" href="#" data-wa>${I("whatsapp-logo")}${L("פתיחת וואטסאפ","Open WhatsApp")}</a><a class="btn sec" href="#store">${L("חזרה לחנות","Back to the shop")}</a></div></section>`}
 
 function about(){
-  return `<section class="two" aria-labelledby="h1">${ph(18,"user",L("תמונה: תמיר במטבח","Photo: Tamir in the kitchen"),"hero")}
+  return `<section class="two" aria-labelledby="h1">${ph(18,"user",L("מרדדים בצק במטבח","Rolling out dough in the kitchen"),"hero","1480215825332-69732b261cc2")}
    <div style="display:grid;gap:14px;align-content:center"><span class="eyebrow">${I("hand-heart")}${L("אודות","About")}</span><h1 id="h1">${L("מאפייה קטנה, בבית","A small bakery, at home")}</h1>
     <p class="lede">${L("התחלתי לאפות לחברים ולמשפחה, והעוגות התחילו לעבור מיד ליד. היום אני אופה בכמויות קטנות, לפי הזמנה, כדי שכל עוגה תצא טרייה.","I started baking for friends and family, and the cakes got passed around. Now I bake in small batches, to order, so every cake is fresh.")}</p></div></section>
   <section aria-labelledby="k"><h2 id="k">${L("המטבח והרכיבים","The kitchen and ingredients")}</h2>
@@ -611,7 +615,7 @@ function admin(){
   </article>`}).join("")||`<p class="note">${I("info")}<span>${L("אין הזמנות בסינון הזה.","No orders in this filter.")}</span></p>`}</div>`}
 function adminProducts(){
   return `<div class="sec-head"><h1 id="h1">${L("מוצרים","Products")}</h1><button class="btn pri sm" type="button" data-soon>${I("plus")}${L("מוצר חדש","New product")}</button></div>
-  <div class="rows">${P.map(p=>`<div class="row prow">${ph(p.h,p.icon,T(p.name))}<div class="who" style="display:grid;gap:2px;min-width:0"><b>${esc(T(p.name))}</b><span class="sm muted tn">${p.sizes?L("החל מ־","from "):""}${money(p.price)} · ${p.mode==="request"?L("בקשה","Request"):L("סל","Cart")}</span></div>
+  <div class="rows">${P.map(p=>`<div class="row prow">${ph(p.h,p.icon,T(p.name),"",p.img)}<div class="who" style="display:grid;gap:2px;min-width:0"><b>${esc(T(p.name))}</b><span class="sm muted tn">${p.sizes?L("החל מ־","from "):""}${money(p.price)} · ${p.mode==="request"?L("בקשה","Request"):L("סל","Cart")}</span></div>
    <label class="switch"><input type="checkbox" role="switch" data-avail="${p.id}" ${p.on?"checked":""}><span>${p.on?L("זמין","On sale"):L("אזל","Sold out")}</span></label></div>`).join("")}</div>`}
 function adminSettings(){
   return `<h1 id="h1">${L("הגדרות","Settings")}</h1>
