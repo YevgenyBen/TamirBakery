@@ -20,7 +20,7 @@ A web store for a home bakery, aimed at the Israeli market. Hebrew first (RTL), 
 | `/about` | The owner and the business |
 | `/admin` | Admin area for the owner to manage products, settings and orders |
 
-Anything else a basic store needs (contact, FAQ, policies, accessibility statement, etc.) is an open research item; see [Research to do](#3-research-to-do).
+Anything else a basic store needs is covered in [basic-layout-gaps.md](research/basic-layout-gaps.md#recommended-phase-1-route-list). It recommends adding `/store/[slug]`, `/cart`, `/order/[id]`, `/policies` and `/accessibility`, and folding FAQ and contact into `/` and `/about`. Not adopted yet; see open questions 9 to 15.
 
 ### Tech stack and hosting
 
@@ -79,6 +79,13 @@ Anything else a basic store needs (contact, FAQ, policies, accessibility stateme
 6. **Business status:** is the owner an עוסק פטור? This decides whether the accessibility rules legally apply (see [accessibility research](research/israeli-web-accessibility-law.md#4-exemptions-and-thresholds)), and what business details go in the footer.
 7. **Card payments:** the storefront research says card should always be offered in Israel. Phase 1 deliberately skips it; revisit if customers ask.
 8. **Kashrut wording:** only say "כשר" with a Rabbinate certificate. Confirm whether the owner has one.
+9. **Who starts a Bit/PayBox payment:** the owner sends an in-app request, or the customer sends money with the order ref in the note. A private Bit account has no shareable link with a preset amount; "bit לעסקים" links need a payment company. See [layout gaps §2](research/basic-layout-gaps.md#2-order-and-payment-path-cash-and-bitpaybox-only).
+10. **Private Bit for business use:** Bit's terms ask users to declare business use and cap receipts (₪25k/year free, ₪100k/year max). PayBox for business needs dealer status (ties to question 6).
+11. **When payment is due:** before confirmation, after it, or at pickup; and whether custom cakes need a deposit.
+12. **Store closures:** on Shabbat and holidays, keep taking orders and only block those dates, or close the store? Closed dates entered by hand, or from a holiday calendar (Hebcal)? What is the order cutoff and how far ahead can people order?
+13. **Home address in the footer:** consumer law asks for the business's name and address, which for a home bakery is the home. Full address, or pickup area only? Needs legal input.
+14. **English policies:** full translation, or a summary pointing to the binding Hebrew text?
+15. **Product pages:** separate `/store/[slug]` pages (shareable links), or cards that expand in place?
 
 ---
 
@@ -88,13 +95,13 @@ Each item gets its own file in `docs/research/` and is linked back here.
 
 | Topic | Focus | Status |
 |---|---|---|
-| **Basic layout gaps** | What's missing from `/`, `/store`, `/about`, `/admin` for a basic store (e.g. contact, FAQ, policies, accessibility statement, cart/checkout, order confirmation). Start from the page map in [storefront-layouts.md](research/storefront-layouts.md#recommended-page-map). | To do |
 | **Local SEO and marketing** | Cheap and quick: Google Business Profile, basic on-page SEO in Hebrew, social and WhatsApp channels. | To do |
 | **Privacy law** | Israeli Privacy Protection Law (incl. Amendment 13), what a privacy policy must say, what customer data we can keep in Firestore, cookie notice. | To do |
 | **Business licence and food permits** | What a home baker needs to sell food online in Israel (Ministry of Health, municipal business licence), and what we can claim on the site. The owner has no licence yet, so this is near-term. | To do, soon |
 
 ### Done
 
+- [Basic layout gaps](research/basic-layout-gaps.md): minimal phase 1 route list, order and confirmation path with cash/Bit (how Bit and PayBox requests really work), footer and global components, Next.js system pages, store open/closed and holiday states, `/admin` screens. Raised open questions 9 to 15.
 - [Storefront layouts for a home bakery](research/storefront-layouts.md): page map, homepage order, ordering flow, trust signals, RTL/bilingual layout, Israeli legal items that affect layout.
 - [Israeli web accessibility law](research/israeli-web-accessibility-law.md): who must comply (SI 5568-1 level AA, based on WCAG 2.0), the עוסק פטור / NIS 100k exemption, accessibility statement template. Recommendation: build to AA and publish a statement even if exempt.
 
