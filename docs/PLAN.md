@@ -32,6 +32,7 @@ The visual style (colours, Hebrew fonts, spacing, components and tone of voice) 
 - **Firebase** for hosting and database (Firestore). Product photos go in Firebase Storage.
 - **Hosting account, for now:** Yevgeny's own Firebase project, on the Blaze plan (needed for Next.js on Firebase App Hosting; expected cost at this traffic is close to nothing).
 - **At deploy:** move hosting to a new Firebase project paid for by the owner. See [Firebase migration](#4-firebase-migration-at-deploy).
+- **Dev project (created 2026-11-20):** `tamir-bakery-dev` ("Tamir Bakery dev"), with a web app and a Firestore database in `me-west1` (Tel Aviv). Rules and indexes live in the repo (`firestore.rules`, `firestore.indexes.json`) and deploy with `npx firebase-tools deploy --only firestore`. Web config goes in `.env.local` (see `.env.example`). The project still needs the Blaze plan linked before App Hosting can be set up, and App Hosting itself waits for the Next.js skeleton.
 
 ### Payments
 
@@ -90,7 +91,7 @@ The visual style (colours, Hebrew fonts, spacing, components and tone of voice) 
 13. **Home address in the footer:** consumer law asks for the business's name and address, which for a home bakery is the home. Full address, or pickup area only? Needs legal input.
 14. **English policies:** full translation, or a summary pointing to the binding Hebrew text?
 15. **Product pages:** separate `/store/[slug]` pages (shareable links), or cards that expand in place?
-16. **Firestore region:** it can't be changed after the database is created. The [privacy research](research/israeli-privacy-law.md#7-cross-border-transfer-and-firebase) suggests `me-west1` (Tel Aviv) or an EU region. Decide before creating the owner's project.
+16. **Firestore region:** decided: `me-west1` (Tel Aviv), per the [privacy research](research/israeli-privacy-law.md#7-cross-border-transfer-and-firebase). The dev project uses it; the owner's project must use it too, since the region can't be changed after the database is created.
 17. **Who can see customer data:** keep it to the owner plus at most two others (the developer counts) so the lightest security level applies ([privacy research](research/israeli-privacy-law.md#1-tldr-what-this-bakery-store-must-do)).
 18. **Where will the baking happen?** The [licensing research](research/home-bakery-licences-and-permits.md#8-recommended-path-from-zero) found no legal route for selling food made in an ordinary family kitchen. Options: a licensed rented or shared kitchen, or a separate self-contained unit at home licensed under item 4.2ג. Until then, the site should launch as a portfolio with no ordering.
 
