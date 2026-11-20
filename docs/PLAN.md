@@ -70,13 +70,27 @@ The visual style (colours, Hebrew fonts, spacing, components and tone of voice) 
 
 ### Testing
 
-When the test setup is created, accessibility checks are part of it from day one, next to the functional tests:
+**Functional and end-to-end tests exist from the first commit,** set up with the app skeleton, before any feature is built. Every feature ships with its tests, and a feature is not done until they pass. Accessibility checks are part of both layers.
 
-- **Lint:** `eslint-plugin-jsx-a11y` (included in Next.js's ESLint config) with errors failing the build.
-- **Component tests:** run axe (`vitest-axe` or `jest-axe`) on each component's rendered states, including error and empty states.
-- **End-to-end:** Playwright with `@axe-core/playwright` scans every route in Hebrew and English, at phone and desktop sizes, in light and dark themes, tagged for WCAG 2.0/2.1/2.2 A and AA. Any violation fails the run. Also cover key flows by keyboard only (browse the store, fill the cart and order form, use `/admin`).
-- **CI:** lint, component and end-to-end tests run on every pull request.
-- **Manual pass before each release:** automated tools catch only part of the problems, so also check with a screen reader in Hebrew (NVDA on Windows, VoiceOver on iPhone), check zoom to 200%, and review alt text and headings by hand.
+**Functional tests** (Vitest + React Testing Library):
+
+- Unit tests for logic: prices, cart totals, delivery and pickup rules (global defaults and per-item overrides), order cutoffs and closed dates, Hebrew/English text lookup.
+- Component tests for each component's states (loading, empty, error, filled), in both languages.
+- Integration tests against the Firebase Emulator Suite: Firestore and Storage security rules (only admins can write products, customers can't read other orders), server actions and API routes, and the email/WhatsApp notification interface with fake senders.
+- Axe on rendered components (`vitest-axe`), including error and empty states.
+
+**End-to-end tests** (Playwright, against the built app and the Firebase emulators, never a live project):
+
+- The main user journeys: browse `/` and `/store`, switch language, view a product, place an order with cash and with Bit, and see the confirmation.
+- The admin journeys: sign in as a listed admin, be blocked as a non-admin, add and edit a product with a photo and alt text, change delivery settings, mark an order as paid.
+- Run at phone and desktop sizes.
+- `@axe-core/playwright` scans every route in Hebrew and English, at phone and desktop sizes, in light and dark themes, tagged for WCAG 2.0/2.1/2.2 A and AA. Any violation fails the run. Key flows are also run by keyboard only.
+
+**Also:**
+
+- **Lint and types:** ESLint with `eslint-plugin-jsx-a11y` (included in Next.js's config) and `tsc` type checks, with errors failing the build.
+- **CI:** lint, type checks, functional tests and end-to-end tests run on every pull request (GitHub Actions). Seed data for tests lives in the repo, alongside the seed/export script from [Firebase migration](#4-firebase-migration-at-deploy).
+- **Manual accessibility pass before each release:** automated tools catch only part of the problems, so also check with a screen reader in Hebrew (NVDA on Windows, VoiceOver on iPhone), check zoom to 200%, and review alt text and headings by hand.
 
 ### Notifications to the owner
 
@@ -145,7 +159,7 @@ Development runs on Yevgeny's Firebase project. Before going live, move to a pro
 
 ## 5. Phase 1 checklist (rough order)
 
-1. Next.js app skeleton with Hebrew RTL default and English, deployed to Yevgeny's Firebase. Set up the test tooling here too, with the accessibility checks from [Testing](#testing) wired into CI before any pages are built.
+1. Next.js app skeleton with Hebrew RTL default and English, deployed to Yevgeny's Firebase. Set up functional tests, end-to-end tests and the accessibility checks from [Testing](#testing) here too, running in CI before any pages are built.
 2. Firestore data model: products, global settings (delivery/pickup), orders (if we store them).
 3. `/admin` with the hardcoded admin list: manage products, photos, delivery/pickup settings.
 4. `/store` catalogue reading from Firestore.
