@@ -1,0 +1,855 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>מאפיית תמיר · תצוגה מקדימה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Suez+One&display=swap">
+<style>
+/* Layout: one phone column (max 44rem, 64rem on desktop); preview bar, header, status banner, page view, footer. Admin swaps in its own chrome. RTL by default via logical properties. */
+:root{
+  --bg:#fbf7f5; --surface:#ffffff; --sunk:#f3ebe7;
+  --fg:#33221d; --muted:#6e5a53; --line:#e6d9d3;
+  --accent:#a3264f; --accent-fg:#ffffff; --accent-soft:#f7e3ea;
+  --leaf:#4f6d2f; --leaf-soft:#e7efdc;
+  --warn:#8a5a00; --warn-soft:#fbefd6;
+  --bad:#a12a1c; --bad-soft:#fbe4e0;
+  --ph-s:45%; --ph-l1:86%; --ph-l2:78%; --ph-dot:rgba(255,255,255,.55);
+  --shadow:0 1px 2px rgba(51,34,29,.06),0 6px 20px rgba(51,34,29,.06);
+  --f-display:"Suez One","Frank Ruhl Libre",Georgia,serif;
+  --f-body:"Heebo","Assistant","Segoe UI",Arial,sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1c1412; --surface:#261c19; --sunk:#2f2320;
+  --fg:#f3e9e5; --muted:#c2aea7; --line:#45352f;
+  --accent:#ec7fa2; --accent-fg:#2a0d17; --accent-soft:#4a2230;
+  --leaf:#a9cc84; --leaf-soft:#2c3a20;
+  --warn:#f0c46a; --warn-soft:#3d2f12;
+  --bad:#f39a8c; --bad-soft:#47201a;
+  --ph-s:30%; --ph-l1:30%; --ph-l2:23%; --ph-dot:rgba(255,255,255,.12);
+  --shadow:0 1px 2px rgba(0,0,0,.3);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1c1412; --surface:#261c19; --sunk:#2f2320;
+  --fg:#f3e9e5; --muted:#c2aea7; --line:#45352f;
+  --accent:#ec7fa2; --accent-fg:#2a0d17; --accent-soft:#4a2230;
+  --leaf:#a9cc84; --leaf-soft:#2c3a20;
+  --warn:#f0c46a; --warn-soft:#3d2f12;
+  --bad:#f39a8c; --bad-soft:#47201a;
+  --ph-s:30%; --ph-l1:30%; --ph-l2:23%; --ph-dot:rgba(255,255,255,.12);
+  --shadow:0 1px 2px rgba(0,0,0,.3);
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.6}
+html[lang="en"] body{font-size:15px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;line-height:1.2;text-wrap:balance;margin:0}
+h1{font-size:2rem} h2{font-size:1.5rem} h3{font-size:1.15rem}
+p{margin:0}
+a{color:var(--accent)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.wrap{max-width:44rem;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (min-width:900px){.wrap{max-width:64rem}}
+
+.skip{position:absolute;inset-inline-start:8px;top:-60px;z-index:50;background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px;text-decoration:none}
+.skip:focus{top:8px}
+.pv{background:var(--accent-soft);color:var(--accent);font-size:.82rem;text-align:center;padding:6px max(16px,env(safe-area-inset-right,0px)) 6px max(16px,env(safe-area-inset-left,0px))}
+
+/* header */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+header.site{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line)}
+.hrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:10px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--fg)}
+.brand .mark{width:36px;height:36px;border-radius:50%;background:var(--accent);color:var(--accent-fg);display:grid;place-items:center;font-family:var(--f-display);font-size:1.2rem;flex:none}
+.brand b{font-family:var(--f-display);font-weight:400;font-size:1.2rem}
+.hact{display:flex;gap:8px;align-items:center}
+.lang{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;cursor:pointer;font-size:.9rem;min-height:36px}
+.bag{border:0;background:var(--accent);color:var(--accent-fg);border-radius:999px;padding:6px 14px;cursor:pointer;font-weight:500;min-height:36px;font-size:.9rem;text-decoration:none;display:inline-flex;align-items:center}
+nav.main{display:flex;gap:4px;padding-block:0 8px;overflow-x:auto;align-items:center}
+nav.main a{text-decoration:none;color:var(--muted);padding:6px 12px;border-radius:999px;white-space:nowrap;font-weight:500}
+nav.main a[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
+nav.main .a11y{margin-inline-start:auto;font-size:.85rem;font-weight:400;text-decoration:underline;text-underline-offset:3px}
+.banner{background:var(--warn-soft);color:var(--warn);font-size:.9rem;font-weight:500}
+.banner .wrap{padding-block:8px}
+.banner.closed{background:var(--bad-soft);color:var(--bad)}
+
+main{padding-block:20px 48px;display:grid;gap:40px}
+main:focus{outline:none}
+section{display:grid;gap:14px;min-width:0}
+.lede{color:var(--muted);max-width:62ch}
+.crumbs{font-size:.88rem;color:var(--muted)}
+.crumbs a{color:var(--muted)}
+
+/* placeholder photos */
+.ph{position:relative;border-radius:var(--r);aspect-ratio:4/3;max-width:100%;overflow:hidden;
+  background:
+   radial-gradient(circle at 20% 30%,var(--ph-dot) 0 3px,transparent 4px) 0 0/34px 34px,
+   radial-gradient(circle at 70% 70%,var(--ph-dot) 0 2px,transparent 3px) 0 0/26px 26px,
+   linear-gradient(135deg,hsl(var(--h,340) var(--ph-s) var(--ph-l1)),hsl(calc(var(--h,340) + 25) var(--ph-s) var(--ph-l2)));
+  display:flex;align-items:flex-end;padding:10px}
+.ph span{font-size:.75rem;background:var(--surface);color:var(--muted);border-radius:999px;padding:2px 10px;opacity:.92}
+
+.hero{display:grid;gap:18px}
+@media (min-width:760px){.hero{grid-template-columns:1.1fr 1fr;align-items:center}}
+.hero .ph{aspect-ratio:5/4}
+.ctas{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:10px 18px;border-radius:999px;border:1px solid transparent;font-weight:500;text-decoration:none;cursor:pointer;background:none}
+.btn.pri{background:var(--accent);color:var(--accent-fg)}
+.btn.sec{background:var(--surface);border-color:var(--line);color:var(--fg)}
+.btn.sm{min-height:36px;padding:6px 14px;font-size:.9rem}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-size:inherit}
+
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr))}
+.steps li{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:6px;align-content:start}
+.steps .n{width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:.9rem}
+
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(15rem,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;color:inherit;text-decoration:none}
+.card .ph{border-radius:0;aspect-ratio:16/9}
+.card .body{padding:12px 14px 14px;display:grid;gap:6px;flex:1;align-content:start}
+.card:hover h3{color:var(--accent)}
+.price{font-weight:700;font-variant-numeric:tabular-nums}
+.meta{display:flex;flex-wrap:wrap;gap:6px;font-size:.8rem}
+.chip{border-radius:999px;padding:2px 10px;background:var(--sunk);color:var(--muted)}
+.chip.ok{background:var(--leaf-soft);color:var(--leaf)}
+.chip.no{background:var(--warn-soft);color:var(--warn)}
+.allergen{font-size:.82rem;color:var(--muted)}
+.card .foot{padding:0 14px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+
+.gallery{display:grid;gap:8px;grid-template-columns:repeat(3,1fr)}
+.gallery .ph{aspect-ratio:1;border-radius:10px}
+.gallery .ph:first-child{grid-column:span 2;grid-row:span 2}
+
+.split{display:grid;gap:18px}
+@media (min-width:760px){.split{grid-template-columns:1fr 1.3fr;align-items:start}}
+
+.info{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:12px}
+dl.kv{margin:0;display:grid;gap:10px}
+dl.kv dt{font-weight:700}
+dl.kv dd{margin:0;color:var(--muted)}
+.ltr{direction:ltr;unicode-bidi:isolate}
+.ref.ltr{display:inline-block}
+.tn{font-variant-numeric:tabular-nums}
+
+details.faq{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+details.faq summary{cursor:pointer;padding:12px 14px;font-weight:500;list-style-position:inside}
+details.faq p{padding:0 14px 14px;color:var(--muted)}
+.faqs{display:grid;gap:8px}
+
+.strip{display:flex;flex-wrap:wrap;gap:8px;font-size:.9rem}
+.filters{display:flex;gap:8px;overflow-x:auto;padding-block:2px}
+.filters button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;cursor:pointer;white-space:nowrap;min-height:36px}
+.filters button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+
+.note{border:1.5px dashed var(--line);border-radius:var(--r);padding:12px 14px;font-size:.88rem;color:var(--muted);background:var(--sunk)}
+.note b{color:var(--fg)}
+.empty{text-align:center;padding:28px 16px;display:grid;gap:12px;justify-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+
+/* product page */
+.pgal{display:grid;gap:8px;grid-template-columns:1fr 1fr}
+.pgal .ph:first-child{grid-column:span 2;aspect-ratio:4/3}
+.pgal .ph{aspect-ratio:4/3}
+.sizes{display:flex;flex-wrap:wrap;gap:8px}
+.sizes button{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 12px;cursor:pointer;text-align:start;min-height:44px;display:grid}
+.sizes button small{color:var(--muted)}
+.sizes button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.bigprice{font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums}
+
+/* forms */
+fieldset{border:0;padding:0;margin:0;display:grid;gap:8px;min-width:0}
+legend{font-weight:700;margin-bottom:6px;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer}
+.opt input{margin-top:5px;accent-color:var(--accent)}
+.opt small{display:block;color:var(--muted)}
+.opt.dis{opacity:.55;cursor:not-allowed}
+.field{display:grid;gap:4px;min-width:0}
+.field label{font-weight:500}
+.field small{color:var(--muted)}
+.field input,.field select,.field textarea{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 12px;min-height:44px;width:100%}
+.field textarea{min-height:76px;resize:vertical}
+.field input[aria-invalid="true"]{border-color:var(--bad)}
+.err{color:var(--bad);font-size:.88rem;font-weight:500}
+.check{display:flex;gap:10px;align-items:flex-start}
+.check input{width:20px;height:20px;margin-top:3px;accent-color:var(--accent);flex:none}
+.form{display:grid;gap:18px;max-width:36rem}
+.line{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:10px;border-bottom:1px solid var(--line)}
+.line .what{min-width:0}
+.qty{display:flex;align-items:center;gap:6px;flex:none}
+.qty button{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--surface);cursor:pointer}
+.total{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums}
+.total.big{font-weight:700;font-size:1.15rem}
+.lnote{font-size:.82rem;color:var(--warn);background:var(--warn-soft);border-radius:8px;padding:2px 8px;display:inline-block;margin-top:4px}
+
+/* confirmation */
+.refbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:12px}
+.ref{font-size:1.8rem;font-weight:700;letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.copyrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;background:var(--sunk);border-radius:10px}
+.copyrow b{font-variant-numeric:tabular-nums}
+.payinfo{display:grid;gap:8px}
+
+footer.site{border-top:1px solid var(--line);background:var(--surface);font-size:.88rem;color:var(--muted)}
+footer .wrap{padding-block:22px 30px;display:grid;gap:14px}
+footer .links{display:flex;flex-wrap:wrap;gap:6px 16px}
+footer .links a,footer .links button{color:var(--fg);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-size:inherit}
+footer .biz{display:grid;gap:2px}
+
+/* policies */
+.toc{display:flex;flex-wrap:wrap;gap:8px}
+.toc a{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;text-decoration:none;color:var(--fg);font-size:.9rem}
+.policy{scroll-margin-top:110px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:10px}
+.policy ul{margin:0;padding-inline-start:20px;display:grid;gap:4px;color:var(--muted)}
+
+/* admin */
+.achrome{background:var(--fg);color:var(--bg)}
+.achrome .hrow{flex-wrap:wrap}
+.achrome .brand{color:var(--bg)}
+.achrome .lang,.achrome .out{background:transparent;color:var(--bg);border:1px solid color-mix(in srgb,var(--bg) 35%,transparent);border-radius:999px;padding:6px 12px;cursor:pointer;font-size:.88rem;text-decoration:none;min-height:36px;display:inline-flex;align-items:center}
+.anav{display:flex;gap:4px;overflow-x:auto;padding-block:0 8px}
+.anav a{color:color-mix(in srgb,var(--bg) 70%,transparent);text-decoration:none;padding:6px 12px;border-radius:999px;white-space:nowrap;font-weight:500}
+.anav a[aria-current="page"]{background:var(--bg);color:var(--fg)}
+.signin{max-width:24rem;margin:40px auto;display:grid;gap:14px;text-align:center;justify-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:28px 20px}
+.rows{display:grid;gap:10px}
+.row{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:10px;min-width:0}
+.row .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.row .top button.open{all:unset;cursor:pointer;display:grid;gap:2px;flex:1;min-width:0}
+.row .top button.open:focus-visible{outline:3px solid var(--accent);border-radius:6px}
+.ctrls{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr))}
+.ctrls .field input,.ctrls .field select{min-height:40px;padding:6px 10px}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font-size:.78rem;font-weight:700;border-radius:999px;padding:2px 10px;white-space:nowrap}
+.pill.new{background:var(--accent-soft);color:var(--accent)}
+.pill.conf,.pill.unpaid{background:var(--warn-soft);color:var(--warn)}
+.pill.ready,.pill.paid,.pill.done{background:var(--leaf-soft);color:var(--leaf)}
+.pill.declined,.pill.cancelled{background:var(--sunk);color:var(--muted)}
+.switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.switch input{width:18px;height:18px;accent-color:var(--accent)}
+.detail{border-top:1px dashed var(--line);padding-top:10px;display:grid;gap:12px}
+.paidrec{background:var(--leaf-soft);color:var(--leaf);border-radius:10px;padding:8px 12px;font-size:.9rem}
+.agal{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(10rem,1fr))}
+.agal .item{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:grid}
+.agal .item .ph{border-radius:0;aspect-ratio:4/3}
+.agal .item .in{padding:8px;display:grid;gap:6px}
+.agal .item .in input{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:4px 8px;width:100%;font-size:.85rem}
+.agal .item .mv{display:flex;gap:4px}
+.agal .item .mv button{flex:1;border:1px solid var(--line);background:var(--bg);border-radius:8px;cursor:pointer;min-height:30px}
+.dates{display:flex;flex-wrap:wrap;gap:6px}
+.dates span{display:inline-flex;gap:6px;align-items:center;background:var(--sunk);border-radius:999px;padding:2px 4px 2px 10px}
+html[dir="rtl"] .dates span{padding:2px 10px 2px 4px}
+.dates button{border:0;background:var(--surface);border-radius:50%;width:22px;height:22px;cursor:pointer;line-height:1}
+.muted{color:var(--muted)} .small{font-size:.85rem}
+.h3row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+
+.toast{position:fixed;inset-inline:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;z-index:30;pointer-events:none;padding-inline:16px}
+.toast div{background:var(--fg);color:var(--bg);border-radius:999px;padding:8px 16px;font-size:.9rem;box-shadow:var(--shadow)}
+@media (prefers-reduced-motion:no-preference){.toast div{animation:up .2s ease-out}@keyframes up{from{transform:translateY(12px);opacity:.4}}}
+</style>
+</head>
+<body>
+<a class="skip" href="#" data-skip>דלג לתוכן</a>
+<div class="pv" id="pv"></div>
+<header class="site" id="siteHeader">
+  <div class="wrap">
+    <div class="hrow">
+      <a class="brand" href="#"><span class="mark" aria-hidden="true">ת</span><b id="brandName"></b></a>
+      <div class="hact">
+        <button class="lang" id="langBtn" type="button"></button>
+        <a class="bag" id="bagBtn" href="#cart"></a>
+      </div>
+    </div>
+    <nav class="main" id="nav"></nav>
+  </div>
+</header>
+<div class="banner" id="banner" hidden><div class="wrap" id="bannerText"></div></div>
+<div id="adminChrome" hidden></div>
+<main class="wrap" id="view" tabindex="-1"></main>
+<footer class="site" id="siteFooter"><div class="wrap" id="footer"></div></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"><div id="toastText" hidden></div></div>
+
+<script>
+let lang="he";
+try{const l=localStorage.getItem("tamir-lang"); if(l==="en"||l==="he") lang=l;}catch(e){}
+const L=(he,en)=>lang==="he"?he:en;
+const B=o=>o[lang];
+const money=n=>new Intl.NumberFormat(lang==="he"?"he-IL":"en-IL",{style:"currency",currency:"ILS",maximumFractionDigits:0}).format(n);
+const today=new Date(); today.setHours(12,0,0,0);
+const dAdd=n=>{const d=new Date(today); d.setDate(d.getDate()+n); return d;};
+const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const fromIso=s=>new Date(s+"T12:00");
+const fmtDate=s=>new Intl.DateTimeFormat(lang==="he"?"he-IL":"en-IL",{weekday:"short",day:"numeric",month:"numeric"}).format(fromIso(s));
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- example data (admin edits these in memory) ---------- */
+const S={
+  storeOpen:true, closedMsg:{he:"החנות סגורה לחופשה קצרה. אפשר לעיין, וההזמנות ייפתחו שוב ב־",en:"We're on a short break. You can browse, and orders reopen on "}, reopen:iso(dAdd(10)),
+  bannerOn:true, banner:{he:"הזמנות לשישי נסגרות ביום חמישי ב־12:00",en:"Orders for Friday close on Thursday at 12:00"},
+  closedDates:[iso(dAdd(12)),iso(dAdd(13))],
+  pickupOn:true, pickupHours:{he:"א׳–ה׳ 16:00–19:00, ו׳ 9:00–13:00",en:"Sun–Thu 16:00–19:00, Fri 9:00–13:00"}, pickupArea:{he:"[שכונה, עיר]",en:"[Neighbourhood, city]"},
+  deliveryOn:true, deliveryFee:25, deliveryArea:{he:"עד 10 ק״מ מהמטבח",en:"up to 10 km from the kitchen"},
+  leadDays:2,
+  cashOn:true, bitOn:true, payPhone:"050-000-0000", payName:{he:"[שם בעל/ת העסק]",en:"[Owner's name]"}, payWhen:"confirm",
+  bizName:{he:"מאפיית תמיר",en:"Tamir Bakery"}, bizNum:"000000000", bizPhone:"050-000-0000", bizEmail:"hello@example.com",
+  notifyEmail:"", notifyWa:""
+};
+const SZ=(he,en,price)=>({he,en,price});
+const P=[
+  {id:"choc",cat:"cakes",h:15,lead:3,f:"default",on:true,mode:"cart",name:{he:"עוגת שוקולד",en:"Chocolate layer cake"},desc:{he:"שכבות שוקולד וגנאש מריר. מגיעה בקופסה עם כרטיס ברכה לבחירה.",en:"Chocolate layers with dark ganache. Comes boxed, with an optional greeting card."},al:["gluten","eggs","dairy"],
+   sizes:[SZ("קטנה · 10 מנות","Small · 10 servings",160),SZ("בינונית · 16 מנות","Medium · 16 servings",210),SZ("גדולה · 24 מנות","Large · 24 servings",280)]},
+  {id:"cheese",cat:"cakes",h:40,lead:2,f:"default",on:true,mode:"cart",name:{he:"עוגת גבינה אפויה",en:"Baked cheesecake"},desc:{he:"קרם גבינה על בסיס פירורים, 24 ס״מ.",en:"Cream cheese on a crumb base, 24 cm."},al:["gluten","eggs","dairy"],sizes:[SZ("","",150)]},
+  {id:"bday",cat:"cakes",h:330,lead:5,f:"pickup",on:true,mode:"request",name:{he:"עוגת יום הולדת מעוצבת",en:"Custom birthday cake"},desc:{he:"עיצוב וכיתוב לבחירה. שולחים בקשה, ואנחנו מאשרים את העיצוב והמחיר הסופי בוואטסאפ.",en:"Your design and inscription. Send a request and we confirm the design and final price on WhatsApp."},al:["gluten","eggs","dairy"],
+   sizes:[SZ("15 מנות","15 servings",280),SZ("25 מנות","25 servings",380)]},
+  {id:"cookies",cat:"cookies",h:30,lead:1,f:"default",on:true,mode:"cart",name:{he:"קופסת עוגיות חמאה",en:"Butter cookie box"},desc:{he:"24 עוגיות חמאה בקופסת מתנה.",en:"24 butter cookies in a gift box."},al:["gluten","eggs","dairy"],sizes:[SZ("","",60)]},
+  {id:"rugelach",cat:"cookies",h:20,lead:1,f:"default",on:true,mode:"cart",name:{he:"רוגלך שוקולד",en:"Chocolate rugelach"},desc:{he:"בצק שמרים וחמאה עם מילוי שוקולד.",en:"Butter yeast dough with chocolate filling."},al:["gluten","eggs","dairy"],sizes:[SZ("12 יחידות","12 pieces",55),SZ("24 יחידות","24 pieces",100)]},
+  {id:"challah",cat:"bread",h:35,lead:1,f:"pickup",on:true,mode:"cart",name:{he:"חלה מתוקה",en:"Sweet challah"},desc:{he:"חלה קלועה לשבת. איסוף ביום שישי.",en:"Braided challah for Shabbat. Friday pickup."},al:["gluten","eggs"],sizes:[SZ("","",28)]},
+  {id:"babka",cat:"bread",h:25,lead:2,f:"default",on:false,mode:"cart",name:{he:"בבקה קינמון",en:"Cinnamon babka"},desc:{he:"כיכר גדולה, 10 פרוסות.",en:"Large loaf, 10 slices."},al:["gluten","eggs","dairy"],sizes:[SZ("","",65)]},
+  {id:"platter",cat:"boxes",h:350,lead:3,f:"delivery",on:true,mode:"cart",name:{he:"מארז אירוח",en:"Hosting platter"},desc:{he:"מבחר מאפים קטנים, מסודרים על מגש להגשה.",en:"Mixed small pastries, arranged on a serving tray."},al:["gluten","eggs","dairy","nuts"],
+   sizes:[SZ("10–12 איש","10–12 people",220),SZ("20 איש","20 people",380)]}
+];
+const AL={gluten:{he:"גלוטן",en:"gluten"},eggs:{he:"ביצים",en:"eggs"},dairy:{he:"חלב",en:"dairy"},nuts:{he:"אגוזים",en:"nuts"}};
+const CATS={all:{he:"הכול",en:"All"},cakes:{he:"עוגות",en:"Cakes"},cookies:{he:"עוגיות ומאפים",en:"Cookies & pastries"},bread:{he:"חלות ולחמים",en:"Challah & bread"},boxes:{he:"מארזים",en:"Gift boxes"}};
+let GAL=[{h:20,he:"עוגת שוקולד עם פירות יער",en:"Chocolate cake with berries"},{h:340,he:"עוגת יום הולדת ורודה",en:"Pink birthday cake"},{h:35,he:"חלות על מגש",en:"Challahs on a tray"},{h:15,he:"עוגיות בתנור",en:"Cookies in the oven"},{h:330,he:"מארז אירוח",en:"Hosting platter"},{h:40,he:"עוגת גבינה",en:"Cheesecake"},{h:25,he:"בצק שמרים מתפיח",en:"Yeast dough rising"}];
+const ORDERS=[
+  {ref:"T-1041",name:"דנה כ.",phone:"052-000-0001",email:"",items:[{id:"bday",size:0,qty:1,text:"מזל טוב נועם!"}],date:iso(dAdd(6)),f:"pickup",addr:"",pay:"bit",st:"new",paid:null,cnote:"צבעים: תכלת ולבן",inote:""},
+  {ref:"T-1040",name:"Michael R.",phone:"054-000-0002",email:"m@example.com",items:[{id:"cookies",size:0,qty:2,text:""},{id:"rugelach",size:0,qty:1,text:""}],date:iso(dAdd(3)),f:"delivery",addr:"[street], [city]",pay:"cash",st:"conf",paid:null,cnote:"",inote:""},
+  {ref:"T-1039",name:"נועה ל.",phone:"050-000-0003",email:"",items:[{id:"challah",size:0,qty:2,text:""}],date:iso(dAdd(1)),f:"pickup",addr:"",pay:"bit",st:"ready",paid:{method:"bit",amount:56,date:iso(today),by:"admin"},cnote:"",inote:"לקוחה קבועה"}
+];
+let nextRef=1042;
+
+/* ---------- UI state ---------- */
+let cart=[], cat="all", adminIn=false, openOrder=null, openProduct=null, orderFilter="all";
+let pick={}; // product page selections {size,text}
+let form={f:"pickup",date:"",name:"",phone:"",email:"",addr:"",notes:"",pay:"cash",terms:false};
+let errs={};
+
+const prod=id=>P.find(p=>p.id===id);
+const fromPrice=p=>Math.min(...p.sizes.map(s=>s.price));
+const fulfilOf=p=>p.f==="default"?{pickup:S.pickupOn,delivery:S.deliveryOn}:{pickup:p.f==="pickup"&&S.pickupOn,delivery:p.f==="delivery"&&S.deliveryOn};
+const isClosedDay=s=>fromIso(s).getDay()===6||S.closedDates.includes(s);
+const earliest=lead=>{let i=lead; while(isClosedDay(iso(dAdd(i)))) i++; return iso(dAdd(i));};
+const lineTotal=l=>prod(l.id).sizes[l.size].price*l.qty;
+const ph=(h,label)=>`<div class="ph" style="--h:${h}" role="img" aria-label="${esc(label)}"><span>${esc(label)}</span></div>`;
+const allergens=p=>`${L("מכיל","Contains")}: ${p.al.map(a=>B(AL[a])).join(", ")}`;
+const leadTxt=d=>d===1?L("הכנה: יום אחד","Ready in 1 day"):L(`הכנה: ${d} ימים`,`Ready in ${d} days`);
+const sizeLabel=(p,i)=>p.sizes[i][lang]||"";
+const cartCount=()=>cart.reduce((a,l)=>a+l.qty,0);
+const waToast=()=>toast(L("באתר עצמו ייפתח כאן וואטסאפ עם הודעה מוכנה","On the live site this opens WhatsApp with a ready message"));
+
+function route(){
+  const h=decodeURIComponent(location.hash.slice(1));
+  if(!h) return {r:"home"};
+  if(["store","cart","about","accessibility"].includes(h)) return {r:h};
+  if(h==="policies"||h.startsWith("policies-")) return {r:"policies",sec:h.slice(9)};
+  if(h.startsWith("p-")) return prod(h.slice(2))?{r:"product",id:h.slice(2)}:{r:"404"};
+  if(h.startsWith("order-")){const o=ORDERS.find(o=>o.ref===h.slice(6)); return o?{r:"order",o}:{r:"404"};}
+  if(h==="admin"||h.startsWith("admin-")) return {r:"admin",tab:["orders","products","gallery","settings"].includes(h.slice(6))?h.slice(6):"orders"};
+  return {r:"404"};
+}
+
+/* ---------- storefront views ---------- */
+function card(p){
+  const f=fulfilOf(p);
+  return `<a class="card" href="#p-${p.id}">
+    ${ph(p.h,B(p.name))}
+    <div class="body">
+      <h3>${esc(B(p.name))}</h3>
+      <div class="meta"><span class="chip">${leadTxt(p.lead)}</span>
+        ${f.pickup?`<span class="chip ok">${L("איסוף","Pickup")}</span>`:""}${f.delivery?`<span class="chip ok">${L("משלוח","Delivery")}</span>`:""}
+        ${p.on?"":`<span class="chip no">${L("אזל כרגע","Sold out for now")}</span>`}</div>
+      <p class="allergen">${allergens(p)}</p>
+    </div>
+    <div class="foot"><span class="price">${p.sizes.length>1||p.mode==="request"?L("החל מ־","from "):""}${money(fromPrice(p))}</span><span class="small muted">${L("לפרטים","Details")} ›</span></div>
+  </a>`;
+}
+
+function viewHome(){
+  const feat=["choc","bday","cookies"].map(prod);
+  const faqs=[
+    [L("כמה זמן מראש צריך להזמין?","How far ahead should I order?"),L(`לרוב ${S.leadDays} ימים מראש. עוגות מעוצבות צריכות 5 ימים. זמן ההכנה מופיע בכל מוצר.`,`Usually ${S.leadDays} days ahead. Custom cakes need 5 days. Each product shows its prep time.`)],
+    [L("מאיפה אוספים?","Where do I pick up?"),L(`מהמטבח הביתי ב${B(S.pickupArea)}. הכתובת המלאה נשלחת עם אישור ההזמנה.`,`From our home kitchen in ${B(S.pickupArea)}. The full address comes with your order confirmation.`)],
+    [L("איך משלמים?","How do I pay?"),L("במזומן באיסוף או במסירה, או ב־Bit / PayBox. אחרי שנאשר את ההזמנה נשלח בקשת תשלום על הסכום המדויק.","In cash on pickup or delivery, or by Bit / PayBox. Once we confirm your order we send a payment request for the exact amount.")],
+    [L("איפה רואים מידע על אלרגנים?","Where can I see allergen info?"),L("כל מוצר מציג את האלרגנים שבו. המטבח מטפל גם באגוזים, בוטנים, שומשום, חלב וביצים.","Every product lists its allergens. The kitchen also handles nuts, peanuts, sesame, dairy and eggs.")],
+    [L("אפשר לשנות או לבטל הזמנה?","Can I change or cancel an order?"),L(`כן, בתנאים שבמדיניות הביטול. <a href="#policies-cancellation">למדיניות הביטול</a>`,`Yes, on the terms in our cancellation policy. <a href="#policies-cancellation">Read the cancellation policy</a>`)]
+  ];
+  return `
+  <section class="hero">
+    <div style="display:grid;gap:14px">
+      <h1>${L("עוגות ומאפים ביתיים, נאפים לפי הזמנה","Home-baked cakes and pastries, made to order")}</h1>
+      <p class="lede">${L(`מזמינים ${S.leadDays} ימים מראש או יותר, אוספים מהמטבח הביתי או מקבלים משלוח באזור. משלמים במזומן או ב־Bit.`,`Order ${S.leadDays} or more days ahead, pick up from our home kitchen or get local delivery. Pay in cash or with Bit.`)}</p>
+      <div class="ctas"><a class="btn pri" href="#store">${L("לחנות","Browse the store")}</a><button class="btn sec" type="button" data-wa>${L("שאלה? כתבו בוואטסאפ","Questions? WhatsApp us")}</button></div>
+    </div>
+    ${ph(15,L("תמונה: עוגה אמיתית מהמטבח","Photo: a real cake from the kitchen"))}
+  </section>
+  <section aria-labelledby="how"><h2 id="how">${L("איך מזמינים","How ordering works")}</h2>
+    <ol class="steps">${[L("בוחרים מוצרים בחנות","Choose items in the store"),L("בוחרים איסוף או משלוח ותאריך","Pick pickup or delivery and a date"),L("מאשרים איתכם בוואטסאפ","We confirm with you on WhatsApp"),L("משלמים במזומן או ב־Bit / PayBox","Pay in cash or by Bit / PayBox")].map((s,i)=>`<li><span class="n">${i+1}</span><span>${s}</span></li>`).join("")}</ol>
+  </section>
+  <section aria-labelledby="feat"><div class="h3row"><h2 id="feat">${L("הכי מבוקשים","Most ordered")}</h2><a href="#store">${L("לכל המוצרים","See all products")}</a></div>
+    <div class="grid">${feat.map(card).join("")}</div>
+  </section>
+  <section aria-labelledby="gal"><h2 id="gal">${L("מהמטבח שלנו","From our kitchen")}</h2>
+    <div class="gallery">${GAL.map(g=>ph(g.h,B(g))).join("")}</div>
+  </section>
+  <section class="split" aria-labelledby="meet">
+    ${ph(30,L("תמונה: האופה במטבח","Photo: the baker at work"))}
+    <div style="display:grid;gap:10px"><h2 id="meet">${L("הכירו את האופה","Meet the baker")}</h2><p class="lede">${L("כאן יופיע סיפור קצר על האופה: איך זה התחיל, מה הכי כיף לאפות, ולמה הכול נעשה בעבודת יד במטבח ביתי. טקסט זמני.","A short story about the baker goes here: how it started, favourite things to bake, and why everything is handmade in a home kitchen. Placeholder text.")}</p><a href="#about">${L("עוד עלינו","More about us")}</a></div>
+  </section>
+  ${infoBlock()}
+  <section aria-labelledby="faq"><h2 id="faq">${L("שאלות נפוצות","Common questions")}</h2>
+    <div class="faqs">${faqs.map(([q,a])=>`<details class="faq"><summary>${q}</summary><p>${a}</p></details>`).join("")}</div>
+  </section>
+  ${contactBlock()}`;
+}
+
+function infoBlock(){
+  return `<section class="info" aria-labelledby="pd"><h2 id="pd">${L("איסוף, משלוח ושעות","Pickup, delivery and hours")}</h2>
+    <dl class="kv">
+      <div><dt>${L("איסוף","Pickup")}</dt><dd>${S.pickupOn?L(`ללא עלות, מ${B(S.pickupArea)}. ${B(S.pickupHours)}. הכתובת המלאה נשלחת עם אישור ההזמנה.`,`Free, from ${B(S.pickupArea)}. ${B(S.pickupHours)}. Full address sent when we confirm.`):L("לא זמין כרגע","Not available right now")}</dd></div>
+      <div><dt>${L("משלוח","Delivery")}</dt><dd>${S.deliveryOn?`${money(S.deliveryFee)} · ${B(S.deliveryArea)}`:L("לא זמין כרגע","Not available right now")}</dd></div>
+      <div><dt>${L("ימים סגורים","Closed days")}</dt><dd>${L("סגור בשבת ובחגים. אין איסוף או משלוח בימים אלה.","Closed on Shabbat and holidays. No pickup or delivery on those days.")}</dd></div>
+    </dl></section>`;
+}
+function contactBlock(){
+  return `<section class="info" aria-labelledby="ct"><h2 id="ct">${L("יצירת קשר","Contact")}</h2>
+    <dl class="kv">
+      <div><dt>${L("וואטסאפ / טלפון","WhatsApp / phone")}</dt><dd><span class="ltr tn">${esc(S.bizPhone)}</span></dd></div>
+      <div><dt>${L("אימייל","Email")}</dt><dd><span class="ltr">${esc(S.bizEmail)}</span></dd></div>
+      <div><dt>${L("אזור","Area")}</dt><dd>${esc(B(S.pickupArea))}</dd></div>
+    </dl>
+    <div class="ctas"><button class="btn pri sm" type="button" data-wa>${L("כתבו לנו בוואטסאפ","Message us on WhatsApp")}</button><button class="btn sec sm" type="button" data-copy="${esc(S.bizPhone)}">${L("העתקת המספר","Copy number")}</button></div>
+  </section>`;
+}
+
+function viewStore(){
+  const list=P.filter(p=>cat==="all"||p.cat===cat);
+  return `<section><h1>${L("החנות","Store")}</h1><p class="lede">${L("כל המחירים לדוגמה. במוצרים עם כמה גדלים מוצג המחיר ההתחלתי.","All prices are examples. Items with several sizes show the starting price.")}</p>
+    <div class="strip">
+      ${S.pickupOn?`<span class="chip ok">${L("איסוף חינם","Free pickup")}</span>`:""}
+      ${S.deliveryOn?`<span class="chip ok">${L("משלוח","Delivery")} ${money(S.deliveryFee)}</span>`:""}
+      <span class="chip">${L(`מזמינים ${S.leadDays}+ ימים מראש`,`Order ${S.leadDays}+ days ahead`)}</span>
+      <span class="chip">${[S.cashOn&&L("מזומן","Cash"),S.bitOn&&"Bit / PayBox"].filter(Boolean).join(" · ")}</span>
+    </div>
+    <div class="filters" role="group" aria-label="${L("קטגוריות","Categories")}">${Object.entries(CATS).map(([k,v])=>`<button type="button" data-cat="${k}" aria-pressed="${k===cat}">${B(v)}</button>`).join("")}</div>
+    ${list.length?`<div class="grid">${list.map(card).join("")}</div>`:`<div class="empty"><b>${L("אין כרגע מוצרים זמינים בקטגוריה הזאת","No products in this category right now")}</b><button class="btn sec sm" type="button" data-wa>${L("שאלו אותנו בוואטסאפ","Ask us on WhatsApp")}</button></div>`}
+  </section>`;
+}
+
+function viewProduct(id){
+  const p=prod(id), f=fulfilOf(p);
+  pick[id]=pick[id]||{size:0,text:""}; const s=pick[id];
+  const price=p.sizes[s.size].price;
+  return `<p class="crumbs"><a href="#store">${L("החנות","Store")}</a> › ${esc(B(CATS[p.cat]))}</p>
+  <section class="split">
+    <div class="pgal">${ph(p.h,B(p.name))}${ph(p.h+20,L("תמונה עם סכין לקנה מידה","Photo with a knife for scale"))}${ph(p.h-15,L("פרוסה","A slice"))}</div>
+    <div style="display:grid;gap:14px">
+      <h1>${esc(B(p.name))}</h1>
+      <p class="lede">${esc(B(p.desc))}</p>
+      <div class="meta"><span class="chip">${leadTxt(p.lead)}</span>
+        ${f.pickup?`<span class="chip ok">${L("איסוף","Pickup")}</span>`:""}${f.delivery?`<span class="chip ok">${L("משלוח","Delivery")}</span>`:""}
+        ${!f.delivery&&f.pickup?`<span class="chip">${L("איסוף בלבד","Pickup only")}</span>`:""}${!f.pickup&&f.delivery?`<span class="chip">${L("משלוח בלבד","Delivery only")}</span>`:""}</div>
+      ${p.sizes.length>1?`<fieldset><legend>${L("גודל","Size")}</legend><div class="sizes">${p.sizes.map((z,i)=>`<button type="button" data-size="${p.id}:${i}" aria-pressed="${i===s.size}"><span>${esc(z[lang])}</span><small class="tn">${money(z.price)}</small></button>`).join("")}</div></fieldset>`:""}
+      ${p.mode==="request"?`<div class="field"><label for="pp-text">${L("כיתוב על העוגה","Inscription on the cake")} <small>${L("(לא חובה, עד 30 תווים)","(optional, up to 30 characters)")}</small></label><input id="pp-text" dir="auto" maxlength="30" value="${esc(s.text)}" data-pptext="${p.id}"><small id="pp-count">${s.text.length}/30</small></div>`:""}
+      <div><div class="bigprice">${p.mode==="request"?L("החל מ־","from "):""}${money(price)}</div>
+        <p class="small muted">${p.mode==="request"?L("המחיר הסופי נקבע לפי העיצוב ומאושר איתכם בוואטסאפ לפני תשלום.","The final price depends on the design and is confirmed with you on WhatsApp before you pay."):L(`המועד הקרוב: ${fmtDate(earliest(Math.max(p.lead,S.leadDays)))}`,`Earliest date: ${fmtDate(earliest(Math.max(p.lead,S.leadDays)))}`)}</p></div>
+      <p class="allergen">${allergens(p)}. <a href="#policies-terms">${L("מידע על אלרגנים","Allergen info")}</a></p>
+      ${p.on?`<div class="ctas"><button class="btn pri" type="button" data-add="${p.id}">${p.mode==="request"?L("הוספת בקשה להזמנה","Add request to order"):L("הוספה להזמנה","Add to order")}</button><button class="btn sec" type="button" data-wa>${L("שאלה על המוצר","Ask about this")}</button></div>`
+        :`<div class="ctas"><button class="btn pri" type="button" disabled>${L("אזל כרגע","Sold out for now")}</button><button class="btn sec" type="button" data-wa>${L("שאלו מתי יחזור","Ask when it's back")}</button></div>`}
+      <p class="small muted">${L("שינויים וביטולים:","Changes and cancellations:")} <a href="#policies-cancellation">${L("מדיניות הביטול","cancellation policy")}</a></p>
+    </div>
+  </section>`;
+}
+
+function viewCart(){
+  if(!cart.length) return `<section><h1>${L("ההזמנה שלי","My order")}</h1><div class="empty"><b>${L("עוד לא הוספתם מוצרים","You haven't added anything yet")}</b><a class="btn pri" href="#store">${L("לחנות","Browse the store")}</a></div></section>`;
+  const live=cart.filter(l=>prod(l.id).on), items=live.map(l=>prod(l.id));
+  const canPickup=items.every(p=>fulfilOf(p).pickup), canDel=items.every(p=>fulfilOf(p).delivery);
+  if(form.f==="delivery"&&!canDel&&canPickup) form.f="pickup";
+  if(form.f==="pickup"&&!canPickup&&canDel) form.f="delivery";
+  const lead=Math.max(S.leadDays,...items.map(p=>p.lead)), minD=earliest(lead);
+  const sub=live.reduce((s,l)=>s+lineTotal(l),0), fee=form.f==="delivery"?S.deliveryFee:0;
+  const hasReq=items.some(p=>p.mode==="request");
+  const req=`<small>${L("(חובה)","(required)")}</small>`, opt=`<small>${L("(לא חובה)","(optional)")}</small>`;
+  const fe=k=>errs[k]?`<span class="err" id="e-${k}">${errs[k]}</span>`:"";
+  const inv=k=>errs[k]?`aria-invalid="true" aria-describedby="e-${k}"`:"";
+  return `<section><h1>${L("ההזמנה שלי","My order")}</h1>
+  <form class="form" id="orderForm" novalidate>
+    <div>${cart.map((l,i)=>{const p=prod(l.id);return `<div class="line"><div class="what"><b>${esc(B(p.name))}</b>${sizeLabel(p,l.size)?` · <span class="muted">${esc(sizeLabel(p,l.size))}</span>`:""}
+        ${l.text?`<div class="small muted">${L("כיתוב","Inscription")}: <bdi>${esc(l.text)}</bdi></div>`:""}
+        <div class="small muted tn">${money(p.sizes[l.size].price)}</div>
+        ${p.on?"":`<span class="lnote">${L("המוצר אזל מאז שהוספתם אותו. הוא לא ייכלל בהזמנה.","This item sold out since you added it. It won't be included.")}</span>`}</div>
+      <span class="qty"><button type="button" data-q="${i}:-1" aria-label="${L("פחות","Fewer")}">−</button><span class="tn">${l.qty}</span><button type="button" data-q="${i}:1" aria-label="${L("עוד","More")}">+</button></span></div>`;}).join("")}</div>
+
+    <fieldset><legend>${L("איך מקבלים?","How do you want it?")}</legend>
+      <label class="opt ${canPickup?"":"dis"}"><input type="radio" name="f" value="pickup" ${form.f==="pickup"?"checked":""} ${canPickup?"":"disabled"}><span>${L("איסוף מהמטבח","Pickup from the kitchen")}<small>${canPickup?L(`ללא עלות · ${B(S.pickupHours)}`,`Free · ${B(S.pickupHours)}`):L("חלק מהמוצרים במשלוח בלבד","Some items are delivery only")}</small></span></label>
+      <label class="opt ${canDel?"":"dis"}"><input type="radio" name="f" value="delivery" ${form.f==="delivery"?"checked":""} ${canDel?"":"disabled"}><span>${L("משלוח עד הבית","Home delivery")}<small>${canDel?`${money(S.deliveryFee)} · ${B(S.deliveryArea)}`:L("חלק מהמוצרים באיסוף בלבד","Some items are pickup only")}</small></span></label>
+    </fieldset>
+
+    <div class="field"><label for="c-date">${L("תאריך","Date")} ${req}</label><input id="c-date" type="date" min="${minD}" value="${form.date}" ${inv("date")}>
+      <small>${L(`המועד הקרוב: ${fmtDate(minD)}. סגור בשבת, בחגים ובתאריכים: `,`Earliest: ${fmtDate(minD)}. Closed on Shabbat, holidays and: `)}${S.closedDates.map(fmtDate).join(", ")||"—"}</small>${fe("date")}</div>
+    <div class="field"><label for="c-name">${L("שם","Name")} ${req}</label><input id="c-name" dir="auto" autocomplete="name" value="${esc(form.name)}" ${inv("name")}>${fe("name")}</div>
+    <div class="field"><label for="c-phone">${L("טלפון","Phone")} ${req}</label><input id="c-phone" type="tel" dir="ltr" autocomplete="tel" inputmode="tel" value="${esc(form.phone)}" ${inv("phone")}><small>${L("כדי לאשר את ההזמנה בוואטסאפ","So we can confirm your order on WhatsApp")}</small>${fe("phone")}</div>
+    <div class="field"><label for="c-email">${L("אימייל","Email")} ${opt}</label><input id="c-email" type="email" dir="ltr" autocomplete="email" value="${esc(form.email)}"><small>${L("לקבלת אישור הזמנה במייל","For an emailed order confirmation")}</small></div>
+    ${form.f==="delivery"?`<div class="field"><label for="c-addr">${L("כתובת למשלוח","Delivery address")} ${req}</label><input id="c-addr" dir="auto" autocomplete="street-address" value="${esc(form.addr)}" ${inv("addr")}>${fe("addr")}</div>`:""}
+    <div class="field"><label for="c-notes">${L("הערות","Notes")} ${opt}</label><textarea id="c-notes" dir="auto">${esc(form.notes)}</textarea></div>
+
+    <fieldset><legend>${L("תשלום","Payment")}</legend>
+      ${S.cashOn?`<label class="opt"><input type="radio" name="pay" value="cash" ${form.pay==="cash"?"checked":""}><span>${L("מזומן","Cash")}<small>${L("באיסוף או במסירה","On pickup or delivery")}</small></span></label>`:""}
+      ${S.bitOn?`<label class="opt"><input type="radio" name="pay" value="bit" ${form.pay==="bit"?"checked":""}><span>Bit / PayBox<small>${L("אחרי שנאשר את ההזמנה נשלח בקשת תשלום על הסכום המדויק","After we confirm your order we send a payment request for the exact amount")}</small></span></label>`:""}
+    </fieldset>
+
+    <div style="display:grid;gap:4px">
+      <div class="total small muted"><span>${L("מוצרים","Items")}</span><span>${money(sub)}</span></div>
+      ${fee?`<div class="total small muted"><span>${L("משלוח","Delivery")}</span><span>${money(fee)}</span></div>`:""}
+      <div class="total big"><span>${L("סה״כ","Total")}</span><span>${money(sub+fee)}</span></div>
+      ${hasReq?`<p class="small muted">${L("בעוגה מעוצבת המחיר הסופי יאושר בוואטסאפ.","For a custom cake, the final price is confirmed on WhatsApp.")}</p>`:""}
+    </div>
+    <label class="check"><input type="checkbox" id="c-terms" ${form.terms?"checked":""} ${inv("terms")}><span>${L(`קראתי ואני מסכים/ה ל<a href="#policies-terms">תקנון ההזמנות</a> ול<a href="#policies-cancellation">מדיניות הביטול</a>`,`I have read and agree to the <a href="#policies-terms">order terms</a> and <a href="#policies-cancellation">cancellation policy</a>`)}</span></label>${fe("terms")}
+    ${S.storeOpen?`<button class="btn pri" type="submit">${L("שליחת הזמנה","Send order")}</button>`
+      :`<p class="err">${L("החנות סגורה כרגע להזמנות. אפשר לשמור את הסל ולשלוח כשנחזור, או לכתוב לנו בוואטסאפ.","The store isn't taking orders right now. Keep your cart and send it when we reopen, or message us on WhatsApp.")}</p><div class="ctas"><button class="btn pri" type="submit" disabled>${L("שליחת הזמנה","Send order")}</button><button class="btn sec" type="button" data-wa>${L("וואטסאפ","WhatsApp")}</button></div>`}
+  </form></section>`;
+}
+
+function viewOrder(o){
+  const sub=o.items.reduce((s,l)=>s+lineTotal(l),0), fee=o.f==="delivery"?S.deliveryFee:0, total=sub+fee;
+  const hasReq=o.items.some(l=>prod(l.id).mode==="request");
+  const when=S.payWhen==="confirm"?L("התשלום מתבצע אחרי שנאשר את ההזמנה, לפני תחילת ההכנה.","Payment is due once we confirm your order, before we start baking."):L("התשלום מתבצע באיסוף או במסירה.","Payment is due on pickup or delivery.");
+  return `<section style="max-width:36rem">
+    <div class="refbox">
+      <p class="muted">${L("ההזמנה התקבלה. תודה!","We got your order. Thank you!")}</p>
+      <div class="h3row"><div><div class="small muted">${L("מספר הזמנה","Order number")}</div><div class="ref ltr">${o.ref}</div></div><button class="btn sec sm" type="button" data-copy="${o.ref}">${L("העתקה","Copy")}</button></div>
+      <p>${L("נאשר איתכם את ההזמנה בוואטסאפ תוך כמה שעות.","We'll confirm your order with you on WhatsApp within a few hours.")}</p>
+      <button class="btn pri" type="button" data-wa>${L(`שליחת ${o.ref} בוואטסאפ`,`Send ${o.ref} on WhatsApp`)}</button>
+    </div>
+  </section>
+  <section style="max-width:36rem" aria-labelledby="payh"><h2 id="payh">${L("תשלום","Payment")}</h2>
+    ${o.pay==="bit"?`<div class="payinfo">
+      <p>${L(`אחרי שנאשר את ההזמנה נשלח לכם בקשת תשלום ב־Bit או ב־PayBox על סך <b class="tn">${money(total)}</b> לטלפון <span class="ltr tn">${esc(o.phone)}</span>. מאשרים את הבקשה באפליקציה, וזהו.`,`After we confirm your order, we'll send a Bit or PayBox payment request for <b class="tn">${money(total)}</b> to <span class="ltr tn">${esc(o.phone)}</span>. Approve it in the app and you're done.`)}</p>
+      <p class="small muted">${L(`מעדיפים להעביר בעצמכם? אחרי האישור, העבירו ל${esc(B(S.payName))} וכתבו את מספר ההזמנה בהערה:`,`Prefer to send it yourself? After we confirm, send it to ${esc(B(S.payName))} and put the order number in the note:`)}</p>
+      <div class="copyrow"><span>${L("טלפון","Phone")}: <b class="ltr">${esc(S.payPhone)}</b></span><button class="linkbtn" type="button" data-copy="${esc(S.payPhone)}">${L("העתקה","Copy")}</button></div>
+      <div class="copyrow"><span>${L("סכום","Amount")}: <b>${money(total)}</b></span><button class="linkbtn" type="button" data-copy="${total}">${L("העתקה","Copy")}</button></div>
+      <div class="copyrow"><span>${L("הערה","Note")}: <b class="ltr">${o.ref}</b></span><button class="linkbtn" type="button" data-copy="${o.ref}">${L("העתקה","Copy")}</button></div>
+      </div>`
+    :`<p>${L(`תשלום במזומן, <b class="tn">${money(total)}</b>, ${o.f==="pickup"?"באיסוף":"במסירה"}.`,`Pay <b class="tn">${money(total)}</b> in cash on ${o.f==="pickup"?"pickup":"delivery"}.`)}</p>`}
+    <p class="small muted">${when}${hasReq?" "+L("בעוגה מעוצבת הסכום הסופי יאושר בוואטסאפ.","For a custom cake, the final amount is confirmed on WhatsApp."):""}</p>
+  </section>
+  <section style="max-width:36rem" class="info" aria-labelledby="sumh"><h2 id="sumh">${L("סיכום ההזמנה","Order summary")}</h2>
+    <div>${o.items.map(l=>{const p=prod(l.id);return `<div class="line"><span class="what">${l.qty}× ${esc(B(p.name))}${sizeLabel(p,l.size)?` · ${esc(sizeLabel(p,l.size))}`:""}${l.text?`<br><small class="muted">${L("כיתוב","Inscription")}: <bdi>${esc(l.text)}</bdi></small>`:""}</span><span class="tn">${money(lineTotal(l))}</span></div>`;}).join("")}
+    ${fee?`<div class="line"><span>${L("משלוח","Delivery")}</span><span class="tn">${money(fee)}</span></div>`:""}</div>
+    <div class="total big"><span>${L("סה״כ","Total")}</span><span>${money(total)}</span></div>
+    <dl class="kv">
+      <div><dt>${o.f==="pickup"?L("איסוף","Pickup"):L("משלוח","Delivery")}</dt><dd>${fmtDate(o.date)} · ${o.f==="pickup"?L(`מ${B(S.pickupArea)}. הכתובת המלאה תישלח עם האישור.`,`from ${B(S.pickupArea)}. Full address comes with the confirmation.`):`<bdi>${esc(o.addr)}</bdi>`}</dd></div>
+      <div><dt>${L("פרטי העסק","Seller")}</dt><dd>${esc(B(S.bizName))} · ${L("עוסק מס׳","Business no.")} ${esc(S.bizNum)} · <span class="ltr tn">${esc(S.bizPhone)}</span> · <span class="ltr">${esc(S.bizEmail)}</span></dd></div>
+      <div><dt>${L("ביטול","Cancelling")}</dt><dd>${L(`איך מבטלים: <a href="#policies-cancellation">מדיניות הביטול</a>. האישור הזה יישלח גם בוואטסאפ${o.email?" ובמייל":""}.`,`How to cancel: <a href="#policies-cancellation">cancellation policy</a>. This confirmation is also sent on WhatsApp${o.email?" and by email":""}.`)}</dd></div>
+    </dl>
+  </section>
+  <div><a href="#store">${L("חזרה לחנות","Back to the store")}</a></div>`;
+}
+
+function viewAbout(){
+  return `<section class="split">${ph(30,L("תמונה: האופה","Photo: the baker"))}
+    <div style="display:grid;gap:12px"><h1>${L("אודות","About")}</h1>
+      <p class="lede">${L("כאן יופיע הסיפור של המאפייה: מי האופה, מאיפה הגיעו המתכונים, ומה מייחד את העוגות. טקסט זמני שנכתוב מחדש, ובהמשך יוחלף בטקסט מקצועי.","The bakery's story goes here: who the baker is, where the recipes come from, and what makes the cakes special. Placeholder copy we'll rewrite, then replace with professional copy later.")}</p>
+      <p class="lede">${L("כל מוצר נאפה לפי הזמנה, בכמויות קטנות, עם חמאה אמיתית ובלי חומרים משמרים. (דוגמה)","Everything is baked to order in small batches, with real butter and no preservatives. (Example)")}</p></div></section>
+  <section><h2>${L("המטבח והמרכיבים","Kitchen and ingredients")}</h2><p class="lede">${L("כל המוצרים נאפים במטבח ביתי שבו משתמשים גם באגוזים, בוטנים, שומשום, חלב וביצים. אם יש לכם אלרגיה, כתבו לנו לפני ההזמנה.","Everything is baked in a home kitchen that also handles nuts, peanuts, sesame, dairy and eggs. If you have an allergy, message us before ordering.")}</p>
+    <div class="note">${L("<b>כשרות:</b> כאן יופיע מידע על כשרות, אם יש תעודת כשרות.","<b>Kashrut:</b> kashrut details appear here if there is a kashrut certificate.")}</div></section>
+  <section class="info"><h2>${L("פרטי העסק","Business details")}</h2>
+    <dl class="kv"><div><dt>${L("שם העסק","Business name")}</dt><dd>${esc(B(S.bizName))}</dd></div><div><dt>${L("מספר עוסק","Business number")}</dt><dd class="tn">${esc(S.bizNum)} ${L("(לדוגמה)","(example)")}</dd></div><div><dt>${L("אזור איסוף","Pickup area")}</dt><dd>${esc(B(S.pickupArea))}</dd></div></dl></section>
+  ${infoBlock()}${contactBlock()}`;
+}
+
+function viewPolicies(){
+  const secs=[["terms",L("תקנון הזמנות","Order terms")],["cancellation",L("ביטול ושינוי הזמנה","Cancelling or changing an order")],["delivery",L("איסוף ומשלוח","Pickup and delivery")],["privacy",L("פרטיות","Privacy")]];
+  const body={
+    terms:`<ul><li>${L(`המוכר: ${esc(B(S.bizName))}, עוסק מס׳ ${esc(S.bizNum)}, ${esc(B(S.pickupArea))}, טלפון <span class="ltr">${esc(S.bizPhone)}</span>, <span class="ltr">${esc(S.bizEmail)}</span>.`,`Seller: ${esc(B(S.bizName))}, business no. ${esc(S.bizNum)}, ${esc(B(S.pickupArea))}, phone <span class="ltr">${esc(S.bizPhone)}</span>, <span class="ltr">${esc(S.bizEmail)}</span>.`)}</li>
+      <li>${L("המחירים בשקלים ובתוקף עד שיעודכנו באתר. בעוגה מעוצבת המחיר הסופי מאושר בוואטסאפ לפני התשלום.","Prices are in shekels and valid until updated on the site. For a custom cake the final price is confirmed on WhatsApp before payment.")}</li>
+      <li>${L("תשלום במזומן או ב־Bit / PayBox, אחרי אישור ההזמנה.","Payment in cash or by Bit / PayBox, after we confirm the order.")}</li>
+      <li>${L("אלרגנים: כל מוצר מציג את האלרגנים שבו. המטבח מטפל גם באגוזים, בוטנים, שומשום, חלב וביצים, ולכן ייתכנו עקבות.","Allergens: each product lists its allergens. The kitchen also handles nuts, peanuts, sesame, dairy and eggs, so traces are possible.")}</li>
+      <li>${L("אם יש בעיה במוצר, פנו אלינו ביום הקבלה ונמצא פתרון.","If something is wrong with your order, contact us on the day you receive it and we'll sort it out.")}</li></ul>`,
+    cancellation:`<ul><li>${L("שינויים וביטול ללא עלות עד 3 ימים לפני מועד האיסוף או המשלוח.","Free changes and cancellation up to 3 days before the pickup or delivery date.")}</li>
+      <li>${L("אחרי שהתחלנו להכין את ההזמנה (מוצר בהזמנה אישית ומוצר מזון) לא ניתן לבטל.","Once we've started preparing your order (made-to-order food) it can't be cancelled.")}</li></ul>
+      <form class="form" id="cancelForm" novalidate style="gap:10px"><b>${L("טופס ביטול","Cancellation form")}</b>
+        <div class="ctrls"><div class="field"><label for="x-ref">${L("מספר הזמנה","Order number")}</label><input id="x-ref" dir="ltr" placeholder="T-1042"></div>
+        <div class="field"><label for="x-phone">${L("טלפון","Phone")}</label><input id="x-phone" type="tel" dir="ltr"></div></div>
+        <button class="btn sec sm" type="submit" style="justify-self:start">${L("שליחת בקשת ביטול","Send cancellation request")}</button></form>`,
+    delivery:`<ul><li>${S.pickupOn?L(`איסוף ללא עלות מ${B(S.pickupArea)}, ${B(S.pickupHours)}.`,`Free pickup from ${B(S.pickupArea)}, ${B(S.pickupHours)}.`):L("איסוף לא זמין כרגע.","Pickup isn't available right now.")}</li>
+      <li>${S.deliveryOn?L(`משלוח ${money(S.deliveryFee)}, ${B(S.deliveryArea)}.`,`Delivery ${money(S.deliveryFee)}, ${B(S.deliveryArea)}.`):L("משלוח לא זמין כרגע.","Delivery isn't available right now.")}</li>
+      <li>${L("אין איסוף או משלוח בשבת ובחגים.","No pickup or delivery on Shabbat or holidays.")}</li>
+      <li>${L("אם אין אף אחד בבית במועד המשלוח, נתאם איתכם בוואטסאפ.","If nobody is home at delivery time, we'll arrange it with you on WhatsApp.")}</li></ul>`,
+    privacy:`<p class="muted">${L("מדיניות הפרטיות תתווסף לפני שהאתר יעלה לאוויר.","The privacy policy will be added before the site goes live.")}</p>`
+  };
+  return `<section><h1>${L("תקנון ומדיניות","Terms and policies")}</h1><p class="note">${L("טיוטה. הנוסח הסופי ייבדק לפני שהאתר יעלה לאוויר.","Draft. The final wording will be checked before the site goes live.")}</p>
+    <nav class="toc" aria-label="${L("בעמוד זה","On this page")}">${secs.map(([k,t])=>`<a href="#policies-${k}">${t}</a>`).join("")}</nav>
+    ${secs.map(([k,t])=>`<div class="policy" id="sec-${k}"><h2>${t}</h2>${body[k]}</div>`).join("")}</section>`;
+}
+
+function viewAccess(){
+  return `<section style="max-width:44rem"><h1>${L("הצהרת נגישות","Accessibility statement")}</h1><p class="note">${L("טיוטה. תעודכן לפני שהאתר יעלה לאוויר.","Draft. Will be updated before the site goes live.")}</p>
+    <div class="policy"><h2>${L("מה עשינו","What we did")}</h2><ul>
+      <li>${L("האתר נבנה לפי תקן ישראלי 5568, ברמה AA.","The site is built to Israeli Standard 5568, level AA.")}</li>
+      <li>${L("אפשר לנווט בכל האתר במקלדת, ויש קישור \"דלג לתוכן\" בראש כל עמוד.","The whole site works with a keyboard, and every page starts with a \"skip to content\" link.")}</li>
+      <li>${L("לכל תמונה יש תיאור טקסטואלי, והצבעים עומדים ביחס הניגודיות הנדרש.","Every photo has a text description, and colours meet the required contrast.")}</li>
+      <li>${L("האתר בעברית ובאנגלית, וכל שפה מסומנת כך שקוראי מסך יקראו אותה נכון.","The site is in Hebrew and English, and each language is marked so screen readers read it correctly.")}</li></ul></div>
+    <div class="policy"><h2>${L("מה עוד לא נגיש","Known gaps")}</h2><p class="muted">${L("נעדכן כאן אם נמצא חלקים שעדיין לא נגישים, ומה החלופה.","We'll list here any parts that aren't accessible yet, and the alternative.")}</p></div>
+    <div class="policy"><h2>${L("רכז/ת נגישות","Accessibility contact")}</h2><dl class="kv">
+      <div><dt>${L("שם","Name")}</dt><dd>${esc(B(S.payName))}</dd></div>
+      <div><dt>${L("טלפון","Phone")}</dt><dd class="ltr tn">${esc(S.bizPhone)}</dd></div>
+      <div><dt>${L("אימייל","Email")}</dt><dd class="ltr">${esc(S.bizEmail)}</dd></div>
+      <div><dt>${L("עודכן לאחרונה","Last updated")}</dt><dd>${fmtDate(iso(today))}</dd></div></dl></div></section>`;
+}
+
+function view404(){
+  return `<section class="empty"><h1>${L("לא מצאנו את העמוד","We couldn't find that page")}</h1><p class="muted">${L("ייתכן שהקישור ישן או שהמוצר כבר לא קיים.","The link may be old, or the product is no longer listed.")}</p><div class="ctas"><a class="btn pri" href="#store">${L("לחנות","Browse the store")}</a><a class="btn sec" href="#">${L("לדף הבית","Home")}</a></div></section>`;
+}
+
+/* ---------- admin ---------- */
+const ST={new:{he:"חדשה",en:"New"},conf:{he:"אושרה",en:"Confirmed"},ready:{he:"מוכנה",en:"Ready"},done:{he:"הושלמה",en:"Completed"},declined:{he:"נדחתה",en:"Declined"},cancelled:{he:"בוטלה",en:"Cancelled"}};
+const PM={cash:{he:"מזומן",en:"Cash"},bit:{he:"Bit",en:"Bit"},paybox:{he:"PayBox",en:"PayBox"}};
+const fld=(id,label,val,data,type="text",extra="")=>`<div class="field"><label for="${id}">${label}</label><input id="${id}" type="${type}" value="${esc(val)}" data-s="${data}" ${type==="text"?'dir="auto"':""} ${extra}></div>`;
+const sw=(id,label,on,data)=>`<label class="switch"><input type="checkbox" id="${id}" data-s="${data}" ${on?"checked":""}> <b>${label}</b></label>`;
+
+function adminChrome(tab){
+  const tabs=[["orders",L("הזמנות","Orders")],["products",L("מוצרים","Products")],["gallery",L("גלריה","Gallery")],["settings",L("הגדרות","Settings")]];
+  return `<div class="achrome"><div class="wrap"><div class="hrow">
+    <span class="brand"><span class="mark" aria-hidden="true">ת</span><b>${L("ניהול","Admin")}</b></span>
+    <div class="hact"><a class="out" href="#">${L("לאתר","View site")}</a><button class="lang" type="button" data-lang>${L("English","עברית")}</button>${adminIn?`<button class="out" type="button" data-signout>${L("יציאה","Sign out")}</button>`:""}</div></div>
+    ${adminIn?`<nav class="anav" aria-label="${L("ניהול","Admin")}">${tabs.map(([k,l])=>`<a href="#admin-${k}" ${k===tab?'aria-current="page"':""}>${l}</a>`).join("")}</nav>`:""}
+  </div></div>`;
+}
+
+function viewAdmin(tab){
+  if(!adminIn) return `<div class="signin"><span class="brand"><span class="mark" aria-hidden="true">ת</span></span><h1>${L("כניסה לניהול","Admin sign-in")}</h1><p class="muted">${L("רק חשבונות שברשימת המנהלים יכולים להיכנס.","Only accounts on the admin list can sign in.")}</p><button class="btn pri" type="button" data-signin>${L("כניסה עם Google","Sign in with Google")}</button></div>`;
+  const intro=`<div class="note">${L("נתוני דוגמה. אפשר לשנות כאן הזמנות, מוצרים והגדרות ולראות את השינוי באתר. הכול מתאפס כשטוענים את הדף מחדש.","Example data. Change orders, products and settings here and see them on the site. Everything resets when you reload the page.")}</div>`;
+  if(tab==="orders") return intro+adminOrders();
+  if(tab==="products") return intro+adminProducts();
+  if(tab==="gallery") return intro+adminGallery();
+  return intro+adminSettings();
+}
+
+function adminOrders(){
+  const fl=[["all",L("הכול","All")],["new",B(ST.new)],["conf",B(ST.conf)],["ready",B(ST.ready)],["unpaid",L("לא שולמו","Unpaid")],["done",B(ST.done)]];
+  const list=ORDERS.filter(o=>orderFilter==="all"||(orderFilter==="unpaid"?!o.paid&&!["declined","cancelled"].includes(o.st):o.st===orderFilter)).sort((a,b)=>a.date.localeCompare(b.date));
+  return `<section><div class="h3row"><h1>${L("הזמנות","Orders")}</h1><span class="small muted">${L("לפי תאריך איסוף / משלוח","By pickup / delivery date")}</span></div>
+    <div class="filters" role="group">${fl.map(([k,l])=>`<button type="button" data-of="${k}" aria-pressed="${k===orderFilter}">${l}</button>`).join("")}</div>
+    <div class="rows">${list.length?list.map(orderRow).join(""):`<div class="empty">${L("אין הזמנות בסינון הזה","No orders match this filter")}</div>`}</div></section>`;
+}
+function orderRow(o){
+  const sub=o.items.reduce((s,l)=>s+lineTotal(l),0)+(o.f==="delivery"?S.deliveryFee:0);
+  const items=o.items.map(l=>`${l.qty}× ${esc(B(prod(l.id).name))}`).join(", ");
+  const open=openOrder===o.ref;
+  const next={new:[["conf",L("אישור","Confirm")],["declined",L("דחייה","Decline")]],conf:[["ready",L("מוכנה","Mark ready")],["cancelled",L("ביטול","Cancel")]],ready:[["done",L("נמסרה","Mark completed")]]}[o.st]||[];
+  return `<div class="row"><div class="top">
+      <button class="open" type="button" data-oo="${o.ref}" aria-expanded="${open}"><span><b class="tn ltr">${o.ref}</b> · <bdi>${esc(o.name)}</bdi></span><span class="small muted">${items}</span></button>
+      <div class="pills"><span class="pill ${o.st}">${B(ST[o.st])}</span>${["declined","cancelled"].includes(o.st)?"":`<span class="pill ${o.paid?"paid":"unpaid"}">${o.paid?L("שולמה","Paid"):L("לא שולמה","Unpaid")}</span>`}</div></div>
+    <div class="meta"><span class="chip">${fmtDate(o.date)}</span><span class="chip">${o.f==="pickup"?L("איסוף","Pickup"):L("משלוח","Delivery")}</span><span class="chip">${B(PM[o.pay])}</span><span class="chip tn">${money(sub)}</span></div>
+    ${open?`<div class="detail">
+      <dl class="kv">
+        <div><dt>${L("פריטים","Items")}</dt><dd>${o.items.map(l=>{const p=prod(l.id);return `${l.qty}× ${esc(B(p.name))}${sizeLabel(p,l.size)?` (${esc(sizeLabel(p,l.size))})`:""}${l.text?` · ${L("כיתוב","inscription")}: <bdi>${esc(l.text)}</bdi>`:""}`;}).join("<br>")}</dd></div>
+        <div><dt>${L("לקוח/ה","Customer")}</dt><dd><bdi>${esc(o.name)}</bdi> · <span class="ltr tn">${esc(o.phone)}</span>${o.email?` · <span class="ltr">${esc(o.email)}</span>`:""}</dd></div>
+        ${o.f==="delivery"?`<div><dt>${L("כתובת","Address")}</dt><dd><bdi>${esc(o.addr)}</bdi></dd></div>`:""}
+        ${o.cnote?`<div><dt>${L("הערות הלקוח/ה","Customer notes")}</dt><dd><bdi>${esc(o.cnote)}</bdi></dd></div>`:""}
+      </dl>
+      <div class="ctas">${next.map(([s,l])=>`<button class="btn sec sm" type="button" data-ost="${o.ref}:${s}">${l}</button>`).join("")}<button class="btn sec sm" type="button" data-wa>${L("וואטסאפ ללקוח/ה","WhatsApp customer")}</button></div>
+      ${["declined","cancelled"].includes(o.st)?"":o.paid?`<div class="paidrec">${L("שולמה","Paid")} · ${B(PM[o.paid.method])} · <span class="tn">${money(o.paid.amount)}</span> · ${fmtDate(o.paid.date)} · ${L("סומן ע״י","marked by")} ${esc(o.paid.by)} <button class="linkbtn" type="button" data-unpay="${o.ref}">${L("ביטול סימון","Undo")}</button></div>`
+        :`<fieldset><legend>${L("סימון כשולמה","Mark as paid")}</legend><div class="ctrls">
+          <div class="field"><label for="pm-${o.ref}">${L("אמצעי","Method")}</label><select id="pm-${o.ref}">${Object.keys(PM).map(k=>`<option value="${k}" ${k===o.pay?"selected":""}>${B(PM[k])}</option>`).join("")}</select></div>
+          <div class="field"><label for="pa-${o.ref}">${L("סכום (₪)","Amount (₪)")}</label><input id="pa-${o.ref}" type="number" min="0" value="${sub}"></div></div>
+          <button class="btn pri sm" type="button" data-pay="${o.ref}" style="justify-self:start">${L("סימון כשולמה","Mark as paid")}</button></fieldset>`}
+      <div class="field"><label for="in-${o.ref}">${L("הערה פנימית","Internal note")}</label><input id="in-${o.ref}" dir="auto" value="${esc(o.inote)}" data-inote="${o.ref}"></div>
+    </div>`:""}
+  </div>`;
+}
+
+function adminProducts(){
+  return `<section><div class="h3row"><h1>${L("מוצרים","Products")}</h1><button class="btn pri sm" type="button" data-later>${L("+ מוצר חדש","+ New product")}</button></div>
+  <div class="rows">${P.map(p=>{const open=openProduct===p.id;return `<div class="row"><div class="top">
+      <button class="open" type="button" data-op="${p.id}" aria-expanded="${open}"><b>${esc(B(p.name))}</b><span class="small muted">${esc(B(CATS[p.cat]))} · ${money(fromPrice(p))} · ${p.mode==="request"?L("בקשה","Request"):L("עגלה","Cart")}</span></button>
+      <label class="switch"><input type="checkbox" id="on-${p.id}" data-p="${p.id}:on" ${p.on?"checked":""}> ${L("זמין","Available")}</label></div>
+    ${open?`<div class="detail">
+      <div class="ctrls">
+        <div class="field"><label for="nh-${p.id}">${L("שם בעברית","Hebrew name")}</label><input id="nh-${p.id}" dir="rtl" lang="he" value="${esc(p.name.he)}" data-p="${p.id}:name.he"></div>
+        <div class="field"><label for="ne-${p.id}">${L("שם באנגלית","English name")}</label><input id="ne-${p.id}" dir="ltr" lang="en" value="${esc(p.name.en)}" data-p="${p.id}:name.en"></div>
+        <div class="field"><label for="ct-${p.id}">${L("קטגוריה","Category")}</label><select id="ct-${p.id}" data-p="${p.id}:cat">${Object.keys(CATS).filter(k=>k!=="all").map(k=>`<option value="${k}" ${p.cat===k?"selected":""}>${B(CATS[k])}</option>`).join("")}</select></div>
+        <div class="field"><label for="ld-${p.id}">${L("ימי הכנה","Prep days")}</label><input id="ld-${p.id}" type="number" min="1" value="${p.lead}" data-p="${p.id}:lead"></div>
+        <div class="field"><label for="ff-${p.id}">${L("איסוף / משלוח","Pickup / delivery")}</label><select id="ff-${p.id}" data-p="${p.id}:f">${[["default",L("לפי ההגדרה הכללית","Use global setting")],["pickup",L("איסוף בלבד","Pickup only")],["delivery",L("משלוח בלבד","Delivery only")]].map(([v,l])=>`<option value="${v}" ${p.f===v?"selected":""}>${l}</option>`).join("")}</select></div>
+        <div class="field"><label for="md-${p.id}">${L("סוג הזמנה","Order type")}</label><select id="md-${p.id}" data-p="${p.id}:mode"><option value="cart" ${p.mode==="cart"?"selected":""}>${L("עגלה (מחיר קבוע)","Cart (fixed price)")}</option><option value="request" ${p.mode==="request"?"selected":""}>${L("בקשה (מאשרים בוואטסאפ)","Request (confirm on WhatsApp)")}</option></select></div>
+      </div>
+      <fieldset><legend>${L("גדלים ומחירים","Sizes and prices")}</legend><div class="ctrls">${p.sizes.map((z,i)=>`<div class="field"><label for="sz-${p.id}-${i}">${esc(z[lang]||L("מחיר","Price"))} (₪)</label><input id="sz-${p.id}-${i}" type="number" min="0" value="${z.price}" data-p="${p.id}:size${i}"></div>`).join("")}</div></fieldset>
+      <fieldset><legend>${L("אלרגנים","Allergens")}</legend><div class="ctas">${Object.keys(AL).map(a=>`<label class="switch"><input type="checkbox" id="al-${p.id}-${a}" data-p="${p.id}:al.${a}" ${p.al.includes(a)?"checked":""}> ${B(AL[a])}</label>`).join("")}</div></fieldset>
+      <fieldset><legend>${L("תמונות","Photos")}</legend>
+        <div class="agal">${[0,1].map(i=>`<div class="item">${ph(p.h+i*20,`${L("תמונה","Photo")} ${i+1}`)}<div class="in"><input aria-label="${L("תיאור בעברית","Hebrew description")}" placeholder="${L("תיאור בעברית","Hebrew description")}" value="${i?"":esc(p.name.he)}" dir="rtl"><input aria-label="${L("תיאור באנגלית","English description")}" placeholder="${L("תיאור באנגלית","English description")}" value="${i?"":esc(p.name.en)}" dir="ltr"></div></div>`).join("")}</div>
+        <button class="btn sec sm" type="button" data-later style="justify-self:start">${L("העלאת תמונה (תמונות בלבד, עד 5MB)","Upload photo (images only, up to 5 MB)")}</button></fieldset>
+    </div>`:""}
+  </div>`;}).join("")}</div></section>`;
+}
+
+function adminGallery(){
+  return `<section><div class="h3row"><h1>${L("גלריה","Gallery")}</h1><button class="btn pri sm" type="button" data-later>${L("העלאת תמונות","Upload photos")}</button></div>
+  <p class="small muted">${L("התמונות בדף הבית, לפי הסדר. התיאור נקרא בקול לאנשים עם קורא מסך.","Homepage photos, in order. The description is read aloud to people using a screen reader.")}</p>
+  <div class="agal">${GAL.map((g,i)=>`<div class="item">${ph(g.h,`${i+1}`)}<div class="in">
+    <input aria-label="${L("תיאור בעברית","Hebrew description")}" value="${esc(g.he)}" dir="rtl" data-g="${i}:he"><input aria-label="${L("תיאור באנגלית","English description")}" value="${esc(g.en)}" dir="ltr" data-g="${i}:en">
+    <div class="mv"><button type="button" data-gm="${i}:-1" aria-label="${L("הזזה קודימה","Move earlier")}" ${i?"":"disabled"}>${L("→","←")}</button><button type="button" data-gm="${i}:1" aria-label="${L("הזזה אחורה","Move later")}" ${i<GAL.length-1?"":"disabled"}>${L("←","→")}</button><button type="button" data-gd="${i}" aria-label="${L("מחיקה","Delete")}">✕</button></div></div></div>`).join("")}</div></section>`;
+}
+
+function adminSettings(){
+  const k=s=>`${s}.${lang}`;
+  return `<section><h1>${L("הגדרות","Settings")}</h1><div class="rows">
+    <div class="row"><h2>${L("מצב החנות","Store status")}</h2>
+      ${sw("s-open",L("החנות מקבלת הזמנות","Store is taking orders"),S.storeOpen,"storeOpen")}
+      <div class="ctrls">${fld("s-cmsg",L("הודעה כשהחנות סגורה","Message when closed"),B(S.closedMsg),k("closedMsg"))}${fld("s-reopen",L("נפתחת שוב ב־","Reopens on"),S.reopen,"reopen","date")}</div>
+      ${sw("s-bon",L("הצגת הודעה בראש האתר","Show a notice at the top of the site"),S.bannerOn,"bannerOn")}
+      ${fld("s-btxt",L("טקסט ההודעה (למשל מועד סגירת הזמנות)","Notice text (e.g. order cutoff)"),B(S.banner),k("banner"))}
+    </div>
+    <div class="row"><h2>${L("תאריכים סגורים","Closed dates")}</h2><p class="small muted">${L("שבת תמיד סגורה. הוסיפו חגים וחופשות.","Shabbat is always closed. Add holidays and breaks.")}</p>
+      <div class="dates">${S.closedDates.map(d=>`<span>${fmtDate(d)}<button type="button" data-cdel="${d}" aria-label="${L("הסרה","Remove")}">✕</button></span>`).join("")}</div>
+      <div class="ctas"><div class="field"><label for="s-cadd" class="small">${L("הוספת תאריך","Add a date")}</label><input id="s-cadd" type="date"></div><button class="btn sec sm" type="button" data-cadd style="align-self:end">${L("הוספה","Add")}</button></div></div>
+    <div class="row"><h2>${L("איסוף ומשלוח","Pickup and delivery")}</h2><p class="small muted">${L("אלה ברירות המחדל. בכל מוצר אפשר לקבוע איסוף בלבד או משלוח בלבד.","These are the defaults. Each product can be set to pickup only or delivery only.")}</p>
+      ${sw("s-pon",L("איסוף פעיל","Pickup on"),S.pickupOn,"pickupOn")}
+      <div class="ctrls">${fld("s-ph",L("שעות איסוף","Pickup hours"),B(S.pickupHours),k("pickupHours"))}${fld("s-pa",L("אזור האיסוף (מוצג באתר)","Pickup area (shown on the site)"),B(S.pickupArea),k("pickupArea"))}</div>
+      ${sw("s-don",L("משלוח פעיל","Delivery on"),S.deliveryOn,"deliveryOn")}
+      <div class="ctrls">${fld("s-fee",L("דמי משלוח (₪)","Delivery fee (₪)"),S.deliveryFee,"deliveryFee","number",'min="0"')}${fld("s-da",L("אזור משלוח","Delivery area"),B(S.deliveryArea),k("deliveryArea"))}${fld("s-lead",L("מינימום ימים מראש","Minimum days ahead"),S.leadDays,"leadDays","number",'min="0"')}</div></div>
+    <div class="row"><h2>${L("תשלום","Payment")}</h2>
+      ${sw("s-cash",L("מקבלים מזומן","Accept cash"),S.cashOn,"cashOn")}${sw("s-bit",L("מקבלים Bit / PayBox","Accept Bit / PayBox"),S.bitOn,"bitOn")}
+      <div class="ctrls">${fld("s-pp",L("טלפון לתשלום (מוצג ללקוח)","Payment phone (shown to customers)"),S.payPhone,"payPhone","tel",'dir="ltr"')}${fld("s-pn",L("שם המקבל/ת (מוצג ללקוח)","Payee name (shown to customers)"),B(S.payName),k("payName"))}
+      <div class="field"><label for="s-pw">${L("מתי משלמים","When customers pay")}</label><select id="s-pw" data-s="payWhen"><option value="confirm" ${S.payWhen==="confirm"?"selected":""}>${L("אחרי אישור ההזמנה","After we confirm")}</option><option value="pickup" ${S.payWhen==="pickup"?"selected":""}>${L("באיסוף או במסירה","On pickup or delivery")}</option></select></div></div>
+      <p class="small muted">${L("אין סליקה באתר. בקשת התשלום נשלחת מהאפליקציה, ולכן מסמנים \"שולמה\" ידנית בהזמנות.","There's no card processing on the site. Payment requests are sent from the app, so \"paid\" is marked by hand in Orders.")}</p></div>
+    <div class="row"><h2>${L("פרטי העסק (מופיעים בתחתית האתר)","Business details (shown in the site footer)")}</h2>
+      <div class="ctrls">${fld("s-bn",L("שם העסק","Business name"),B(S.bizName),k("bizName"))}${fld("s-bnum",L("מספר עוסק","Business number"),S.bizNum,"bizNum","text",'inputmode="numeric"')}${fld("s-bph",L("טלפון","Phone"),S.bizPhone,"bizPhone","tel",'dir="ltr"')}${fld("s-bem",L("אימייל","Email"),S.bizEmail,"bizEmail","email",'dir="ltr"')}</div></div>
+    <div class="row"><h2>${L("התראות על הזמנה חדשה","New order alerts")}</h2>
+      <div class="ctrls">${fld("s-ne",L("אימייל","Email"),S.notifyEmail,"notifyEmail","email",'dir="ltr" placeholder="name@example.com"')}${fld("s-nw",L("וואטסאפ","WhatsApp"),S.notifyWa,"notifyWa","tel",'dir="ltr" placeholder="05X-XXXXXXX"')}</div></div>
+  </div></section>`;
+}
+
+/* ---------- chrome + render ---------- */
+function renderChrome(){
+  const rt=route(), isAdmin=rt.r==="admin";
+  document.documentElement.lang=lang; document.documentElement.dir=lang==="he"?"rtl":"ltr";
+  document.getElementById("pv").textContent=L("תצוגה מקדימה של האתר · התמונות, הטקסטים והמחירים לדוגמה","Website preview · photos, text and prices are examples");
+  document.querySelector(".skip").textContent=L("דלג לתוכן","Skip to content");
+  document.getElementById("siteHeader").hidden=isAdmin; document.getElementById("siteFooter").hidden=isAdmin;
+  const ac=document.getElementById("adminChrome"); ac.hidden=!isAdmin; ac.innerHTML=isAdmin?adminChrome(rt.tab):"";
+  document.getElementById("brandName").textContent=B(S.bizName);
+  const lb=document.getElementById("langBtn"); lb.textContent=L("English","עברית"); lb.lang=lang==="he"?"en":"he";
+  const n=cartCount(); const bb=document.getElementById("bagBtn"); bb.textContent=n?L(`סל (${n})`,`Cart (${n})`):L("סל","Cart");
+  bb.setAttribute("aria-label",L(`סל הקניות, ${n} פריטים`,`Cart, ${n} items`));
+  const cur={home:"",store:"store",product:"store",about:"about"}[rt.r];
+  document.getElementById("nav").innerHTML=[["",L("בית","Home")],["store",L("חנות","Store")],["about",L("אודות","About")]]
+    .map(([h,l])=>`<a href="#${h}" ${cur===h?'aria-current="page"':""}>${l}</a>`).join("")+`<a class="a11y" href="#accessibility">${L("נגישות","Accessibility")}</a>`;
+  document.getElementById("nav").setAttribute("aria-label",L("ראשי","Main"));
+  const bn=document.getElementById("banner");
+  bn.hidden=isAdmin||!(!S.storeOpen||S.bannerOn&&B(S.banner));
+  bn.className="banner"+(S.storeOpen?"":" closed");
+  document.getElementById("bannerText").textContent=S.storeOpen?B(S.banner):B(S.closedMsg)+fmtDate(S.reopen);
+  document.getElementById("footer").innerHTML=`<div class="biz"><b style="color:var(--fg)">${esc(B(S.bizName))}</b>
+      <span>${L("עוסק מס׳","Business no.")} <span class="tn">${esc(S.bizNum)}</span> ${L("(לדוגמה)","(example)")} · ${esc(B(S.pickupArea))}</span>
+      <span><span class="ltr tn">${esc(S.bizPhone)}</span> · <span class="ltr">${esc(S.bizEmail)}</span></span>
+      <span>${esc(B(S.pickupHours))} · ${L("סגור בשבת ובחגים","Closed on Shabbat and holidays")}</span></div>
+    <div class="links"><a href="#policies-terms">${L("תקנון ומדיניות","Terms and policies")}</a><a href="#policies-cancellation">${L("ביטול עסקה","Cancel an order")}</a><a href="#policies-privacy">${L("פרטיות","Privacy")}</a><a href="#accessibility">${L("הצהרת נגישות","Accessibility statement")}</a></div>
+    <div class="links"><button type="button" data-wa>WhatsApp</button><button type="button" data-later>Instagram</button><button type="button" data-lang lang="${lang==="he"?"en":"he"}">${L("English","עברית")}</button><a href="#admin">${L("ניהול","Admin")}</a></div>
+    <span>© ${today.getFullYear()} ${esc(B(S.bizName))}</span>`;
+}
+function render(){
+  renderChrome();
+  const rt=route(), v=document.getElementById("view");
+  v.innerHTML= rt.r==="store"?viewStore(): rt.r==="product"?viewProduct(rt.id): rt.r==="cart"?viewCart(): rt.r==="order"?viewOrder(rt.o)
+    : rt.r==="about"?viewAbout(): rt.r==="policies"?viewPolicies(): rt.r==="accessibility"?viewAccess(): rt.r==="admin"?viewAdmin(rt.tab): rt.r==="404"?view404(): viewHome();
+  const titles={home:"",store:L("חנות","Store"),cart:L("סל","Cart"),about:L("אודות","About"),policies:L("תקנון ומדיניות","Terms and policies"),accessibility:L("הצהרת נגישות","Accessibility"),admin:L("ניהול","Admin"),order:L("אישור הזמנה","Order confirmation"),"404":L("לא נמצא","Not found"),product:rt.id?B(prod(rt.id).name):""};
+  document.title=(titles[rt.r]?titles[rt.r]+" · ":"")+B(S.bizName);
+}
+
+let toastTimer;
+function toast(msg){const el=document.getElementById("toastText"); el.textContent=msg; el.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.hidden=true,2400);}
+function readForm(){
+  const v=id=>{const e=document.getElementById(id); return e?e.value:undefined;};
+  ["date","name","phone","email","addr","notes"].forEach(k=>{const x=v("c-"+k); if(x!==undefined) form[k]=x;});
+  const t=document.getElementById("c-terms"); if(t) form.terms=t.checked;
+}
+function copy(text){
+  const done=()=>toast(L(`הועתק: ${text}`,`Copied: ${text}`));
+  try{navigator.clipboard.writeText(text).then(done,()=>toast(text));}catch(e){toast(text);}
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("button,a"); if(!el) return;
+  const d=el.dataset;
+  if(d.skip!==undefined){e.preventDefault(); document.getElementById("view").focus(); return;}
+  if(el.id==="langBtn"||d.lang!==undefined){readForm(); lang=lang==="he"?"en":"he"; try{localStorage.setItem("tamir-lang",lang)}catch(_){} render(); return;}
+  if(d.wa!==undefined){waToast(); return;}
+  if(d.later!==undefined){toast(L("יתווסף בהמשך","Coming later")); return;}
+  if(d.copy!==undefined){copy(d.copy); return;}
+  if(d.cat){cat=d.cat; render(); return;}
+  if(d.size){const [id,i]=d.size.split(":"); pick[id].size=+i; render(); return;}
+  if(d.add){const s=pick[d.add]||{size:0,text:""}; const ex=cart.find(l=>l.id===d.add&&l.size===s.size&&l.text===s.text);
+    if(ex) ex.qty++; else cart.push({id:d.add,size:s.size,qty:1,text:s.text}); renderChrome();
+    toast(L("נוסף לסל","Added to cart")); return;}
+  if(d.q){readForm(); const [i,n]=d.q.split(":").map(Number); cart[i].qty+=n; if(cart[i].qty<=0) cart.splice(i,1); render(); return;}
+  if(d.signin!==undefined){adminIn=true; render(); return;}
+  if(d.signout!==undefined){adminIn=false; render(); return;}
+  if(d.oo){openOrder=openOrder===d.oo?null:d.oo; render(); return;}
+  if(d.of){orderFilter=d.of; render(); return;}
+  if(d.ost){const [r,s]=d.ost.split(":"); ORDERS.find(o=>o.ref===r).st=s; render(); toast(L("עודכן","Updated")); return;}
+  if(d.pay){const o=ORDERS.find(o=>o.ref===d.pay); o.paid={method:document.getElementById("pm-"+o.ref).value,amount:+document.getElementById("pa-"+o.ref).value||0,date:iso(today),by:L("את/ה","you")}; render(); toast(L("סומנה כשולמה","Marked as paid")); return;}
+  if(d.unpay){ORDERS.find(o=>o.ref===d.unpay).paid=null; render(); return;}
+  if(d.op){openProduct=openProduct===d.op?null:d.op; render(); return;}
+  if(d.gm){const [i,n]=d.gm.split(":").map(Number); const j=i+n; [GAL[i],GAL[j]]=[GAL[j],GAL[i]]; render(); return;}
+  if(d.gd){GAL.splice(+d.gd,1); render(); toast(L("נמחקה","Deleted")); return;}
+  if(d.cdel){S.closedDates=S.closedDates.filter(x=>x!==d.cdel); render(); return;}
+  if(d.cadd!==undefined){const v=document.getElementById("s-cadd").value; if(v&&!S.closedDates.includes(v)){S.closedDates.push(v); S.closedDates.sort();} render(); return;}
+  if(el.tagName==="A"&&el.getAttribute("href")===location.hash&&location.hash.startsWith("#policies-")){scrollToSec(); }
+});
+document.addEventListener("submit",e=>{
+  e.preventDefault();
+  if(e.target.id==="cancelForm"){toast(L("בקשת הביטול נשלחה","Cancellation request sent")); e.target.reset(); return;}
+  if(e.target.id!=="orderForm") return;
+  readForm(); errs={};
+  const items=cart.filter(l=>prod(l.id).on);
+  const lead=Math.max(S.leadDays,...items.map(l=>prod(l.id).lead)), minD=earliest(lead);
+  if(!form.date) errs.date=L("נא לבחור תאריך","Choose a date");
+  else if(form.date<minD) errs.date=L(`המועד הקרוב הוא ${fmtDate(minD)}`,`The earliest date is ${fmtDate(minD)}`);
+  else if(isClosedDay(form.date)) errs.date=L("אנחנו סגורים בתאריך הזה. נא לבחור תאריך אחר.","We're closed that day. Choose another date.");
+  if(!form.name.trim()) errs.name=L("נא למלא שם","Enter your name");
+  if(form.phone.replace(/\D/g,"").length<9) errs.phone=L("נא למלא מספר טלפון תקין","Enter a valid phone number");
+  if(form.f==="delivery"&&!form.addr.trim()) errs.addr=L("נא למלא כתובת למשלוח","Enter a delivery address");
+  if(!form.terms) errs.terms=L("נא לאשר את התקנון","Please accept the terms");
+  if(!items.length) errs.terms=L("אין מוצרים זמינים בסל","No available items in your cart");
+  if(Object.keys(errs).length){render(); const f=document.querySelector('[aria-invalid="true"]'); if(f) f.focus(); return;}
+  const ref="T-"+(nextRef++);
+  ORDERS.unshift({ref,name:form.name.trim(),phone:form.phone.trim(),email:form.email.trim(),items:items.map(l=>({...l})),date:form.date,f:form.f,addr:form.addr.trim(),pay:form.pay,st:"new",paid:null,cnote:form.notes.trim(),inote:""});
+  cart=[]; form={...form,date:"",notes:"",terms:false};
+  location.hash="order-"+ref;
+});
+document.addEventListener("change",e=>{
+  const el=e.target, d=el.dataset;
+  if(el.name==="f"){readForm(); form.f=el.value; render(); return;}
+  if(el.name==="pay"){form.pay=el.value; return;}
+  if(el.id==="c-date"){form.date=el.value; if(el.value&&isClosedDay(el.value)){errs.date=L("אנחנו סגורים בתאריך הזה. נא לבחור תאריך אחר.","We're closed that day. Choose another date."); readForm(); render();} else if(errs.date){delete errs.date; readForm(); render();} return;}
+  if(d.p){const [id,k]=d.p.split(":"), p=prod(id);
+    if(k==="on") p.on=el.checked;
+    else if(k.startsWith("name.")) p.name[k.slice(5)]=el.value;
+    else if(k.startsWith("size")) p.sizes[+k.slice(4)].price=Math.max(0,+el.value||0);
+    else if(k.startsWith("al.")){const a=k.slice(3); p.al=el.checked?[...new Set([...p.al,a])]:p.al.filter(x=>x!==a);}
+    else if(k==="lead") p.lead=Math.max(1,+el.value||1);
+    else p[k]=el.value;
+    toast(L("נשמר","Saved")); if(k==="on"||k==="mode"||k==="cat") render(); return;}
+  if(d.s){const [key,sub]=d.s.split(".");
+    const val=el.type==="checkbox"?el.checked:el.type==="number"?Math.max(0,+el.value||0):el.value;
+    if(sub) S[key][sub]=val; else S[key]=val; renderChrome(); toast(L("נשמר","Saved")); return;}
+  if(d.g){const [i,k]=d.g.split(":"); GAL[+i][k]=el.value; toast(L("נשמר","Saved")); return;}
+  if(d.inote){ORDERS.find(o=>o.ref===d.inote).inote=el.value; toast(L("נשמר","Saved")); return;}
+});
+document.addEventListener("input",e=>{
+  const d=e.target.dataset;
+  if(d.pptext){pick[d.pptext].text=e.target.value; const c=document.getElementById("pp-count"); if(c) c.textContent=`${e.target.value.length}/30`;}
+});
+function scrollToSec(){const rt=route(); if(rt.r==="policies"&&rt.sec){const s=document.getElementById("sec-"+rt.sec); if(s) s.scrollIntoView({block:"start"});} else window.scrollTo(0,0);}
+window.addEventListener("hashchange",()=>{if(route().r!=="cart") errs={}; render(); scrollToSec();});
+render(); scrollToSec();
+</script>
+
+</body>
+</html>
