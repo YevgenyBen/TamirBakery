@@ -50,6 +50,11 @@ Anything else a basic store needs (contact, FAQ, policies, accessibility stateme
 - **Hebrew is the default language.** English is the only other language for now.
 - We write our own copy now and replace it with professional copy later.
 
+### Desktop and mobile
+
+- **Every page must be fully usable on both desktop and mobile**, including `/admin`. The owner will likely manage products and orders from a phone.
+- Design mobile first, then check each feature on a phone-sized and a desktop screen before calling it done.
+
 ### Notifications to the owner
 
 - **Email** and **WhatsApp**. Build the code so both channels are ready, behind a small notification interface, even if one isn't switched on at launch.
