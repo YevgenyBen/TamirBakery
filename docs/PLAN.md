@@ -71,9 +71,10 @@ Anything else a basic store needs (contact, FAQ, policies, accessibility stateme
 3. **Admin sign-in method:** Google sign-in only, or email/password too.
 4. **Is English a full mirror of the site or only key pages?** The storefront research assumes a full `/en/` mirror.
 5. **Where photos come from** (owner's own, a photographer, or both) and who uploads them.
-6. **Business status:** is the owner an עוסק פטור? This decides whether the accessibility rules legally apply (see [accessibility research](research/israeli-web-accessibility-law.md#4-exemptions-and-thresholds)), and what business details go in the footer.
+6. **Business status:** is the owner an עוסק פטור? This decides whether the accessibility rules legally apply (see [accessibility research](research/israeli-web-accessibility-law.md#4-exemptions-and-thresholds)), and what business details go in the footer. The [licensing research](research/home-bakery-licences-and-permits.md#4-tax-registration) recommends opening an עוסק פטור file online now (2026 ceiling NIS 122,833).
 7. **Card payments:** the storefront research says card should always be offered in Israel. Phase 1 deliberately skips it; revisit if customers ask.
-8. **Kashrut wording:** only say "כשר" with a Rabbinate certificate. Confirm whether the owner has one.
+8. **Kashrut wording:** only say "כשר" with a Rabbinate certificate. Confirm whether the owner has one. Without one, the site may only describe its standards truthfully next to an explicit "no kashrut certificate" line, and the Rabbinate refuses certificates to businesses in private homes in principle (see [licensing research](research/home-bakery-licences-and-permits.md#6-kashrut-claims)).
+9. **Where will the baking happen?** The [licensing research](research/home-bakery-licences-and-permits.md#8-recommended-path-from-zero) found no legal route for selling food made in an ordinary family kitchen. Options: a licensed rented or shared kitchen, or a separate self-contained unit at home licensed under item 4.2ג. Until then, the site should launch as a portfolio with no ordering.
 
 ---
 
@@ -86,12 +87,12 @@ Each item gets its own file in `docs/research/` and is linked back here.
 | **Basic layout gaps** | What's missing from `/`, `/store`, `/about`, `/admin` for a basic store (e.g. contact, FAQ, policies, accessibility statement, cart/checkout, order confirmation). Start from the page map in [storefront-layouts.md](research/storefront-layouts.md#recommended-page-map). | To do |
 | **Local SEO and marketing** | Cheap and quick: Google Business Profile, basic on-page SEO in Hebrew, social and WhatsApp channels. | To do |
 | **Privacy law** | Israeli Privacy Protection Law (incl. Amendment 13), what a privacy policy must say, what customer data we can keep in Firestore, cookie notice. | To do |
-| **Business licence and food permits** | What a home baker needs to sell food online in Israel (Ministry of Health, municipal business licence), and what we can claim on the site. The owner has no licence yet, so this is near-term. | To do, soon |
 
 ### Done
 
 - [Storefront layouts for a home bakery](research/storefront-layouts.md): page map, homepage order, ordering flow, trust signals, RTL/bilingual layout, Israeli legal items that affect layout.
 - [Israeli web accessibility law](research/israeli-web-accessibility-law.md): who must comply (SI 5568-1 level AA, based on WCAG 2.0), the עוסק פטור / NIS 100k exemption, accessibility statement template. Recommendation: build to AA and publish a statement even if exempt.
+- [Home bakery licences and permits](research/home-bakery-licences-and-permits.md): municipal business licence (item 4.2ג, separate preparation area needed; no legal family-kitchen route found), Ministry of Health, *עוסק פטור* registration (2026 ceiling NIS 122,833), receipts for every Bit/cash payment, kashrut wording rules, seller details the site must show. Recommendation: register with the Tax Authority now, run the site with no ordering until the business licence is in hand.
 
 ---
 
