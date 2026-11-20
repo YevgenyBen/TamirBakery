@@ -32,7 +32,7 @@ The visual style (colours, Hebrew fonts, spacing, components and tone of voice) 
 - **Firebase** for hosting and database (Firestore). Product photos go in Firebase Storage.
 - **Hosting account, for now:** Yevgeny's own Firebase project, on the Blaze plan (needed for Next.js on Firebase App Hosting; expected cost at this traffic is close to nothing).
 - **At deploy:** move hosting to a new Firebase project paid for by the owner. See [Firebase migration](#4-firebase-migration-at-deploy).
-- **Dev project (created 2026-11-20):** `tamir-bakery-dev` ("Tamir Bakery dev"), with a web app and a Firestore database in `me-west1` (Tel Aviv). Rules and indexes live in the repo (`firestore.rules`, `firestore.indexes.json`) and deploy with `npx firebase-tools deploy --only firestore`. Web config goes in `.env.local` (see `.env.example`). The project still needs the Blaze plan linked before App Hosting can be set up, and App Hosting itself waits for the Next.js skeleton.
+- **Dev project (created 2026-11-20):** `tamir-bakery-dev` ("Tamir Bakery dev"), with a web app and a Firestore database in `me-west1` (Tel Aviv). Rules and indexes live in the repo (`firestore.rules`, `firestore.indexes.json`) and deploy with `npx firebase-tools deploy --only firestore`. Web config goes in `.env.local` (see `.env.example`). The project is on the Blaze plan; App Hosting waits for the Next.js skeleton.
 
 ### Payments
 
