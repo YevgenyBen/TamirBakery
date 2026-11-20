@@ -74,6 +74,8 @@ Anything else a basic store needs (contact, FAQ, policies, accessibility stateme
 6. **Business status:** is the owner an עוסק פטור? This decides whether the accessibility rules legally apply (see [accessibility research](research/israeli-web-accessibility-law.md#4-exemptions-and-thresholds)), and what business details go in the footer.
 7. **Card payments:** the storefront research says card should always be offered in Israel. Phase 1 deliberately skips it; revisit if customers ask.
 8. **Kashrut wording:** only say "כשר" with a Rabbinate certificate. Confirm whether the owner has one.
+9. **Firestore region:** it can't be changed after the database is created. The [privacy research](research/israeli-privacy-law.md#7-cross-border-transfer-and-firebase) suggests `me-west1` (Tel Aviv) or an EU region. Decide before creating the owner's project.
+10. **Who can see customer data:** keep it to the owner plus at most two others (the developer counts) so the lightest security level applies ([privacy research](research/israeli-privacy-law.md#1-tldr-what-this-bakery-store-must-do)).
 
 ---
 
@@ -85,13 +87,13 @@ Each item gets its own file in `docs/research/` and is linked back here.
 |---|---|---|
 | **Basic layout gaps** | What's missing from `/`, `/store`, `/about`, `/admin` for a basic store (e.g. contact, FAQ, policies, accessibility statement, cart/checkout, order confirmation). Start from the page map in [storefront-layouts.md](research/storefront-layouts.md#recommended-page-map). | To do |
 | **Local SEO and marketing** | Cheap and quick: Google Business Profile, basic on-page SEO in Hebrew, social and WhatsApp channels. | To do |
-| **Privacy law** | Israeli Privacy Protection Law (incl. Amendment 13), what a privacy policy must say, what customer data we can keep in Firestore, cookie notice. | To do |
 | **Business licence and food permits** | What a home baker needs to sell food online in Israel (Ministry of Health, municipal business licence), and what we can claim on the site. The owner has no licence yet, so this is near-term. | To do, soon |
 
 ### Done
 
 - [Storefront layouts for a home bakery](research/storefront-layouts.md): page map, homepage order, ordering flow, trust signals, RTL/bilingual layout, Israeli legal items that affect layout.
 - [Israeli web accessibility law](research/israeli-web-accessibility-law.md): who must comply (SI 5568-1 level AA, based on WCAG 2.0), the עוסק פטור / NIS 100k exemption, accessibility statement template. Recommendation: build to AA and publish a statement even if exempt.
+- [Israeli privacy law](research/israeli-privacy-law.md): Amendment 13 (no database registration or DPO needed at this size), the section 11 collection notice on every form, light 2017 security duties if at most three people can access the data, opt-in and "פרסומת" rules for marketing (spam law), Firestore region choice, no analytics cookies in phase 1, and a Hebrew privacy-policy template.
 
 ---
 
