@@ -1,0 +1,17 @@
+# Firebase App Hosting settings for the tamir-bakery backend (europe-west4).
+# Reference: https://firebase.google.com/docs/app-hosting/configure
+# Secrets (e.g. RESEND_API_KEY) go in Cloud Secret Manager and are referenced
+# here with `secret:`, never written as values. See PLAN.md "Tech stack and hosting".
+runConfig:
+  minInstances: 0
+  maxInstances: 2
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
+
+env:
+  - variable: NEXT_TELEMETRY_DISABLED
+    value: "1"
+    availability:
+      - BUILD
+      - RUNTIME

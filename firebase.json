@@ -4,5 +4,21 @@
     "location": "me-west1",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
-  }
+  },
+  "apphosting": [
+    {
+      "backendId": "tamir-bakery",
+      "rootDir": "/",
+      "ignore": [
+        "node_modules",
+        ".git",
+        ".next",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "test-results",
+        "playwright-report",
+        "docs"
+      ]
+    }
+  ]
 }
