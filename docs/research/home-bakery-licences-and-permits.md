@@ -1,7 +1,7 @@
 # Licences, permits, tax and kashrut for a home bakery selling online in Israel
 
 - **Research date:** 2026-11-20
-- **Scope:** What a home bakery in Israel that has no licence or registration of any kind must do, and in what order, before it sells baked goods to the public through its own website. Payment is cash or Bit-style pay links straight to the owner. Delivery and pickup are both possible. Covers the municipal business licence, Ministry of Health food permits, tax registration (VAT, Income Tax, Bituach Leumi), invoices and receipts, kashrut claims, and what the website must and must not show.
+- **Scope:** What a home bakery in Israel that has no licence or registration of any kind must do, and in what order, before it sells baked goods to the public through its own website. Payment is cash or Bit straight to the owner (no preset-amount link exists for a personal account; see [bit-payment-links.md](bit-payment-links.md)). Delivery and pickup are both possible. Covers the municipal business licence, Ministry of Health food permits, tax registration (VAT, Income Tax, Bituach Leumi), invoices and receipts, kashrut claims, and what the website must and must not show.
 - **Status:** This is research, not legal or tax advice. Section 11 lists the points that an Israeli lawyer, an accountant (*רואה חשבון* / *יועץ מס*) and a business-licensing consultant should confirm.
 
 ## How to read the evidence tags

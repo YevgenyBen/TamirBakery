@@ -35,8 +35,11 @@ The visual style (colours, Hebrew fonts, spacing, components and tone of voice) 
 
 ### Payments
 
-- **Cash** and **Bit (or a similar app) through a pay link straight to the owner.** No payment gateway, no card processing in phase 1.
-- Bit links have no automatic confirmation, so payment status is marked by hand in `/admin`. Who does this depends on how orders reach the owner (open question 1).
+- **Cash** and **Bit (or a similar app) straight to the owner.** No payment gateway, no card processing in phase 1.
+- **There is no Bit "pay link" with a preset amount for a personal account** ([Bit payment links](research/bit-payment-links.md)). In phase 1 the owner sends a Bit request for the exact amount to the customer's phone after confirming the order. The confirmation page shows the amount, the owner's Bit number and the order ref with copy buttons, as a fallback for customers who prefer to send the money themselves. No "pay now" button.
+- Nothing confirms a Bit payment automatically, so payment status is marked by hand in `/admin`. Who does this depends on how orders reach the owner (open question 1).
+- Build payment behind one small seam (for example `createPaymentRequest(order)` returning either instructions or a URL), so a payment company can replace it later without touching the pages.
+- **Later, once the business is registered and ordering goes live:** Grow payment links (API link with the exact amount, Bit or card, webhook marks the order paid, automatic receipt). About ₪85–95 a month plus VAT at ~30 orders a month. See [Bit payment links §2 and §6](research/bit-payment-links.md#2-bit-לעסקים-through-a-payment-company-yes).
 
 ### Delivery and pickup
 
@@ -132,7 +135,7 @@ Development runs on Yevgeny's Firebase project. Before going live, move to a pro
 3. `/admin` with the hardcoded admin list: manage products, photos, delivery/pickup settings.
 4. `/store` catalogue reading from Firestore.
 5. `/` and `/about` with our own copy and gallery.
-6. Ordering path, once open question 1 is decided, with cash and Bit link payment.
+6. Ordering path, once open question 1 is decided, with cash and Bit payment (owner-sent request, manual "paid"; see [Bit payment links](research/bit-payment-links.md)).
 7. Email and WhatsApp notification code.
 8. Footer business details, policies and accessibility statement (after the research above).
 9. Domain, business email and migration to the owner's Firebase.
