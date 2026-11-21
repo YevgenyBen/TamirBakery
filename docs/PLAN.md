@@ -35,8 +35,11 @@ The visual style (colours, Hebrew fonts, spacing, components and tone of voice) 
 
 ### Payments
 
-- **Cash** and **Bit (or a similar app) through a pay link straight to the owner.** No payment gateway, no card processing in phase 1.
-- Bit links have no automatic confirmation, so payment status is marked by hand in `/admin`. Who does this depends on how orders reach the owner (open question 1).
+- **Cash** and **Bit (or a similar app) straight to the owner.** No payment gateway, no card processing in phase 1.
+- **There is no Bit "pay link" with a preset amount for a personal account** ([Bit payment links](research/bit-payment-links.md)). In phase 1 the owner sends a Bit request for the exact amount to the customer's phone after confirming the order. The confirmation page shows the amount, the owner's Bit number and the order ref with copy buttons, as a fallback for customers who prefer to send the money themselves. No "pay now" button.
+- Nothing confirms a Bit payment automatically, so payment status is marked by hand in `/admin`. Who does this depends on how orders reach the owner (open question 1).
+- Build payment behind one small seam (for example `createPaymentRequest(order)` returning either instructions or a URL), so a payment company can replace it later without touching the pages.
+- **Later, once the business is registered and ordering goes live:** Grow payment links (API link with the exact amount, Bit or card, webhook marks the order paid, automatic receipt). About ₪85–95 a month plus VAT at ~30 orders a month. See [Bit payment links §2 and §6](research/bit-payment-links.md#2-bit-לעסקים-through-a-payment-company-yes).
 
 ### Delivery and pickup
 
@@ -116,8 +119,8 @@ The visual style (colours, Hebrew fonts, spacing, components and tone of voice) 
 6. **Business status:** is the owner an עוסק פטור? This decides whether the accessibility rules legally apply (see [accessibility research](research/israeli-web-accessibility-law.md#4-exemptions-and-thresholds)), though we build to the standard either way (see [Accessibility](#accessibility)), and what business details go in the footer. The [licensing research](research/home-bakery-licences-and-permits.md#4-tax-registration) recommends opening an עוסק פטור file online now (2026 ceiling NIS 122,833).
 7. **Card payments:** the storefront research says card should always be offered in Israel. Phase 1 deliberately skips it; revisit if customers ask.
 8. **Kashrut wording:** only say "כשר" with a Rabbinate certificate. Confirm whether the owner has one. Without one, the site may only describe its standards truthfully next to an explicit "no kashrut certificate" line, and the Rabbinate refuses certificates to businesses in private homes in principle (see [licensing research](research/home-bakery-licences-and-permits.md#6-kashrut-claims)).
-9. **Who starts a Bit/PayBox payment:** the owner sends an in-app request, or the customer sends money with the order ref in the note. A private Bit account has no shareable link with a preset amount; "bit לעסקים" links need a payment company. See [layout gaps §2](research/basic-layout-gaps.md#2-order-and-payment-path-cash-and-bitpaybox-only).
-10. **Private Bit for business use:** Bit's terms ask users to declare business use and cap receipts (₪25k/year free, ₪100k/year max). PayBox for business needs dealer status (ties to question 6).
+9. **Who starts a Bit/PayBox payment:** the owner sends an in-app request, or the customer sends money with the order ref in the note. A private Bit account has no shareable link with a preset amount; "bit לעסקים" links need a payment company. See [layout gaps §2](research/basic-layout-gaps.md#2-order-and-payment-path-cash-and-bitpaybox-only) and [Bit payment links](research/bit-payment-links.md).
+10. **Private Bit for business use:** Bit's terms ask users to declare business use and cap receipts (₪25k/year free, then 0.8% from 1.5.26, ₪100k/year max). PayBox for business needs dealer status (ties to question 6).
 11. **When payment is due:** before confirmation, after it, or at pickup; and whether custom cakes need a deposit.
 12. **Store closures:** on Shabbat and holidays, keep taking orders and only block those dates, or close the store? Closed dates entered by hand, or from a holiday calendar (Hebcal)? What is the order cutoff and how far ahead can people order?
 13. **Home address in the footer:** consumer law asks for the business's name and address, which for a home bakery is the home. Full address, or pickup area only? Needs legal input.
@@ -142,6 +145,7 @@ No research is open right now. Add new topics here as a table (topic, focus, sta
 - [Israeli web accessibility law](research/israeli-web-accessibility-law.md): who must comply (SI 5568-1 level AA, based on WCAG 2.0), the עוסק פטור / NIS 100k exemption, accessibility statement template. Recommendation: build to AA and publish a statement even if exempt.
 - [Local SEO and marketing](research/local-seo-and-marketing.md): Google Business Profile as a service-area business (hide the home address), Next.js SEO setup for Hebrew + English (`SITE_URL` env var, noindex the temporary Firebase URL, hreflang, sitemap, Open Graph image, Product JSON-LD), free WhatsApp Business app and `wa.me` links instead of the paid API, free Israeli directories, review rules, and the anti-spam law ("פרסומת" + prior consent). Section 10 is a prioritised to-do list split into developer and owner tasks.
 - [Israeli privacy law](research/israeli-privacy-law.md): Amendment 13 (no database registration or DPO needed at this size), the section 11 collection notice on every form, light 2017 security duties if at most three people can access the data, opt-in and "פרסומת" rules for marketing (spam law), Firestore region choice, no analytics cookies in phase 1, and a Hebrew privacy-policy template.
+- [Bit payment links](research/bit-payment-links.md): a personal Bit account has no link that opens Bit with the owner's number and an amount, so phase 1 stays with owner-sent Bit requests and a manual "paid" toggle. A preset-amount Bit link with automatic confirmation needs a payment company; Grow fits best (API link + webhook + automatic receipt, about ₪85–95/month at small volume, needs a registered business). Bit's fee above ₪25k/year is now 0.8%.
 - [Home bakery licences and permits](research/home-bakery-licences-and-permits.md): municipal business licence (item 4.2ג, separate preparation area needed; no legal family-kitchen route found), Ministry of Health, *עוסק פטור* registration (2026 ceiling NIS 122,833), receipts for every Bit/cash payment, kashrut wording rules, seller details the site must show. Recommendation: register with the Tax Authority now, run the site with no ordering until the business licence is in hand.
 
 ---
@@ -164,7 +168,7 @@ Development runs on Yevgeny's Firebase project. Before going live, move to a pro
 3. `/admin` with the hardcoded admin list: manage products, photos, delivery/pickup settings.
 4. `/store` catalogue reading from Firestore.
 5. `/` and `/about` with our own copy and gallery.
-6. Ordering path, once open question 1 is decided, with cash and Bit link payment.
+6. Ordering path, once open question 1 is decided, with cash and Bit payment (owner-sent request, manual "paid"; see [Bit payment links](research/bit-payment-links.md)).
 7. Email and WhatsApp notification code.
 8. Footer business details, policies and the accessibility statement page.
 9. Manual accessibility pass (screen reader in Hebrew, keyboard, zoom) before going live.
