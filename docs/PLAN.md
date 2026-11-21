@@ -46,7 +46,7 @@ The visual style (colours, Hebrew fonts, spacing, components and tone of voice) 
   - **Why not `me-west1`:** App Hosting doesn't offer Tel Aviv (its regions are us-central1, us-east4, us-east5, asia-east1, asia-southeast1 and europe-west4). Web frameworks could run in `me-west1`, but not on a supported path. `europe-west4` is the closest App Hosting region, and the EU counts as adequate for transfers from Israel ([privacy research](research/israeli-privacy-law.md#7-cross-border-transfer-and-firebase)), unlike the US regions. Stored data stays in Firestore in `me-west1`; only the web server runs in the EU, and cached pages are served from Google's CDN edge.
   - **Config:** `firebase.json` (`apphosting` block) and `apphosting.yaml` (scale to zero, at most 2 instances). Env values and `secret:` references go in `apphosting.yaml`; secret values go in Secret Manager (`npx firebase-tools apphosting:secrets:set`), never in the repo.
   - **Deploys:** `.github/workflows/deploy.yml` deploys every push to `main` after the CI checks pass, with `firebase deploy --only apphosting`. It signs in to Google Cloud keylessly with Workload Identity Federation, which trusts only this repo's `main` branch; there is no service account key anywhere. One-time setup is `scripts/setup-github-deploy.sh` (run in Cloud Shell), and the repo variables `GCP_WORKLOAD_IDENTITY_PROVIDER`, `GCP_DEPLOY_SERVICE_ACCOUNT` and `FIREBASE_PROJECT_ID` (identifiers, not secrets) point at the project. Moving to the owner's project means re-running the script there and changing those variables. A manual deploy from a signed-in PC is `npx firebase-tools deploy --only apphosting`.
-  - **CI:** `.github/workflows/ci.yml` runs lint, type checks, Vitest (with axe) and Playwright (with axe, phone and desktop, light and dark) on every pull request.
+  - **CI:** `.github/workflows/ci.yml` runs lint, type checks, Vitest (with axe), a Lighthouse speed budget, Playwright (with axe, phone and desktop, light and dark) and the Firestore rules tests on the emulator, on every pull request. See [Operations, security and launch readiness](#5-operations-security-and-launch-readiness).
 
 ### Payments
 
@@ -204,7 +204,67 @@ Development runs on Yevgeny's Firebase project. Before going live, move to a pro
 
 ---
 
-## 5. Phase 1 checklist (rough order)
+## 5. Operations, security and launch readiness
+
+Added 2026-11-21. Phase 1 is quick and dirty, so each item here is the lightest version that still protects the owner. Most of it slots into checklist steps 2, 3, 6, 7, 8 and 10 below.
+
+### Security rules tests
+
+- **`npm run test:rules`** starts the Firestore emulator under a `demo-` project ID (so it can never touch a real project) and runs `tests/rules/*.test.ts` with `@firebase/rules-unit-testing`. The tests try every path as an anonymous visitor, a signed-in non-admin, an admin with an unverified email and a verified admin.
+- **CI** runs it as its own job (`Security rules`) on every pull request and before every deploy.
+- **Today the rules deny everything,** so every test expects a denial. When a path opens (public read of products, admin photo uploads), change its tests first, in the same pull request as the rule. Storage rules get the same treatment when `storage.rules` exists.
+- **Locally** the emulator needs Java 21 or newer. The dev PC has Java 8, so either install Temurin 21 or let CI run it.
+
+### App Check and order-form abuse
+
+The order form is the only public write in phase 1, so it is the thing to protect. It is a Next.js server action that writes with the Admin SDK; the browser never writes to Firestore.
+
+- **App Check on `tamir-bakery-dev`:** a score-based (invisible) reCAPTCHA key for the App Hosting URL and `localhost`, registered with App Check for the web app. **Not enforced** on any Firebase product: the browser doesn't use Firestore directly, and the order action checks the token itself. Set up by `scripts/setup-project-protection.sh` in Cloud Shell (gcloud isn't on the dev PC). Its site key goes in `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` (a public identifier, in `.env.local` and `apphosting.yaml`). reCAPTCHA is free up to 10,000 assessments a month.
+- **Rate-limit plan for the order form,** cheapest layer first. Build it with the ordering path (checklist step 6):
+  1. **Honeypot and timing:** a hidden field that must stay empty, and reject a submit that comes less than 3 seconds after the form rendered. Free, and stops most simple bots.
+  2. **App Check token:** the form gets a limited-use token (`getLimitedUseToken`) and sends it with the order; the action calls `getAppCheck().verifyToken(token, { consume: true })`, so a token can't be replayed. The check sits behind a small interface so tests and the emulator use a fake.
+  3. **Firestore counters:** in the same transaction that saves the order, bump fixed-window counters in `rateLimits/{key}`: at most 5 orders per IP per hour and 3 per phone number per day. Keys are SHA-256 of the value plus a server-side salt (`RATE_LIMIT_SALT`, a secret), so no raw IP or phone is stored there. The client IP is the first entry of `X-Forwarded-For`. Each document has an `expiresAt` field with a Firestore TTL policy, so old counters delete themselves for free.
+  4. **Daily circuit breaker:** above a daily total (placeholder 20 orders), the form shows "we're full today, message us on WhatsApp" and the owner gets one email. This caps cost and spam if everything else fails.
+  5. **Validation:** a server-side schema check with size limits on every field, whatever the browser sent.
+  - `maxInstances: 2` in `apphosting.yaml` already caps what a flood can cost. Cloud Armor needs a paid load balancer and isn't worth it at this size.
+  - The limits live in the order rules settings (below), so the owner can loosen them without a deploy.
+
+### Speed budget and images
+
+- **Lighthouse CI** (`npm run test:speed`, config in `lighthouserc.json`) runs three times on the production build in CI, with phone emulation and throttling, and fails the build when the median run breaks a budget: performance score 0.9, accessibility score 1.0, LCP 2.5 s, CLS 0.1, total blocking time 200 ms, JavaScript 250 KB, fonts 120 KB and the whole first load 600 KB (transfer sizes). Reports are kept as a CI artifact for 7 days.
+- **Today (2026-11-21, skeleton page):** performance 99 to 100, LCP about 0.8 s warm, 188 KB in total, 137 KB of it JavaScript. Raise a budget only on purpose, in its own commit that says why.
+- **The budget covers `/` only for now.** Add each route to `lighthouserc.json` as it is built (`/store`, a product page, `/cart`).
+- **`next/image` defaults in `next.config.ts`:** WebP only (AVIF encodes much slower on a 1-CPU instance and doubles the cache), widths up to 1920 px, qualities 60 and 75, a 31-day cache (photo uploads get a new file name each time, so nothing goes stale), a 10 MB cap on source photos, no redirects, and remote photos allowed only from this project's Storage bucket (read from `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`).
+- **When using `<Image>`:** always pass `sizes` for anything not full width; mark only the one hero photo per page as the LCP image, with `preload` (Next.js 16 replaced `priority` with it) or `fetchPriority="high"`; every photo has real alt text. Resize uploads in `/admin` to at most 2000 px before they go to Storage.
+
+### Backups
+
+- **Dev (`tamir-bakery-dev`):** a weekly Firestore backup on Sunday (UTC), kept 4 weeks, set up by `scripts/setup-project-protection.sh`. Dev data has little value, so weekly is enough.
+- **Live (the owner's project):** run the same script with `BACKUP_RECURRENCE=daily` (kept 7 days), since orders are real there. Consider point-in-time recovery too (7 days of versions). Both cost storage per GiB, which at this size is cents a month.
+- **Restoring** creates a new database from a backup (`gcloud firestore databases restore`); it does not overwrite the live one. Practise it once on dev before launch.
+- **Photos** are not in Firestore backups. Keep the originals, and rely on Cloud Storage soft delete (on by default for new buckets, 7 days).
+
+### Analytics
+
+**Recommendation (2026-11-21): no analytics script before launch. At launch, Google Search Console plus Cloudflare Web Analytics, both free.**
+
+- **Google Search Console** shows search queries, clicks and indexing with no script on the site at all. It comes with the domain (see SEO).
+- **Cloudflare Web Analytics** for page views, referrers and Core Web Vitals: free, a single script tag, works without moving DNS or proxying through Cloudflare, uses no cookies or `localStorage`, and Cloudflare says it doesn't fingerprint visitors ([Cloudflare Web Analytics](https://www.cloudflare.com/web-analytics/)). No cookies means no cookie banner. The privacy policy should still say that anonymous page-view statistics are collected by Cloudflare. Add its hosts to the Content Security Policy when there is one.
+- **The Google Business Profile** has its own insights (calls, direction requests, searches), also free.
+- **Not chosen:** Google Analytics 4 and Firebase Analytics (cookies and device IDs, so consent is needed; see the [privacy research](research/israeli-privacy-law.md)), Plausible and Fathom (paid), and self-hosted Umami or GoatCounter (another server and database to run).
+
+### Still to do, waiting on others or later
+
+- **Legal pages, waiting on the owner's copy.** `/policies` (terms of sale, cancellation and refunds under the distance-selling rules, and the privacy policy) and `/accessibility` (the statement). Build the pages and the footer links early, with the templates from the research marked as drafts; publish the real text only when the owner has supplied or approved it with their business details (open questions 6, 13 and 14). Ordering doesn't go live before these exist.
+- **Order rules as admin settings, with placeholder defaults.** One `settings/orderRules` document edited in `/admin`: lead time (placeholder 48 hours), daily cutoff (18:00 the day before), how far ahead people can order (30 days), closed weekdays (Saturday), closed dates, minimum order (₪0), daily order cap (20), and the rate limits above (5 per IP per hour, 3 per phone per day). Until the owner sets them, `/admin` marks each value as a placeholder. This settles open questions 11 and 12 without a deploy.
+- **Production on the owner's Firebase** (see [migration](#4-firebase-migration-at-deploy)): on the new project also re-run `scripts/setup-github-deploy.sh`, run `scripts/setup-project-protection.sh` with the live domain in `DOMAINS` and `BACKUP_RECURRENCE=daily`, set a budget alert, and deploy the rules. Leave `localhost` out of the live reCAPTCHA key.
+- **`/admin` content management.** Besides products and settings, admins edit the site's own content: home and about text, gallery photos (alt text required), FAQ, business details for the footer, the Bit, PayBox and WhatsApp numbers, and the Google review link. Hebrew and English fields side by side. Stored in Firestore `content/*` and `settings/*`; saving revalidates the cached pages.
+- **Monitoring, with alerts when order emails fail.** An order is saved before the email is sent, so a failed email never loses an order. When Resend fails, the action retries once, marks the order `notification: failed`, and `/admin` shows a red banner on that order. The server also writes a structured log line (`ORDER_EMAIL_FAILED`); a log-based alert in Cloud Monitoring emails the developer. Add a free uptime check on the home page too. Check Cloud Monitoring's current alerting price before turning it on; one or two alert conditions should cost a dollar or two a month at most.
+- **Later: error tracking.** Start with Google Cloud Error Reporting, which groups server exceptions from the App Hosting logs automatically at no extra cost. Add Sentry's free plan only if browser-side errors need tracking too.
+
+---
+
+## 6. Phase 1 checklist (rough order)
 
 1. Next.js app skeleton with Hebrew RTL default and English, deployed to Yevgeny's Firebase. Set up functional tests, end-to-end tests and the accessibility checks from [Testing](#testing) here too, running in CI before any pages are built.
 2. Firestore data model: products, global settings (delivery/pickup), orders.
