@@ -1,0 +1,14 @@
+# Local env files (real values live here, never committed)
+.env
+.env*.local
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Node / Next.js
+node_modules/
+.next/
+out/
