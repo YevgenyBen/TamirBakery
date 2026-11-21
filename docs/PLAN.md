@@ -61,9 +61,18 @@ The visual style (colours, Hebrew fonts, spacing, components and tone of voice) 
 
 ### Admins and login
 
-- **Start:** a hardcoded list of admin accounts.
+- **Start:** a hardcoded list of admin accounts (the owner, the owner's wife and Yevgeny).
 - **Later:** add and remove admins from the `/admin` page.
-- Auth provider is not decided yet (Firebase Auth is the natural fit).
+- **Firebase Authentication, only for `/admin`.** Customers never sign in. Enabled on `tamir-bakery-dev` on 2026-11-21 with two providers:
+  - **Google sign-in** (main path). The OAuth consent screen is named "Tamir Bakery"; its support email is the developer's Gmail, set in the Firebase project, not in the repo.
+  - **Email and password** as a fallback, for an admin who would rather not use a Google account.
+- **Authorised domains:** projects created after April 2025 don't include `localhost` by default, so it is added by hand (Authentication > Settings > Authorised domains). Add the App Hosting URL and the business domain the same way when they exist. Leave `localhost` off the owner's live project.
+- **The allowlist is a Firestore collection, `admins/{email}`**, keyed by the lower-cased email. A custom claim was the other option, but a claim needs a user ID, so an admin would have to sign in once before being added. With email keys the owner can add their wife before she has ever signed in.
+  - **Seed:** a small script reads `ADMIN_EMAILS` (comma-separated, from `.env.local`, never committed) and writes one `admins` document per address. Run it once per Firebase project, including the owner's project at migration.
+  - **Checking an admin:** the Next.js server verifies the Firebase ID token with the Admin SDK and reads `admins/{token.email}`. It also requires `email_verified`, so nobody can claim an admin's address through an unverified email/password account. Google accounts are always verified; an email/password admin must click the verification email first.
+  - **Security rules** do the same check for anything the browser reads or writes directly (for example photo uploads to Storage): `request.auth.token.email_verified == true && exists(/databases/$(database)/documents/admins/$(request.auth.token.email.lower()))`. Rules stay locked down until those paths exist.
+  - **Managing admins in `/admin` later** means adding and deleting `admins` documents, done only by an existing admin. Don't let an admin remove themselves or the last remaining admin.
+  - Anyone can create an email/password account by default. That gives them nothing, since they aren't in `admins`, but sign-up can be turned off under Authentication > Settings > User actions if junk accounts appear.
 
 ### Content and language
 
@@ -133,7 +142,7 @@ Decided 2026-11-21 (open question 1):
 
 1. **How does an order reach the owner?** Decided 2026-11-21: orders are saved in Firestore, the owner gets an email, `/admin` has an orders summary, and WhatsApp through Twilio is added later. See [Orders](#orders-and-notifications-to-the-owner). Still open within this: whether to follow the [storefront research](research/storefront-layouts.md#3-ordering-flow) hybrid of a cart for fixed items and an order-request form for custom cakes.
 2. **Who marks an order as paid,** and when, given Bit has no automatic confirmation. It happens in the `/admin` orders summary; who does it is still open.
-3. **Admin sign-in method:** Google sign-in only, or email/password too.
+3. **Admin sign-in method:** decided 2026-11-21: Google sign-in, with email/password as a fallback. See [Admins and login](#admins-and-login).
 4. **Is English a full mirror of the site or only key pages?** The storefront research assumes a full `/en/` mirror.
 5. **Where photos come from** (owner's own, a photographer, or both) and who uploads them.
 6. **Business status:** is the owner an עוסק פטור? This decides whether the accessibility rules legally apply (see [accessibility research](research/israeli-web-accessibility-law.md#4-exemptions-and-thresholds)), though we build to the standard either way (see [Accessibility](#accessibility)), and what business details go in the footer. The [licensing research](research/home-bakery-licences-and-permits.md#4-tax-registration) recommends opening an עוסק פטור file online now (2026 ceiling NIS 122,833).
@@ -180,6 +189,7 @@ Development runs on Yevgeny's Firebase project. Before going live, move to a pro
 - Keep Firestore security rules, indexes and Storage rules in the repo, so they deploy to any project.
 - Write a short seed/export script for products and settings, so data can be copied to the new project.
 - At migration: create the owner's project on Blaze with the owner as billing owner and Yevgeny as a member; deploy rules and app; copy data and photos; point the domain at it; recreate admin accounts.
+- Auth on the new project: enable Google sign-in and email/password (Firebase MCP `firebase_init` with the auth feature, then `firebase deploy --only auth`, or the console), add the live domain to the authorised domains, and run the admin seed script with the owner's `ADMIN_EMAILS`. The `auth` block that `firebase_init` writes into `firebase.json` holds the support email, so it is not committed; drop it from the diff before committing.
 
 ---
 
