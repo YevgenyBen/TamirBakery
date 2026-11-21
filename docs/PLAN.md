@@ -3,7 +3,7 @@
 A web store for a home bakery, aimed at the Israeli market. Hebrew first (RTL), English second.
 
 - **Developer:** Yevgeny
-- **Last updated:** 2026-11-20
+- **Last updated:** 2026-11-21
 - **Phase 1 goal:** quick and dirty. Get a working, legal-enough store live with the least moving parts. Polish comes later.
 - **Launch date:** none fixed. Nothing is pushing us to release.
 
@@ -26,6 +26,14 @@ A clickable client preview of these pages (Hebrew, phone and desktop, including 
 
 The visual style (colours, Hebrew fonts, spacing, components and tone of voice) is defined in [DESIGN.md](DESIGN.md). [tamir-bakery-v2.html](mockups/tamir-bakery-v2.html) is a newer preview built from it from scratch. It adds a cart with form validation, an order-confirmation timeline, a dark theme switch and a style-guide page.
 
+### Design direction
+
+- **Decided 2026-11-21:** build from the [v2 mock](mockups/tamir-bakery-v2.html) and [DESIGN.md](DESIGN.md). A later mock made with impeccable in a different direction was discarded and is not in the repo.
+
+### Name
+
+- **Tamir Bakery (מאפיית תמיר)** is the name for now. A final name may come later and does not block work, so the name lives in one place (config or translation strings), never in images, metadata or URLs.
+
 ### Tech stack and hosting
 
 - **Next.js** for both front end and back end.
@@ -37,7 +45,7 @@ The visual style (colours, Hebrew fonts, spacing, components and tone of voice) 
 
 - **Cash** and **Bit (or a similar app) straight to the owner.** No payment gateway, no card processing in phase 1.
 - **There is no Bit "pay link" with a preset amount for a personal account** ([Bit payment links](research/bit-payment-links.md)). In phase 1 the owner sends a Bit request for the exact amount to the customer's phone after confirming the order. The confirmation page shows the amount, the owner's Bit number and the order ref with copy buttons, as a fallback for customers who prefer to send the money themselves. No "pay now" button.
-- Nothing confirms a Bit payment automatically, so payment status is marked by hand in `/admin`. Who does this depends on how orders reach the owner (open question 1).
+- Nothing confirms a Bit payment automatically, so payment status is marked by hand in `/admin`, in the orders summary (see [Orders](#orders-and-notifications-to-the-owner)).
 - Build payment behind one small seam (for example `createPaymentRequest(order)` returning either instructions or a URL), so a payment company can replace it later without touching the pages.
 - **Later, once the business is registered and ordering goes live:** Grow payment links (API link with the exact amount, Bit or card, webhook marks the order paid, automatic receipt). About ₪85–95 a month plus VAT at ~30 orders a month. See [Bit payment links §2 and §6](research/bit-payment-links.md#2-bit-לעסקים-through-a-payment-company-yes).
 
@@ -95,13 +103,20 @@ The visual style (colours, Hebrew fonts, spacing, components and tone of voice) 
 - **CI:** lint, type checks, functional tests and end-to-end tests run on every pull request (GitHub Actions). Seed data for tests lives in the repo, alongside the seed/export script from [Firebase migration](#4-firebase-migration-at-deploy).
 - **Manual accessibility pass before each release:** automated tools catch only part of the problems, so also check with a screen reader in Hebrew (NVDA on Windows, VoiceOver on iPhone), check zoom to 200%, and review alt text and headings by hand.
 
-### Notifications to the owner
+### Orders and notifications to the owner
 
-- **Email** and **WhatsApp**. Build the code so both channels are ready, behind a small notification interface, even if one isn't switched on at launch.
+Decided 2026-11-21 (open question 1):
+
+- **Orders are saved in Firestore.** Customers order on the site without messaging first; that is the phase 1 success test.
+- **The owner is told by email** for each new order. This is the only channel at launch.
+- **`/admin` has an orders summary:** a list of orders with their status, where admins open an order and mark it confirmed, paid and done.
+- **WhatsApp comes later, through Twilio,** added during the build. Twilio is a paid, per-message service, so it gets its own config and is switched on separately.
+- Both channels sit behind one small notification interface, so adding Twilio is a new channel, not a rewrite.
 
 ### Domain and email
 
-- None yet. Both will be provided later. Nothing in the code should hardcode a domain or sender address.
+- **Email:** the developer's account Gmail is the contact and order email for now, until a business email exists. It is **not written into the repo** (the repo is public). The code reads it from environment variables: `CONTACT_EMAIL` (shown on the site) and `ORDER_EMAIL_TO` (where order emails go). Both go into `.env.example` empty, with the real value only in `.env.local` and the hosting config.
+- **Domain:** none yet; it will be bought and added later. Nothing in the code hardcodes a domain or sender address; the site URL comes from `SITE_URL`.
 
 ### Out of scope for now
 
@@ -111,8 +126,8 @@ The visual style (colours, Hebrew fonts, spacing, components and tone of voice) 
 
 ## 2. Open questions
 
-1. **How does an order reach the owner?** Decide later. Options on the table: a cart that ends in a prefilled WhatsApp message; orders saved in Firestore and shown in `/admin`; or both. The [storefront research](research/storefront-layouts.md#3-ordering-flow) suggests a hybrid: a cart for fixed items and an order-request form for custom cakes.
-2. **Who marks an order as paid,** and when, given Bit has no automatic confirmation.
+1. **How does an order reach the owner?** Decided 2026-11-21: orders are saved in Firestore, the owner gets an email, `/admin` has an orders summary, and WhatsApp through Twilio is added later. See [Orders](#orders-and-notifications-to-the-owner). Still open within this: whether to follow the [storefront research](research/storefront-layouts.md#3-ordering-flow) hybrid of a cart for fixed items and an order-request form for custom cakes.
+2. **Who marks an order as paid,** and when, given Bit has no automatic confirmation. It happens in the `/admin` orders summary; who does it is still open.
 3. **Admin sign-in method:** Google sign-in only, or email/password too.
 4. **Is English a full mirror of the site or only key pages?** The storefront research assumes a full `/en/` mirror.
 5. **Where photos come from** (owner's own, a photographer, or both) and who uploads them.
@@ -129,6 +144,7 @@ The visual style (colours, Hebrew fonts, spacing, components and tone of voice) 
 16. **Firestore region:** it can't be changed after the database is created. The [privacy research](research/israeli-privacy-law.md#7-cross-border-transfer-and-firebase) suggests `me-west1` (Tel Aviv) or an EU region. Decide before creating the owner's project.
 17. **Who can see customer data:** keep it to the owner plus at most two others (the developer counts) so the lightest security level applies ([privacy research](research/israeli-privacy-law.md#1-tldr-what-this-bakery-store-must-do)).
 18. **Where will the baking happen?** The [licensing research](research/home-bakery-licences-and-permits.md#8-recommended-path-from-zero) found no legal route for selling food made in an ordinary family kitchen. Options: a licensed rented or shared kitchen, or a separate self-contained unit at home licensed under item 4.2ג. Until then, the site should launch as a portfolio with no ordering.
+19. **Which service sends the order emails?** Options include Gmail SMTP with an app password, the Firebase "Trigger Email" extension over SMTP, or a transactional email service such as Resend. The sender address has to work before the business domain exists.
 
 ---
 
@@ -164,12 +180,12 @@ Development runs on Yevgeny's Firebase project. Before going live, move to a pro
 ## 5. Phase 1 checklist (rough order)
 
 1. Next.js app skeleton with Hebrew RTL default and English, deployed to Yevgeny's Firebase. Set up functional tests, end-to-end tests and the accessibility checks from [Testing](#testing) here too, running in CI before any pages are built.
-2. Firestore data model: products, global settings (delivery/pickup), orders (if we store them).
+2. Firestore data model: products, global settings (delivery/pickup), orders.
 3. `/admin` with the hardcoded admin list: manage products, photos, delivery/pickup settings.
 4. `/store` catalogue reading from Firestore.
 5. `/` and `/about` with our own copy and gallery.
-6. Ordering path, once open question 1 is decided, with cash and Bit payment (owner-sent request, manual "paid"; see [Bit payment links](research/bit-payment-links.md)).
-7. Email and WhatsApp notification code.
+6. Ordering path: orders saved in Firestore, the `/admin` orders summary, and cash and Bit payment (owner-sent request, manual "paid"; see [Bit payment links](research/bit-payment-links.md)).
+7. Email notification to the owner for each new order; then WhatsApp through Twilio.
 8. Footer business details, policies and the accessibility statement page.
 9. Manual accessibility pass (screen reader in Hebrew, keyboard, zoom) before going live.
 10. Domain, business email and migration to the owner's Firebase.
