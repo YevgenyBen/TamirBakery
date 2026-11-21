@@ -239,7 +239,7 @@ The order form is the only public write in phase 1, so it is the thing to protec
 
 ### Backups
 
-- **Dev (`tamir-bakery-dev`):** a weekly Firestore backup on Sunday (UTC), kept 4 weeks, set up by `scripts/setup-project-protection.sh`. Dev data has little value, so weekly is enough.
+- **Dev (`tamir-bakery-dev`):** a weekly Firestore backup on Sunday (UTC), kept 4 weeks. Created 2026-11-21; `scripts/setup-project-protection.sh` makes the same schedule on any project and skips it if one exists. Dev data has little value, so weekly is enough.
 - **Live (the owner's project):** run the same script with `BACKUP_RECURRENCE=daily` (kept 7 days), since orders are real there. Consider point-in-time recovery too (7 days of versions). Both cost storage per GiB, which at this size is cents a month.
 - **Restoring** creates a new database from a backup (`gcloud firestore databases restore`); it does not overwrite the live one. Practise it once on dev before launch.
 - **Photos** are not in Firestore backups. Keep the originals, and rely on Cloud Storage soft delete (on by default for new buckets, 7 days).
