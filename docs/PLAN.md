@@ -122,6 +122,11 @@ Decided 2026-11-21 (open question 1):
 
 - **Email:** the developer's account Gmail is the contact and order email for now, until a business email exists. It is **not written into the repo** (the repo is public). The code reads it from environment variables: `CONTACT_EMAIL` (shown on the site) and `ORDER_EMAIL_TO` (where order emails go). Both go into `.env.example` empty, with the real value only in `.env.local` and the hosting config.
 - **Domain:** none yet; it will be bought and added later. Nothing in the code hardcodes a domain or sender address; the site URL comes from `SITE_URL`.
+- **Sending service: Resend.** Decided 2026-11-21 (open question 19). The free tier allows about 3,000 emails a month and 100 a day, far more than a home bakery needs.
+  - **Until the domain exists,** emails go out from Resend's test sender, `onboarding@resend.dev`. The test sender only delivers to the email address of the Resend account owner, so `ORDER_EMAIL_TO` must be that address for now (the developer's Gmail). The owner does not get order emails directly until the domain is verified.
+  - **Once the domain is bought,** verify it in Resend (DNS records), then send from an address on it and point `ORDER_EMAIL_TO` at the owner.
+  - **Config is env only,** since the repo is public: `RESEND_API_KEY` (secret, server side only, never `NEXT_PUBLIC_`), `ORDER_EMAIL_FROM` (the sender address) and `ORDER_EMAIL_TO` (the recipient). They go into `.env.example` empty, with real values only in `.env.local` and the hosting config. Moving to the domain is then an env change, not a code change.
+  - Resend is the email channel behind the notification interface in [Orders](#orders-and-notifications-to-the-owner); tests use a fake sender.
 
 ### Out of scope for now
 
@@ -149,7 +154,7 @@ Decided 2026-11-21 (open question 1):
 16. **Firestore region:** decided: `me-west1` (Tel Aviv), per the [privacy research](research/israeli-privacy-law.md#7-cross-border-transfer-and-firebase). The dev project uses it; the owner's project must use it too, since the region can't be changed after the database is created.
 17. **Who can see customer data:** keep it to the owner plus at most two others (the developer counts) so the lightest security level applies ([privacy research](research/israeli-privacy-law.md#1-tldr-what-this-bakery-store-must-do)).
 18. **Where will the baking happen?** The [licensing research](research/home-bakery-licences-and-permits.md#8-recommended-path-from-zero) found no legal route for selling food made in an ordinary family kitchen. Options: a licensed rented or shared kitchen, or a separate self-contained unit at home licensed under item 4.2ג. Until then, the site should launch as a portfolio with no ordering.
-19. **Which service sends the order emails?** Options include Gmail SMTP with an app password, the Firebase "Trigger Email" extension over SMTP, or a transactional email service such as Resend. The sender address has to work before the business domain exists.
+19. **Which service sends the order emails?** Decided 2026-11-21: Resend, from its test sender until the domain exists, then from the verified domain. See [Domain and email](#domain-and-email).
 
 ---
 
