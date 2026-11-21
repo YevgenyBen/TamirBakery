@@ -46,7 +46,7 @@ Sources I could not read: `greeninvoice.co.il/payment-links` and `greeninvoice.c
 | Fee | **0.8%** on receipts above ₪25,000 a year, from 1.5.26 ("מעבר לסף פעילות של 25,000 ₪"). This replaces the 0.6% in the older terms PDF used by the layout-gaps research. | [P] [bitpay.co.il](https://www.bitpay.co.il/he) |
 | Tax invoice | "על מקבל התשלום באמצעות bit חלה החובה ... להפיק חשבונית מס כחוק" (whoever receives payment by Bit must issue a tax invoice/receipt as the law requires). | [P] [bitpay.co.il](https://www.bitpay.co.il/he) |
 | Business use | At sign-up the user declares business or non-business use. | [P] Bit terms §2.3 (via layout gaps) |
-| Discrepancy | Grow's article says a ₪50,000 annual cap applies to personal use, while Bit's site says ₪100,000. Check in the app. | [P] [Grow magazine](https://grow.business/magazine-bit/) vs [bitpay.co.il](https://www.bitpay.co.il/he) |
+| Discrepancy | Grow's article says a ₪50,000 annual cap applies to personal use, while Bit's site says ₪100,000. **Followed up:** a 2026 news report also gives ₪100,000, so Grow's figure looks out of date ([alternatives §1](israeli-payment-alternatives-to-bit.md#1-corrections-and-updates-to-the-bit-file)). | [P] [Grow magazine](https://grow.business/magazine-bit/) vs [bitpay.co.il](https://www.bitpay.co.il/he) |
 
 ## 2. "bit לעסקים" through a payment company: yes
 
@@ -143,11 +143,11 @@ The personal account looks free, but it gives no confirmation, it needs a separa
 
 ## 7. Open questions
 
-1. **Does Grow accept an *עוסק פטור*, and are the API and webhooks included in Grow Light?** Not stated. Ask Grow sales.
-2. **Personal Bit cap:** ₪100k (Bit's site) or ₪50k (Grow's article)? Check in the app.
+1. **Does Grow accept an *עוסק פטור*, and are the API and webhooks included in Grow Light?** Not stated. Ask Grow sales. A comparison site says Grow's FAQ answers yes for *עוסק פטור* ([alternatives §1](israeli-payment-alternatives-to-bit.md#1-corrections-and-updates-to-the-bit-file), secondary).
+2. **Personal Bit cap:** ₪100k (Bit's site) or ₪50k (Grow's article)? **Answered:** ₪100k ([alternatives §1](israeli-payment-alternatives-to-bit.md#1-corrections-and-updates-to-the-bit-file)).
 3. **PayBox "לינק אישי":** can it carry an amount? Check in the PayBox app.
 4. **Bit on desktop via Grow:** SMS to the phone, QR, or card only? Test in the sandbox and with a real ₪1 payment.
-5. **Which payment company:** Grow is the best documented. Cardcom, Upay and Gama are also on Bit's partner list but were not researched.
+5. **Which payment company:** Grow is the best documented. **Followed up in [alternatives §4](israeli-payment-alternatives-to-bit.md#4-payment-gateways-and-link-providers):** Cardcom, Tranzila, PayPlus, Hyp, Upay, Gama and others compared; Grow stays first, Cardcom or Hyp as backups.
 
 ## Sources
 
