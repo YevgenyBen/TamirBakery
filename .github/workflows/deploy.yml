@@ -1,0 +1,50 @@
+name: Deploy
+
+# Deploys main to Firebase App Hosting after the CI checks pass.
+# Auth is keyless (Workload Identity Federation): no service account key exists,
+# and only this repository's main branch can get a token. One-time setup:
+# scripts/setup-github-deploy.sh. The repository variables it needs are
+# identifiers, not secrets.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: Deploy to App Hosting
+    needs: ci
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: dev
+      url: https://tamir-bakery--tamir-bakery-dev.europe-west4.hosted.app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Deploy
+        run: npx --yes firebase-tools@15.37.0 deploy --only apphosting --project "${{ vars.FIREBASE_PROJECT_ID }}" --non-interactive
