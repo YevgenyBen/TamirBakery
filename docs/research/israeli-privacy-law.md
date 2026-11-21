@@ -171,7 +171,7 @@ The test courts apply is the message's **main purpose**. A service message, such
 | Message | Advertising? | What to do |
 |---|---|---|
 | New-order alert to the owner (email or WhatsApp) | No. The owner is the business itself. [I] | Minimal content (A5). |
-| Order confirmation, payment instructions (Bit link), pickup or delivery time, "your cake is ready" | No, if it contains **only** order information [S test, I application] | **Do not add** "10% off next order", new-product teasers or holiday promos to these messages. |
+| Order confirmation, payment instructions (Bit request or number), pickup or delivery time, "your cake is ready" | No, if it contains **only** order information [S test, I application] | **Do not add** "10% off next order", new-product teasers or holiday promos to these messages. |
 | Holiday menu announcement, new products, discount code, "we're back from vacation, order now" | **Yes** | Needs opt-in (or the existing-customer exception, M9), "פרסומת" at the start, sender details and a refusal route. |
 | Holiday greeting with the logo and no offer | Grey zone. Some rulings treated greetings as ads [S] | Treat it as advertising. |
 | Click-to-chat (a `wa.me` link with prefilled order text) | The **customer** sends it, so it is not your advertisement [I] | Disclose in the notice that ordering via WhatsApp passes the details through WhatsApp (Meta). |

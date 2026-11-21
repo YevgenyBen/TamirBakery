@@ -299,3 +299,47 @@ Publish an English mirror at `/en/accessibility` and link both versions from eve
 - ziko.co.il, penalties article (7 Feb 2026): https://www.ziko.co.il/blog/knashot-negishut-israel
 - GitHub issue flagging the expired 300k tier (cites Wikisource): https://github.com/skills-il/security-compliance/issues/14
 - digitale.co.il (Oct 2026). Cited only as an example of **incorrect** claims (WCAG 2.1, live 300k tier): https://digitale.co.il/he/חוק-הנגישות-לאתרים-בישראל-2026/
+
+---
+
+## 10. Building and testing to the standard (practice, added 2026-11-21)
+
+This section is engineering practice rather than law. It turns sections 3 and 5 into a way of working that suits any small Next.js (or similar) site. Tamir Bakery adopted it in [docs/PLAN.md](../PLAN.md#accessibility) (sections "Accessibility" and "Testing").
+
+### Build it in from the first commit
+
+- **Treat SI 5568-1 AA as the floor, whatever the exemption status.** Exemption depends on turnover, which changes from year to year (A10). Retrofitting a finished site costs more than building it right from the start. Aim for WCAG 2.2 AA (A1).
+- **No overlay widgets** (A2).
+- **Every page is in scope, the admin area included,** in each language and at phone and desktop sizes.
+- **Base rules:**
+  - semantic HTML and landmarks, with one `h1` and real headings (SI 5568 raises 2.4.10 to AA)
+  - full keyboard use and a visible focus
+  - labelled form fields, with errors given as text
+  - alt text on every image, enforced when it is uploaded
+  - contrast checked in every theme
+  - the right `lang`/`dir` on each page, plus `<bdi>` around mixed-direction text (A9)
+  - respect for `prefers-reduced-motion`
+- **Definition of done:** a feature isn't finished until its accessibility checks pass.
+
+### Automated checks (in CI on every pull request)
+
+| Layer | Tool | What it catches |
+|---|---|---|
+| Lint | `eslint-plugin-jsx-a11y`, included in `eslint-config-next` | Missing alt text, label and ARIA misuse, while writing code |
+| Component tests | `vitest-axe` or `jest-axe` on each rendered state (loading, empty, error, filled) | Rule violations in each component state, early |
+| End-to-end | Playwright + `@axe-core/playwright`, with tags `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa` | Whole-page violations on every route. Run each route in each language, at phone and desktop sizes and in each theme. Any violation fails the run. |
+| End-to-end, keyboard | Playwright flows driven only by keyboard (browse, cart, checkout, admin) | Focus order, keyboard traps, unreachable controls |
+
+### Manual pass (before each release, and keep the record)
+
+- Automated rules catch only some WCAG failures. Reading order, how good the alt text is, and whether the order flow makes sense to a screen-reader user still need a person to check.
+- Use a screen reader in Hebrew (NVDA with Firefox or Chrome on Windows, VoiceOver on iPhone), and in English for the English pages.
+- Check zoom to 200% and 320px reflow, and check the site with only a keyboard.
+- Write down the date, the browsers and the result. The accessibility statement should give the date the site was last checked (A7, section 6).
+
+### Sources for this section
+
+- `eslint-plugin-jsx-a11y` in Next.js's ESLint config: https://nextjs.org/docs/app/api-reference/config/eslint [P]
+- axe-core rule tags (`wcag2a`, `wcag2aa`, `wcag21aa`, `wcag22aa`): https://github.com/dequelabs/axe-core/blob/develop/doc/API.md#axe-core-tags [P]
+- Playwright accessibility testing with `@axe-core/playwright`: https://playwright.dev/docs/accessibility-testing [P]. It notes that automated tests can't detect all accessibility problems.
+- W3C on why tools aren't enough: https://www.w3.org/WAI/test-evaluate/tools/selecting/ [P]
