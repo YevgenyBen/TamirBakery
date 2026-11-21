@@ -21,7 +21,7 @@ Next.js (front end and back end) on Firebase: App Hosting, Firestore (`me-west1`
 
 ## Product Purpose
 
-A small web store for a home bakery, working name **Tamir Bakery (מאפיית תמיר)**. That name is used for now; it is a placeholder, and a final name may come later without blocking work. It shows the baker's work, lists products with real prices, and lets customers place an order that the owner fulfils by pickup or delivery and is paid for in cash or by a manual pay link.
+A small web store for a home bakery, working name **Tamir Bakery (מאפיית תמיר)**. That name is used for now; it is a placeholder, and a final name may come later without blocking work. It shows the baker's work, lists products with real prices, and lets customers place an order that the owner fulfils by pickup or delivery and is paid for in cash, Bit, PayBox or bank transfer, arranged by hand.
 
 Phase 1 is deliberately quick and simple: a working, legal-enough store with the fewest moving parts. Polish comes later. There is no fixed launch date.
 
@@ -35,7 +35,7 @@ A real home baker selling made-to-order goods, in Hebrew first, with direct cont
 
 - **Routes decided:** `/` (information and photo gallery), `/store` (catalogue), `/about` (the owner and the business), `/admin` (products, settings, orders). The research recommends adding `/store/[slug]`, `/cart`, `/order/[id]`, `/policies` and `/accessibility`; not adopted yet (PLAN open questions 9 to 15).
 - **Ordering (decided 2026-11-21, PLAN open question 1):** orders are saved in Firestore and the owner is told by **email**. `/admin` has an **orders summary** where admins see and update orders. **WhatsApp** notifications are added later through **Twilio**, during the build, not for launch. Research suggests a cart for fixed items and an order-request form for custom cakes.
-- **Payment:** cash, or Bit (or a similar app) straight to the owner. No payment gateway and no card processing in phase 1. A private Bit account cannot issue a link with a preset amount, and Bit gives no automatic confirmation, so payment status is marked by hand in `/admin`. Who starts the payment request is open.
+- **Payment:** cash, Bit or PayBox straight to the owner, with bank transfer as a fallback (account details only in the customer's own confirmation). No payment gateway and no card processing in phase 1. A private Bit or PayBox account cannot issue a link with a preset amount, and neither gives automatic confirmation, so payment status is marked by hand in `/admin`. Who starts the payment request is open.
 - **Delivery and pickup:** set by the owner in `/admin`, globally as defaults and per item as overrides. Exact fields are defined when `/admin` is built.
 - **Notifications to the owner:** email first; WhatsApp through Twilio later. Both sit behind one small notification interface, so adding Twilio is a new channel, not a rewrite.
 - **Contact email:** the developer's account Gmail for now, until a business email exists. It is never written into the repo: the code reads it from environment variables (`CONTACT_EMAIL` for the site, `ORDER_EMAIL_TO` for order emails).
@@ -63,7 +63,7 @@ A real home baker selling made-to-order goods, in Hebrew first, with direct cont
 ## Evidence on Hand
 
 - **Mockups:** [tamir-bakery-preview.html](docs/mockups/tamir-bakery-preview.html) and [tamir-bakery-v2.html](docs/mockups/tamir-bakery-v2.html), with desktop screenshots in [docs/mockups/screenshots/](docs/mockups/screenshots/). They use sample products, prices and orders. **The design follows the v2 mock together with DESIGN.md** (decided 2026-11-21); a later impeccable mock in a different direction was discarded.
-- **Research:** six reports in [docs/research/](docs/research/) on storefront layout, layout gaps and payments, accessibility law, privacy law, local SEO and marketing, and licences and kashrut.
+- **Research:** eight reports in [docs/research/](docs/research/) on storefront layout, layout gaps, Bit payment links, alternatives to Bit, accessibility law, privacy law, local SEO and marketing, and licences and kashrut.
 - **Absent, must not be fabricated:** real product photos (mockup v2 uses Unsplash stand-ins for preview only), the owner's name, photo and story, real products and prices, customer reviews or testimonials, a kashrut certificate, a business licence, business registration details, a domain and business email, a logo, the final business name.
 
 ## Product Principles
