@@ -26,6 +26,8 @@ npm test             # Vitest + Testing Library + vitest-axe
 npm run build
 npx playwright install chromium   # once
 npm run test:e2e     # Playwright + axe against the production build, phone and desktop
+npm run test:speed   # Lighthouse speed budget against the production build (lighthouserc.json)
+npm run test:rules   # Firestore security rules on the emulator (needs Java 21+)
 ```
 
 Run the e2e tests against a deployed URL with `E2E_BASE_URL=https://... npm run test:e2e`.

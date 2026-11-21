@@ -15,3 +15,10 @@ env:
     availability:
       - BUILD
       - RUNTIME
+  # Public reCAPTCHA site key for App Check (PLAN.md "App Check and order-form abuse").
+  # Not a secret: it ships in the browser bundle. Each Firebase project has its own.
+  - variable: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+    value: 6LeXSCsuAAAAADdtQ9vtPJFQECL4V5n4RpPynHfz
+    availability:
+      - BUILD
+      - RUNTIME

@@ -20,5 +20,14 @@
         "docs"
       ]
     }
-  ]
+  ],
+  "emulators": {
+    "singleProjectMode": true,
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "enabled": false
+    }
+  }
 }
