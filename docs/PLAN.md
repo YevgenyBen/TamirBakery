@@ -59,6 +59,39 @@ The visual style (colours, Hebrew fonts, spacing, components and tone of voice) 
 - **Every page must be fully usable on both desktop and mobile**, including `/admin`. The owner will likely manage products and orders from a phone.
 - Design mobile first, then check each feature on a phone-sized and a desktop screen before calling it done.
 
+### Accessibility
+
+- **The site is fully accessible from the first commit,** whether or not the business turns out to be legally exempt (open question 6). Accessibility is built in from the start, not fixed up before launch.
+- **Target:** Israeli standard SI 5568-1 at level AA (WCAG 2.0 AA with Israeli changes, such as section headings at AA), plus WCAG 2.2 AA where it adds something. Details in the [accessibility research](research/israeli-web-accessibility-law.md).
+- **Applies to every page, `/admin` included,** in both Hebrew (RTL) and English: semantic HTML and landmarks, full keyboard use with visible focus, labelled form fields with clear errors, alt text for every product and gallery photo (the `/admin` photo upload requires it), colour contrast that passes in light and dark themes, a correct `lang`/`dir` on each page and on mixed-language text, and respect for reduced motion.
+- **No overlay widgets** (accessibility toolbars or plugins). They don't make a site compliant.
+- **Accessibility statement** at `/accessibility`, linked from the footer, using the Hebrew template in the research.
+- **A feature is not done until it passes the accessibility tests below,** on phone and desktop sizes.
+
+### Testing
+
+**Functional and end-to-end tests exist from the first commit,** set up with the app skeleton, before any feature is built. Every feature ships with its tests, and a feature is not done until they pass. Accessibility checks are part of both layers.
+
+**Functional tests** (Vitest + React Testing Library):
+
+- Unit tests for logic: prices, cart totals, delivery and pickup rules (global defaults and per-item overrides), order cutoffs and closed dates, Hebrew/English text lookup.
+- Component tests for each component's states (loading, empty, error, filled), in both languages.
+- Integration tests against the Firebase Emulator Suite: Firestore and Storage security rules (only admins can write products, customers can't read other orders), server actions and API routes, and the email/WhatsApp notification interface with fake senders.
+- Axe on rendered components (`vitest-axe`), including error and empty states.
+
+**End-to-end tests** (Playwright, against the built app and the Firebase emulators, never a live project):
+
+- The main user journeys: browse `/` and `/store`, switch language, view a product, place an order with cash and with Bit, and see the confirmation.
+- The admin journeys: sign in as a listed admin, be blocked as a non-admin, add and edit a product with a photo and alt text, change delivery settings, mark an order as paid.
+- Run at phone and desktop sizes.
+- `@axe-core/playwright` scans every route in Hebrew and English, at phone and desktop sizes, in light and dark themes, tagged for WCAG 2.0/2.1/2.2 A and AA. Any violation fails the run. Key flows are also run by keyboard only.
+
+**Also:**
+
+- **Lint and types:** ESLint with `eslint-plugin-jsx-a11y` (included in Next.js's config) and `tsc` type checks, with errors failing the build.
+- **CI:** lint, type checks, functional tests and end-to-end tests run on every pull request (GitHub Actions). Seed data for tests lives in the repo, alongside the seed/export script from [Firebase migration](#4-firebase-migration-at-deploy).
+- **Manual accessibility pass before each release:** automated tools catch only part of the problems, so also check with a screen reader in Hebrew (NVDA on Windows, VoiceOver on iPhone), check zoom to 200%, and review alt text and headings by hand.
+
 ### Notifications to the owner
 
 - **Email** and **WhatsApp**. Build the code so both channels are ready, behind a small notification interface, even if one isn't switched on at launch.
@@ -80,7 +113,7 @@ The visual style (colours, Hebrew fonts, spacing, components and tone of voice) 
 3. **Admin sign-in method:** Google sign-in only, or email/password too.
 4. **Is English a full mirror of the site or only key pages?** The storefront research assumes a full `/en/` mirror.
 5. **Where photos come from** (owner's own, a photographer, or both) and who uploads them.
-6. **Business status:** is the owner an עוסק פטור? This decides whether the accessibility rules legally apply (see [accessibility research](research/israeli-web-accessibility-law.md#4-exemptions-and-thresholds)), and what business details go in the footer. The [licensing research](research/home-bakery-licences-and-permits.md#4-tax-registration) recommends opening an עוסק פטור file online now (2026 ceiling NIS 122,833).
+6. **Business status:** is the owner an עוסק פטור? This decides whether the accessibility rules legally apply (see [accessibility research](research/israeli-web-accessibility-law.md#4-exemptions-and-thresholds)), though we build to the standard either way (see [Accessibility](#accessibility)), and what business details go in the footer. The [licensing research](research/home-bakery-licences-and-permits.md#4-tax-registration) recommends opening an עוסק פטור file online now (2026 ceiling NIS 122,833).
 7. **Card payments:** the storefront research says card should always be offered in Israel. Phase 1 deliberately skips it; revisit if customers ask.
 8. **Kashrut wording:** only say "כשר" with a Rabbinate certificate. Confirm whether the owner has one. Without one, the site may only describe its standards truthfully next to an explicit "no kashrut certificate" line, and the Rabbinate refuses certificates to businesses in private homes in principle (see [licensing research](research/home-bakery-licences-and-permits.md#6-kashrut-claims)).
 9. **Who starts a Bit/PayBox payment:** the owner sends an in-app request, or the customer sends money with the order ref in the note. A private Bit account has no shareable link with a preset amount; "bit לעסקים" links need a payment company. See [layout gaps §2](research/basic-layout-gaps.md#2-order-and-payment-path-cash-and-bitpaybox-only).
@@ -126,12 +159,13 @@ Development runs on Yevgeny's Firebase project. Before going live, move to a pro
 
 ## 5. Phase 1 checklist (rough order)
 
-1. Next.js app skeleton with Hebrew RTL default and English, deployed to Yevgeny's Firebase.
+1. Next.js app skeleton with Hebrew RTL default and English, deployed to Yevgeny's Firebase. Set up functional tests, end-to-end tests and the accessibility checks from [Testing](#testing) here too, running in CI before any pages are built.
 2. Firestore data model: products, global settings (delivery/pickup), orders (if we store them).
 3. `/admin` with the hardcoded admin list: manage products, photos, delivery/pickup settings.
 4. `/store` catalogue reading from Firestore.
 5. `/` and `/about` with our own copy and gallery.
 6. Ordering path, once open question 1 is decided, with cash and Bit link payment.
 7. Email and WhatsApp notification code.
-8. Footer business details, policies and accessibility statement (after the research above).
-9. Domain, business email and migration to the owner's Firebase.
+8. Footer business details, policies and the accessibility statement page.
+9. Manual accessibility pass (screen reader in Hebrew, keyboard, zoom) before going live.
+10. Domain, business email and migration to the owner's Firebase.
