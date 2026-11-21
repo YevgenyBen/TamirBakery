@@ -1,6 +1,6 @@
 # Tamir Bakery: phase 1 plan
 
-A web store for a home bakery, aimed at the Israeli market. Hebrew first (RTL), English second.
+A web store for home made goods, aimed at the Israeli market. Hebrew first (RTL), English second.
 
 - **Developer:** Yevgeny
 - **Last updated:** 2026-11-21
