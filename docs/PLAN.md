@@ -143,6 +143,38 @@ Decided 2026-11-21 (open question 1):
   - **Config is env only,** since the repo is public: `RESEND_API_KEY` (secret, server side only, never `NEXT_PUBLIC_`), `ORDER_EMAIL_FROM` (the sender address) and `ORDER_EMAIL_TO` (the recipient). They go into `.env.example` empty, with real values only in `.env.local` and the hosting config. Moving to the domain is then an env change, not a code change.
   - Resend is the email channel behind the notification interface in [Orders](#orders-and-notifications-to-the-owner); tests use a fake sender.
 
+### SEO and marketing
+
+From the [local SEO research](research/local-seo-and-marketing.md#10-prioritised-action-list). Everything here is free except the domain. The code part is small and goes in before launch.
+
+**Code (before launch):**
+
+- **Env vars in `apphosting.yaml`:** `SITE_URL`, `ALLOW_INDEXING` and `GOOGLE_SITE_VERIFICATION`. Root metadata sets `metadataBase: new URL(process.env.SITE_URL)`, so canonical, hreflang, Open Graph and sitemap URLs never hardcode a domain ([T1](research/local-seo-and-marketing.md#31-what-to-build)).
+- **`noindex` unless `ALLOW_INDEXING=true`**, as a robots meta tag and/or `X-Robots-Tag` header. The skeleton hardcodes `noindex` today; switch it to the env flag. Never disallow the site in `robots.txt` as well, or Google can't see the `noindex` ([3.3](research/local-seo-and-marketing.md#33-before-the-domain-exists)).
+- **`lang` and `dir` per language:** `he`/`rtl` at `/` (served by a rewrite, not a redirect) and `en`/`ltr` under `/en/`, with a visible language link. No `Accept-Language` redirect. The skeleton already has `lang="he" dir="rtl"` ([T2, T3](research/local-seo-and-marketing.md#31-what-to-build)).
+- **Per-page Hebrew and English metadata:** a title template plus a `title` and `description` for every page, and `alternates.canonical` with `alternates.languages` (`he`, `en`, `x-default` pointing at Hebrew), built by one helper from the path ([T4, T5](research/local-seo-and-marketing.md#31-what-to-build)). Check that TypeScript accepts the `'x-default'` key.
+- **`app/sitemap.ts`** (static pages plus Firestore products, with language alternates) and **`app/robots.ts`** (disallow `/admin`, point at the sitemap) ([T6, T7](research/local-seo-and-marketing.md#31-what-to-build)).
+- **Open Graph image:** a default 1200×630 JPEG **under 600 KB** (WhatsApp's limit) with alt text, the product photo on product pages, and `og:locale` `he_IL`/`en_US`. Use real photos, not generated Hebrew text. Test by sending a link on WhatsApp and in Facebook's Sharing Debugger ([T8 to T10](research/local-seo-and-marketing.md#31-what-to-build)).
+- **ASCII product slugs**, such as `/store/chocolate-birthday-cake` ([T11](research/local-seo-and-marketing.md#31-what-to-build)).
+- **JSON-LD:** `Organization` in the layout; `Product` + `Offer` (`ILS`, price above zero) only on fixed-price items; nothing, or `Product` without an offer, on "from ₪X" custom cakes. Validate with the Rich Results Test ([3.2](research/local-seo-and-marketing.md#32-structured-data-json-ld)).
+- **`wa.me` click-to-chat button** on each product, with a prefilled Hebrew message and the owner's number from settings ([§6](research/local-seo-and-marketing.md#6-social-and-messaging-channels)).
+- **Marketing consent** (only if the site collects it): an unticked checkbox, with the consent text, time and channel stored, an unsubscribe flag, and an admin export of opted-in contacts only ([9.1](research/local-seo-and-marketing.md#91-anti-spam-law-communications-law-bezeq-and-broadcasts-30a-חוק-הספאם)).
+
+**Once the domain exists:**
+
+- Set `SITE_URL` to the domain and `ALLOW_INDEXING=true`. Keep `noindex` (or a 301 redirect) on any request whose host isn't the domain, since the `hosted.app` URL may keep serving.
+- **Google Search Console:** add a Domain property (DNS record), submit `/sitemap.xml`, and check Page indexing. **Bing Webmaster Tools:** import from Search Console and submit the sitemap. About 30 minutes, mostly DNS wait ([§4](research/local-seo-and-marketing.md#4-google-search-console-and-bing-webmaster-tools-once-the-domain-exists)).
+- Add a "leave a Google review" link (the owner's profile link, from settings) to the order confirmation page and the footer.
+
+**Owner tasks (outside the code)** ([10.2](research/local-seo-and-marketing.md#102-owner-tasks)):
+
+- **Google Business Profile, first and most important.** Set it up as a service-area business: real name only, category Bakery, home address hidden, up to 20 service areas, hours, phone and WhatsApp. Verification is probably a short video. Pickup-only with no delivery fits the rules less cleanly, so decide on local delivery first. Add the website once the domain exists.
+- **WhatsApp Business app** (free) on the business number: profile, a catalogue of 5 to 10 items, quick replies, greeting and away messages, and order-status labels. It is the main sales channel. The paid WhatsApp API is not needed in phase 1.
+- Instagram professional account and a Facebook page, with the site and `wa.me` link in the bio.
+- 20 to 30 good photos of real products, which feed the site, the profile and Instagram.
+- At launch: free listings (Bing Places, Apple Business, b144, Dapei Zahav) with the same name, phone and area everywhere.
+- Ongoing: ask every customer for a review (no incentives), and send promotional messages only to customers who opted in, starting with "פרסומת" and with an opt-out.
+
 ### Out of scope for now
 
 - Competitor analysis.
@@ -214,5 +246,6 @@ Development runs on Yevgeny's Firebase project. Before going live, move to a pro
 6. Ordering path: orders saved in Firestore, the `/admin` orders summary, and cash, Bit, PayBox and bank transfer payment (owner-sent request, manual "paid"; see [Bit payment links](research/bit-payment-links.md) and [Bit alternatives](research/israeli-payment-alternatives-to-bit.md)).
 7. Email notification to the owner for each new order; then WhatsApp through Twilio.
 8. Footer business details, policies and the accessibility statement page.
-9. Manual accessibility pass (screen reader in Hebrew, keyboard, zoom) before going live.
-10. Domain, business email and migration to the owner's Firebase.
+9. SEO basics from [SEO and marketing](#seo-and-marketing): env-driven `noindex` and `metadataBase`, per-page Hebrew and English metadata with canonical and hreflang, `sitemap.ts`, `robots.ts`, the Open Graph image, Product JSON-LD and the `wa.me` buttons.
+10. Manual accessibility pass (screen reader in Hebrew, keyboard, zoom) before going live.
+11. Domain, business email and migration to the owner's Firebase. Then switch on indexing, add the site to Search Console and Bing, and submit the sitemap.
