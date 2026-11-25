@@ -62,6 +62,14 @@ _Avoid_: State, stage
 Whether the Owner has received the money for an Order: unpaid or paid. Independent of Order status.
 _Avoid_: Paid status, billing status
 
+**Fulfilment method**:
+How an Order reaches the Customer: pickup or delivery. Set globally, and a Product may narrow it.
+_Avoid_: Shipping, collection, handover
+
+**Lead time**:
+The shortest notice the Owner needs before an Order's pickup or delivery date. An Order's Lead time is the longest of its Order lines'.
+_Avoid_: Prep time, notice period
+
 **Ordering open**:
 The store-wide setting that decides whether Customers can place Orders. When it is off, the site is a Portfolio.
 
@@ -74,4 +82,5 @@ _Avoid_: Catalogue mode, read-only mode
 - An **Order** has one or more **Order lines**, one **Order ref**, one **Order status** and one **Payment status**.
 - An **Order** can be paid before or after it is confirmed.
 - A **Product** belongs to one **Category** and has one **Visibility**. Only a draft **Product** can be deleted.
+- An **Order** may use only a **Fulfilment method** that every one of its **Order lines** allows.
 - A **Cart** becomes an **Order** only when the **Customer** submits it.
