@@ -25,8 +25,16 @@ One item the business sells, baked or pantry, with a Hebrew name (required), an 
 _Avoid_: Item, SKU, listing
 
 **Slug**:
-The ASCII, URL-safe name that identifies a Product in its page address.
+The ASCII, URL-safe name that identifies a Product in its page address. A Product keeps its old Slugs as redirects.
 _Avoid_: Handle, permalink
+
+**Category**:
+An Admin-defined group of Products shown as one section of the store, such as baked goods or pantry. Each Product belongs to exactly one.
+_Avoid_: Collection, department, tag
+
+**Visibility**:
+Whether Customers can see a Product: draft (never shown yet), published, or hidden (taken down, kept for later).
+_Avoid_: Status, active, archived
 
 ### Ordering
 
@@ -65,4 +73,5 @@ _Avoid_: Catalogue mode, read-only mode
 
 - An **Order** has one or more **Order lines**, one **Order ref**, one **Order status** and one **Payment status**.
 - An **Order** can be paid before or after it is confirmed.
+- A **Product** belongs to one **Category** and has one **Visibility**. Only a draft **Product** can be deleted.
 - A **Cart** becomes an **Order** only when the **Customer** submits it.
