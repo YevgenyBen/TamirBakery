@@ -3,7 +3,7 @@
 A web store for home made goods, aimed at the Israeli market. Hebrew first (RTL), English second.
 
 - **Developer:** Yevgeny
-- **Last updated:** 2026-11-21
+- **Last updated:** 2026-11-25
 - **Phase 1 goal:** quick and dirty. Get a working, legal-enough store live with the least moving parts. Polish comes later.
 - **Launch date:** none fixed. Nothing is pushing us to release.
 
@@ -18,9 +18,14 @@ A web store for home made goods, aimed at the Israeli market. Hebrew first (RTL)
 | `/` | Mostly information and a photo gallery |
 | `/store` | The product catalogue |
 | `/about` | The owner and the business |
+| `/store/[slug]` | One product's page (shareable link, SEO, share image) |
+| `/cart` | The cart and the order form |
+| `/order/[id]` | The customer's order confirmation, reached only by its secret link ([ADR 0001](adr/0001-order-access-by-secret-link.md)) |
+| `/policies` | Terms of sale, cancellation, delivery and privacy |
+| `/accessibility` | The accessibility statement |
 | `/admin` | Admin area for the owner to manage products, settings and orders |
 
-Anything else a basic store needs is covered in [basic-layout-gaps.md](research/basic-layout-gaps.md#recommended-phase-1-route-list). It recommends adding `/store/[slug]`, `/cart`, `/order/[id]`, `/policies` and `/accessibility`, and folding FAQ and contact into `/` and `/about`. Not adopted yet; see open questions 9 to 15.
+Anything else a basic store needs is covered in [basic-layout-gaps.md](research/basic-layout-gaps.md#recommended-phase-1-route-list). Its route list was adopted on 2026-11-25 (table above), with FAQ and contact folded into `/` and `/about`. English mirrors every public route under `/en/`.
 
 A clickable client preview of these pages (Hebrew, phone and desktop, including `/admin`) is in [docs/mockups/tamir-bakery-preview.html](mockups/tamir-bakery-preview.html). Open it in a browser; it is a single self-contained file.
 
@@ -175,6 +180,52 @@ From the [local SEO research](research/local-seo-and-marketing.md#10-prioritised
 - At launch: free listings (Bing Places, Apple Business, b144, Dapei Zahav) with the same name, phone and area everywhere.
 - Ongoing: ask every customer for a review (no incentives), and send promotional messages only to customers who opted in, starting with "פרסומת" and with an opt-out.
 
+### Technical decisions (2026-11-25)
+
+From the technical grilling session. Terms in **bold** are defined in [CONTEXT.md](../CONTEXT.md). The business questions it raised are in [the grilling resume file](grilling/2026-11-25-grilling.md).
+
+**Languages and text**
+
+- **T2:** next-intl with `localePrefix: "as-needed"` for the public site (Hebrew at `/`, English at `/en/`). `/admin` is Hebrew only, outside the locale folder.
+- **T3:** Hebrew text is required and English optional. A missing English field shows the Hebrew in its place, marked `lang="he" dir="rtl"`, and `/admin` shows a "missing English" badge.
+- **T15:** fixed interface text lives in the repo (`he.json`, `en.json`). Owner-written text (home, about, FAQ, business details, product text, policies, accessibility statement) lives in Firestore and is edited in `/admin`.
+
+**Catalogue**
+
+- **T1:** real `/store/[slug]` product pages (closes open question 15).
+- **T16:** a required **Slug** field in the admin form, prefilled from the English name, ASCII only, kept unique by claiming `slugs/{slug}`. Changing a published Product's Slug keeps the old one as a permanent redirect.
+- **T17:** **Visibility** is draft, published or hidden. Only drafts can be deleted. A hidden Product's page returns 404 and leaves the sitemap.
+- **T18:** admin-edited **Categories** (Hebrew and English name, sort order), one per Product. `/store` shows them as sections and filters with `/store?c=<category>`.
+- **T8, T29:** the browser resizes photos to 2000 px and uploads them to Storage under a new file name (Storage rules check `admins`). A server action saves the path and alt text. The old file is deleted only after the Product saves. An admin action lists orphan files; no cleanup job.
+
+**Ordering**
+
+- **T4:** two identifiers. The random Firestore ID is the secret link to `/order/[id]` ([ADR 0001](adr/0001-order-access-by-secret-link.md)). The **Order ref** (`TB-` plus 6 characters with no look-alike letters) is for conversation and Bit/PayBox notes.
+- **T5:** **Order status** (new → confirmed → ready → completed, or cancelled from new or confirmed) and **Payment status** (unpaid or paid, with method, time and who marked it) are separate. The server rejects any other move.
+- **T6:** the **Cart** lives in `localStorage`. On submit the server re-reads Products and settings, recomputes prices and date rules with one shared zod schema, and copies name and price onto each **Order line**. Money is whole agorot.
+- **T9:** `settings/store.orderingOpen`, edited in `/admin`, **on by default**. When off, the site is a **Portfolio**: no cart, a WhatsApp "ask about this" button per Product, and the order action refuses on the server. Whether it stays on before the business licence is a business question.
+- **T12:** date rules are computed in `Asia/Jerusalem` by one tested module (including the summer-time switches). The pickup or delivery date is stored as `YYYY-MM-DD` plus a slot; the order time as a Firestore Timestamp.
+- **T19:** Israeli mobile numbers only (05X), stored as `+9725…` via libphonenumber-js on the server. The browser does only a light format check.
+- **T20:** one Firestore transaction checks **Ordering open** and the daily cap, bumps the rate-limit counters, claims `orderRefs/{ref}` (retrying on a clash) and writes the Order. The email goes after it commits.
+- **T23:** an Order may use only a **Fulfilment method** that every Order line allows, and its **Lead time** is the longest of its lines'. One pure, tested function, used by the Cart and the server.
+- **T24:** if a Product was hidden or repriced since it went into the Cart, the Order is not saved. The Cart shows what changed and asks the Customer to confirm again. Prices never change silently.
+
+**Admin**
+
+- **T7:** after sign-in the ID token is swapped for a Firebase session cookie (httpOnly, 5 days). One `requireAdmin()` helper checks it (with revocation and the `admins` lookup) on every `/admin` page and action. `/admin` is never cached.
+- **T21:** the orders list is server-rendered, with a refresh button that also runs when the tab regains focus. No live listeners; `orders` stays closed to browser reads.
+- **T27:** the new-order email uses React Email, in Hebrew and right to left, with a plain-text part: Order ref, Order lines, total, date, the Customer's name and phone, and a link to the Order in `/admin`. Subject `הזמנה חדשה TB-XXXX · ₪total`.
+
+**Platform**
+
+- **T10:** build one thin slice end to end first: seeded Products → `/store` → product page → Cart → Order saved → email → admin orders list. Admin product editing comes after (checklist below).
+- **T11:** public pages are cached and tagged (`products`, `content`, `settings`). Each admin save revalidates its tag. Product pages are generated per Slug on first visit.
+- **T13, T14:** the full light and dark theme from the start, **dark by default**, with a switch saved in a cookie and rendered on the server (see [DESIGN.md](DESIGN.md#2-colour)). Tests set the cookie.
+- **T22:** a JSON seed in the repo (baked and pantry Products, two Categories, settings, one admin) with generated placeholder photos. One script loads it into the emulators and into the dev project.
+- **T25:** logs and error reports carry only the Order ref and Firestore ID, never a name, phone or address. One logging helper enforces it, with a unit test.
+- **T26:** HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` and `frame-ancestors 'none'` on every route from `next.config.ts`. A Content Security Policy starts report-only with no nonce (a nonce would make every page dynamic); `/admin` can use a nonce-based CSP straight away.
+- **T28:** no extra environments yet. Pull requests run CI against the emulators, and `main` deploys to the dev site. A staging project comes when the Owner's live project exists; live then deploys from a tag or a manual run.
+
 ### Out of scope for now
 
 - Competitor analysis.
@@ -186,7 +237,7 @@ From the [local SEO research](research/local-seo-and-marketing.md#10-prioritised
 1. **How does an order reach the owner?** Decided 2026-11-21: orders are saved in Firestore, the owner gets an email, `/admin` has an orders summary, and WhatsApp through Twilio is added later. See [Orders](#orders-and-notifications-to-the-owner). Still open within this: whether to follow the [storefront research](research/storefront-layouts.md#3-ordering-flow) hybrid of a cart for fixed items and an order-request form for custom cakes.
 2. **Who marks an order as paid,** and when, given Bit has no automatic confirmation. It happens in the `/admin` orders summary; who does it is still open.
 3. **Admin sign-in method:** decided 2026-11-21: Google sign-in, with email/password as a fallback. See [Admins and login](#admins-and-login).
-4. **Is English a full mirror of the site or only key pages?** The storefront research assumes a full `/en/` mirror.
+4. **Is English a full mirror of the site or only key pages?** Decided 2026-11-25: every public route is mirrored under `/en/`; `/admin` is Hebrew only (T2). Whether the English policies are a full translation is still open question 14.
 5. **Where photos come from** (owner's own, a photographer, or both) and who uploads them.
 6. **Business status:** is the owner an עוסק פטור? This decides whether the accessibility rules legally apply (see [accessibility research](research/israeli-web-accessibility-law.md#4-exemptions-and-thresholds)), though we build to the standard either way (see [Accessibility](#accessibility)), and what business details go in the footer. The [licensing research](research/home-bakery-licences-and-permits.md#4-tax-registration) recommends opening an עוסק פטור file online now (2026 ceiling NIS 122,833).
 7. **Card payments:** the storefront research says card should always be offered in Israel. Phase 1 deliberately skips it; revisit if customers ask. Cards, Apple Pay and Google Pay all come with the later Grow link at no extra fee ([Bit alternatives](research/israeli-payment-alternatives-to-bit.md)).
@@ -197,7 +248,7 @@ From the [local SEO research](research/local-seo-and-marketing.md#10-prioritised
 12. **Store closures:** on Shabbat and holidays, keep taking orders and only block those dates, or close the store? Closed dates entered by hand, or from a holiday calendar (Hebcal)? What is the order cutoff and how far ahead can people order?
 13. **Home address in the footer:** consumer law asks for the business's name and address, which for a home bakery is the home. Full address, or pickup area only? Needs legal input.
 14. **English policies:** full translation, or a summary pointing to the binding Hebrew text?
-15. **Product pages:** separate `/store/[slug]` pages (shareable links), or cards that expand in place?
+15. **Product pages:** decided 2026-11-25: separate `/store/[slug]` pages (T1).
 16. **Firestore region:** decided: `me-west1` (Tel Aviv), per the [privacy research](research/israeli-privacy-law.md#7-cross-border-transfer-and-firebase). The dev project uses it; the owner's project must use it too, since the region can't be changed after the database is created.
 17. **Who can see customer data:** keep it to the owner plus at most two others (the developer counts) so the lightest security level applies ([privacy research](research/israeli-privacy-law.md#1-tldr-what-this-bakery-store-must-do)).
 18. **Where will the baking happen?** The [licensing research](research/home-bakery-licences-and-permits.md#8-recommended-path-from-zero) found no legal route for selling food made in an ordinary family kitchen. Options: a licensed rented or shared kitchen, or a separate self-contained unit at home licensed under item 4.2ג. Until then, the site should launch as a portfolio with no ordering.
@@ -298,14 +349,15 @@ The order form is the only public write in phase 1, so it is the thing to protec
 
 ## 6. Phase 1 checklist (rough order)
 
-1. Next.js app skeleton with Hebrew RTL default and English, deployed to Yevgeny's Firebase. Set up functional tests, end-to-end tests and the accessibility checks from [Testing](#testing) here too, running in CI before any pages are built.
-2. Firestore data model: products, global settings (delivery/pickup), orders.
-3. `/admin` with the hardcoded admin list: manage products, photos, delivery/pickup settings.
-4. `/store` catalogue reading from Firestore.
-5. `/` and `/about` with our own copy and gallery.
-6. Ordering path: orders saved in Firestore, the `/admin` orders summary, and cash, Bit, PayBox and bank transfer payment (owner-sent request, manual "paid"; see [Bit payment links](research/bit-payment-links.md) and [Bit alternatives](research/israeli-payment-alternatives-to-bit.md)).
-7. Email notification to the owner for each new order; then WhatsApp through Twilio.
-8. Footer business details, policies and the accessibility statement page.
-9. SEO basics from [SEO and marketing](#seo-and-marketing): env-driven `noindex` and `metadataBase`, per-page Hebrew and English metadata with canonical and hreflang, `sitemap.ts`, `robots.ts`, the Open Graph image, Product JSON-LD and the `wa.me` buttons.
-10. Manual accessibility pass (screen reader in Hebrew, keyboard, zoom) before going live.
-11. Domain, business email and migration to the owner's Firebase. Then switch on indexing, add the site to Search Console and Bing, and submit the sitemap.
+Reordered 2026-11-25 to build one thin slice end to end first (T10).
+
+1. Next.js app skeleton with Hebrew RTL default and English, deployed to Yevgeny's Firebase, with functional, end-to-end and accessibility tests in CI. **Done** (PR #15).
+2. **Thin slice:** next-intl routing, the light/dark theme and switch, the Firestore data model (Products, Categories, settings, Orders) with the JSON seed, `/store` and `/store/[slug]` from Firestore, the Cart, the order action (validation, App Check, rate limits, Order ref, transaction), `/order/[id]`, the new-order email through Resend, and a read-only `/admin` orders list behind sign-in. Each piece with its tests.
+3. `/admin` order handling: confirm, mark paid, Order status changes, yearly totals per payment method.
+4. `/admin` products, Categories, photos and delivery/pickup settings; `settings/store.orderingOpen` and the order rules.
+5. `/` and `/about` with our own copy and gallery, edited in `/admin`.
+6. Footer business details, `/policies` and the accessibility statement page.
+7. WhatsApp notification through Twilio, behind the same notification interface.
+8. SEO basics from [SEO and marketing](#seo-and-marketing): env-driven `noindex` and `metadataBase`, per-page Hebrew and English metadata with canonical and hreflang, `sitemap.ts`, `robots.ts`, the Open Graph image, Product JSON-LD and the `wa.me` buttons. Security headers (T26).
+9. Manual accessibility pass (screen reader in Hebrew, keyboard, zoom) before going live.
+10. Domain, business email and migration to the owner's Firebase. Then switch on indexing, add the site to Search Console and Bing, and submit the sitemap.

@@ -22,6 +22,8 @@ The skill's database matches a *Bakery/Cafe* product to a "warm brown + cream + 
 
 All values are CSS custom properties on `:root`, with a dark theme under `prefers-color-scheme: dark` and an explicit `[data-theme]` override. Components use only the semantic names below, never raw hex.
 
+**In the app (decided 2026-11-25):** the site opens in the dark theme on a first visit, whatever the device setting. A light/dark switch in the header (on `/admin` too) saves the choice in a cookie for a year, and the server renders `data-theme` from it so the page never flashes. The `prefers-color-scheme` block above applies to the mockups only.
+
 ### Light theme
 
 | Token | Hex | Use |
